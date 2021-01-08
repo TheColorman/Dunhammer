@@ -65,16 +65,16 @@ module.exports = {
                         description: `The level system promotes activity in a server and gives users a sense of pride and accomplishment when they send messages and gain levels.\n\`${guild.prefix}levels [subcommand]\` controls the level system and the subcommands are shown here.`,
                         fields: [{
                             name: "`disable/enable` " + (guild.levelSystem.enabled ? ":white_check_mark:" : ":x:"),
-                            value: "`" + guild.prefix + "levels <setting>`.\nDisables or enables the levelsystem across the server. Note that everyones leveldata will not be reset."
+                            value: "`" + guild.prefix + "levelsettings <setting>`.\nDisables or enables the levelsystem across the server. Note that everyones leveldata will not be reset."
                         }, {
                             name: "`setlevelupmessage`",
-                            value: "`" + guild.prefix + "levels setlevelupmessage <message>`.\nChanges the message displayed whenever someone levels up. Supports the following custom text ingredients:\n`{user}` - The users tag.\n`{nickname}` - The users nickname on the server.\n`{level}` - The users level\n`{xp}` - The total amount of xp the user has gained.\nThe default message is `Congratulations {user}, you reached level {level}!`"
+                            value: "`" + guild.prefix + "levelsettings setlevelupmessage <message>`.\nChanges the message displayed whenever someone levels up. Supports the following custom text ingredients:\n`{user}` - The users tag.\n`{nickname}` - The users nickname on the server.\n`{level}` - The users level\n`{xp}` - The total amount of xp the user has gained.\nThe default message is `Congratulations {user}, you reached level {level}!`"
                         }, {
                             name: "`setxp`",
-                            value: `\`${guild.prefix}levels setxp <user> <xp_amount>\`\nSets a users XP on the server.`
+                            value: `\`${guild.prefix}levelsettings setxp <user> <xp_amount>\`\nSets a users XP on the server.`
                         }, {
                             name: `\`setupdatechannel\``,
-                            value: `\`${guild.prefix}levels setchannel [channel name]\`\nSets which channel the levelup message should be sent in. If no channel name is provided, the message will be sent in response to the user leveling up.`
+                            value: `\`${guild.prefix}levelsettings setchannel [channel name]\`\nSets which channel the levelup message should be sent in. If no channel name is provided, the message will be sent in response to the user leveling up.`
                         }]
                     }});
                 case "me":

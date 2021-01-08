@@ -1,7 +1,6 @@
 module.exports = {
-    name: 'levels',
+    name: 'levelsettings',
     short_desc: 'Changes settings related to leveling.',
-    aliases: ['level'],
     long_desc: 'Changes settings related to the level system. Subcommands:\n`enable/disable`, `setlevelupmessage`, `setxp`, `setupdatechannel`.\n\nUse \`help levelsystem\` for an in-depth explanation of each sub-command.',
     usage: '<subcommand> [...arguments]',
     permissions: 'BAN_MEMBERS',
@@ -11,7 +10,7 @@ module.exports = {
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:question: Not enough argument! Use \`${guild.prefix}help levels\` for help.`
+                "description": `:question: Not enough argument! Use \`${guild.prefix}help levelsettings\` for help.`
             }});
         }
         switch (args[0]) {
@@ -19,7 +18,7 @@ module.exports = {
                 if(!args[1]) return msg.channel.send({ embed: {
                     color: 0xcf2d2d,
                     title: ":octagonal_sign: Error!",
-                    description: `:question: No arguments! Use \`${guild.prefix}help levels\` for help.`
+                    description: `:question: No arguments! Use \`${guild.prefix}help levelsettings\` for help.`
                 }});
                 args_original_case_with_command.shift();
                 args_original_case_with_command.shift();
@@ -33,14 +32,14 @@ module.exports = {
                 if (!taggedUsers.size) return msg.channel.send({ embed: {
                     color: 0xcf2d2d,
                     title: ":octagonal_sign: Error!",
-                    description: `:no_pedestrians: No user tagged! Use \`${guild.prefix}help levels\` for help.`
+                    description: `:no_pedestrians: No user tagged! Use \`${guild.prefix}help levelsettings\` for help.`
                 }});
                 let user = user_db.findOne({user_id: taggedUsers.first().id});
                 if (args.length < 3) {
                     return msg.channel.send({ embed: {
                         "color": 0xcf2d2d,
                         "title": ":octagonal_sign: Error!",
-                        "description": `:question: Not enough argument! Use \`${guild.prefix}help levels\` for help.`
+                        "description": `:question: Not enough argument! Use \`${guild.prefix}help levelsettings\` for help.`
                     }});
                 }
                 if (user == null) {
@@ -110,7 +109,7 @@ module.exports = {
                 return msg.channel.send({ embed: {
                     "color": 0xcf2d2d,
                     "title": ":octagonal_sign: Error!",
-                    "description": `:question: Invalid argument! Use \`${guild.prefix}help levels\` for help.`
+                    "description": `:question: Invalid argument! Use \`${guild.prefix}help levelsettings\` for help.`
                 }});
         }
     }
