@@ -1,5 +1,6 @@
 module.exports = {
     name: 'levelsettings',
+    aliases: ['levelsetting', 'lvlsettings', 'lvlsetting', 'lvlsett'],
     short_desc: 'Changes settings related to leveling.',
     long_desc: 'Changes settings related to the level system. Subcommands:\n`enable/disable`, `setlevelupmessage`, `setxp`, `setupdatechannel`.\n\nUse \`help levelsystem\` for an in-depth explanation of each sub-command.',
     usage: '<subcommand> [...arguments]',
