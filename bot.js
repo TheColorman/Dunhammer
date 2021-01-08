@@ -97,6 +97,15 @@ function refreshPresence() {
 
 // Commands
 client.on("message", async (msg) => {
+    if (msg.channel.type === "dm") {
+        if (msg.author == client.user) return;
+        return msg.channel.send({ embed: {
+            color: 0xcf2d2d,
+            title: ":octagonal_sign: Error!",
+            description: ":no_entry: Dunhammer doesn't support DMs yet."
+        }});
+    }
+
     let guild_db = guild_config.getCollection("guilds");
     let guild = guild_db.findOne({guild_id: msg.guild.id.toString()});
     let user_db = guild_config.getCollection(msg.guild.id);
@@ -188,6 +197,7 @@ client.on("message", async (msg) => {
 
 // Levelsystem
 client.on("message", async (msg) => {
+    if (msg.channel.type === "dm") return;
     let guild_db = guild_config.getCollection("guilds");
     let guild = guild_db.findOne({guild_id: msg.guild.id.toString()});
     let user_db = guild_config.getCollection(msg.guild.id);
