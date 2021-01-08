@@ -95,6 +95,7 @@ function refreshPresence() {
     });
 }
 
+// Commands
 client.on("message", async (msg) => {
     let guild_db = guild_config.getCollection("guilds");
     let guild = guild_db.findOne({guild_id: msg.guild.id.toString()});
@@ -191,6 +192,7 @@ client.on("message", async (msg) => {
     let guild = guild_db.findOne({guild_id: msg.guild.id.toString()});
     let user_db = guild_config.getCollection(msg.guild.id);
 
+    // Give guild a levelsystem
     if (guild.levelSystem == undefined) {
         guild.levelSystem = {
             "enabled": false,
@@ -201,18 +203,35 @@ client.on("message", async (msg) => {
                 "title": "Congratulations {user}, you reached level {level}!",
                 "description": ''
             },
-            "levelup_image": undefined
+            "levelup_image": undefined,
+            "cooldown_timestamps": {
+
+            }
         }
     }
     let levelSystem = guild.levelSystem
 
     if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id)) return;
+    
+    guild_db.update(guild);
 
+    // Check if user cooldown is over
+    const now = Date.now();
+    const cooldownAmount = 60 * 1000;
+    if (levelSystem.cooldown_timestamps.hasOwnProperty(msg.author.id)) {
+        const expirationTime = levelSystem.cooldown_timestamps[msg.author.id] + cooldownAmount;
+        if (now < expirationTime) return;
+    }
+    levelSystem.cooldown_timestamps[msg.author.id] = now;
+    setTimeout(() => delete levelSystem.cooldown_timestamps[msg.author.id], cooldownAmount);
+    
+    guild_db.update(guild);
+
+    // Calculate level
     let user = user_db.findOne({user_id: msg.author.id});
     user.xp += Math.floor(Math.random() * (25 - 15 + 1)) + 15;
     let xp = user.xp;
 
-    // Calculate level
     let lower = 0;
     let upper = 10000000000;
     while (lower + 1 < upper) {
@@ -277,7 +296,6 @@ client.on("message", async (msg) => {
 
 
 client.login(token);
-
 
 // fuck you
 function print(message, message2 = '', message3 = '') {
