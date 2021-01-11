@@ -25,8 +25,9 @@ module.exports = {
         let xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*level+2*level*level*level)/6;
         let rank = "?";
         let current_xp_minus_xp_for_current_level = xp_total - 5*(118*level+2*level*level*level)/6;
-        
-        console.log(ds_user);
+
+        let sorted_database = user_db.chain().simplesort('level');
+        console.log(sorted_database);
 
         const canvas = createCanvas(1000, 300);
         const ctx = canvas.getContext('2d');
@@ -46,18 +47,15 @@ module.exports = {
         // username
         ctx.font = '36px' + font;
         ctx.fillStyle = "#A6A7AA";
-        let tag_text = ctx.measureText(ds_user.tag.slice(-5));
         ctx.font = 'bold 60px' + font;
         ctx.fillStyle = "white";
         let username_text_height = ctx.measureText(ds_user.username).emHeightAscent;
         let username_text_width = ctx.measureText(ds_user.username).width;
-        ctx.textAlign = "center";
-        ctx.fillText(ds_user.username, 400, 50 + username_text_height);
+        ctx.fillText(ds_user.username, 300, 50 + username_text_height);
         // tag
         ctx.font = '36px' + font;
         ctx.fillStyle = "#A6A7AA";
-        ctx.fillText(ds_user.tag.slice(-5), 380 + username_text_width, 50  + username_text_height);
-        ctx.textAlign = "start";
+        ctx.fillText(ds_user.tag.slice(-5), 300 + username_text_width, 50  + username_text_height);
         // experience bar
         ctx.fillStyle = "#4a4a4a";
         roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
