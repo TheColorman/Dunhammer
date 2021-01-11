@@ -12,6 +12,7 @@
     "canvas": "^2.6.1",
     "discord.js": "^12.5.1",
     "gif-frames": "^1.0.1",
+    "gifencoder": "^2.0.1",
     "lokijs": "^1.5.11"
   }
 }
