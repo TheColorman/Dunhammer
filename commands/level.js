@@ -19,12 +19,15 @@ module.exports = {
             title: ":octagonal_sign: Error!",
             description: ":no_pedestrians: User not found."
         }});
-        let xp = db_user.xp;
+        let xp_total = db_user.xp;
         let level = db_user.level;
         let next_level = level+1;
-        let xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6;
+        let xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*level+2*level*level*level)/6;
         let rank = "?";
+        let current_xp_minus_xp_for_current_level = xp_total - 5*(118*level+2*level*level*level)/6;
         
+        console.log(ds_user);
+
         const canvas = createCanvas(1000, 300);
         const ctx = canvas.getContext('2d');
         const font = 'Arial';
@@ -33,7 +36,7 @@ module.exports = {
         let username_text_length = ctx.measureText(ds_user.username).width;
         ctx.font = '36px' + font;
         let tag_text_length = ctx.measureText(ds_user.tag.slice(-5)).width;
-        canvas.width = Math.max(username_text_length + tag_text_length + 320, 1000);
+        canvas.width = Math.max(username_text_length + tag_text_length + 400, 1000);
 
         // background
         ctx.beginPath();
@@ -49,29 +52,28 @@ module.exports = {
         let username_text_height = ctx.measureText(ds_user.username).emHeightAscent;
         let username_text_width = ctx.measureText(ds_user.username).width;
         ctx.textAlign = "center";
-        ctx.fillText(ds_user.username, (1000-320)/2+(1000-320)-(tag_text.width/2) - username_text_width - 25, 50 + username_text_height);
+        ctx.fillText(ds_user.username, 400, 50 + username_text_height);
         // tag
-        let username_text = ctx.measureText(ds_user.username);
         ctx.font = '36px' + font;
         ctx.fillStyle = "#A6A7AA";
-        ctx.fillText(ds_user.tag.slice(-5), (1000-320)/2+(1000-320)-(tag_text.width/2) - username_text_width/2 + tag_text.width/2 + 10 - 25, 50  + username_text_height);
+        ctx.fillText(ds_user.tag.slice(-5), 380 + username_text_width, 50  + username_text_height);
         ctx.textAlign = "start";
         // experience bar
         ctx.fillStyle = "#4a4a4a";
         roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
         ctx.fillStyle = "#54b35d";
-        roundRect(ctx, 290, 240, (xp/(xp+xp_for_next_level))*(canvas.width - 320), 30, 16, true, false);    // xp filled up
+        roundRect(ctx, 290, 240, (current_xp_minus_xp_for_current_level/xp_for_next_level) * (canvas.width - 320), 30, 16, true, false);    // xp_total filled up
         // xp for next lvl
         ctx.font = '34px' + font;
         ctx.fillStyle = '#A6A7AA';
-        let xp_requried_text = ctx.measureText(` / ${xp_for_next_level} xp`);
+        let xp_requried_text = ctx.measureText(` / ${xp_for_next_level} xp_total`);
         let description_text_y = 240 - xp_requried_text.emHeightAscent + xp_requried_text.emHeightDescent;
         ctx.fillText(` / ${xp_for_next_level} xp`, canvas.width - xp_requried_text.width - 35, description_text_y);
-        // current xp
+        // current xp_total
         ctx.font = '34px' + font;
         ctx.fillStyle = 'white';
-        let xp_current_text = ctx.measureText(`${xp}`);
-        ctx.fillText(`${xp}`, canvas.width - xp_current_text.width - xp_requried_text.width - 35, description_text_y);
+        let xp_current_text = ctx.measureText(`${current_xp_minus_xp_for_current_level}`);
+        ctx.fillText(`${current_xp_minus_xp_for_current_level}`, canvas.width - xp_requried_text.width - 35 - xp_current_text.width, description_text_y);
         // level
         let xp_text_width = xp_requried_text.width + xp_current_text.width;
         ctx.font = 'bold 80px' + font;
@@ -92,8 +94,7 @@ module.exports = {
         let rank_text = ctx.measureText(`RANK`);
         ctx.fillText(`RANK`, 1000 - level_number.width - xp_text_width - 120 - level_text.width - rank_number.width - rank_text.width, description_text_y);
 
-
-        loadImage(ds_user.avatarURL({format: "png", size: 256})).then((image) => {
+        loadImage(ds_user.displayAvatarURL({format: "png", size: 256})).then((image) => {
             // clip profile picture
             ctx.beginPath();
             ctx.arc(150, 150, 120, 0, 6.28, false);
