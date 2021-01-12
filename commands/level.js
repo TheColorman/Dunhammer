@@ -1,7 +1,8 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { createCanvas, loadImage } = require('canvas');
-
+const { createCanvas, loadImage, Image} = require('canvas');
+const gifFrames = require('gif-frames');
+const GIFEncoder = require('gifencoder');
 
 module.exports = {
     name: 'level',
@@ -10,7 +11,7 @@ module.exports = {
     usage: '[tagged user]',
     aliases: ['rank', 'lvl'],
     cooldown: 2,
-    execute(msg, args, taggedUsers, taggedMembers, guild, guild_db, user_db, _user, args_original_case_with_command, taggedChannels) {
+    async execute(msg, args, taggedUsers, taggedMembers, guild, guild_db, user_db, _user, args_original_case_with_command, taggedChannels) {
         let ds_member = args.length ? taggedMembers.first() : msg.member;
         let ds_user = ds_member.user;
         let db_user = user_db.findOne({ user_id: ds_member.id });
@@ -23,22 +24,23 @@ module.exports = {
         let level = db_user.level;
         let next_level = level+1;
         let xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*level+2*level*level*level)/6;
-        let rank = "?";
         let current_xp_minus_xp_for_current_level = xp_total - 5*(118*level+2*level*level*level)/6;
 
-        let sorted_database = user_db.chain().simplesort('level');
-        console.log(sorted_database);
+        let data = user_db.chain().simplesort('xp', true).data();
+        let rank = data.findIndex(element => element.user_id == ds_member.id) + 1;
 
+        // Creating the image
+        //#region
         const canvas = createCanvas(1000, 300);
         const ctx = canvas.getContext('2d');
         const font = 'Arial';
         // set box size. 320 is whitespace + profile picture length
         ctx.font = 'bold 46px' + font;
         let username_text_length = ctx.measureText(ds_user.username).width;
-        ctx.font = '36px' + font;
+        ctx.font = `36px${font}`;
         let tag_text_length = ctx.measureText(ds_user.tag.slice(-5)).width;
         canvas.width = Math.max(username_text_length + tag_text_length + 400, 1000);
-
+              
         // background
         ctx.beginPath();
         ctx.rect(0, 0, canvas.width, canvas.height);
@@ -66,51 +68,102 @@ module.exports = {
         ctx.fillStyle = '#A6A7AA';
         let xp_requried_text = ctx.measureText(` / ${xp_for_next_level} xp_total`);
         let description_text_y = 240 - xp_requried_text.emHeightAscent + xp_requried_text.emHeightDescent;
-        ctx.fillText(` / ${xp_for_next_level} xp`, canvas.width - xp_requried_text.width - 35, description_text_y);
+        ctx.fillText(` / ${xp_for_next_level} xp`, canvas.width - xp_requried_text.width, description_text_y);
         // current xp_total
         ctx.font = '34px' + font;
         ctx.fillStyle = 'white';
         let xp_current_text = ctx.measureText(`${current_xp_minus_xp_for_current_level}`);
-        ctx.fillText(`${current_xp_minus_xp_for_current_level}`, canvas.width - xp_requried_text.width - 35 - xp_current_text.width, description_text_y);
+        ctx.fillText(`${current_xp_minus_xp_for_current_level}`, canvas.width - xp_requried_text.width - xp_current_text.width, description_text_y);
         // level
         let xp_text_width = xp_requried_text.width + xp_current_text.width;
         ctx.font = 'bold 80px' + font;
         ctx.fillStyle = "#54b35d";
         let level_number = ctx.measureText(`${level}`);
-        ctx.fillText(`${level}`, 1000 - level_number.width - xp_text_width - 90, description_text_y);
+        ctx.fillText(`${level}`, canvas.width - level_number.width - xp_text_width - 30, description_text_y);
         // level text
         ctx.font = `34px ${font}`;
         let level_text = ctx.measureText(`LEVEL`);
-        ctx.fillText(`LEVEL`, 1000 - level_number.width - xp_text_width - 100 - level_text.width, description_text_y);
+        ctx.fillText(`LEVEL`, canvas.width - level_number.width - xp_text_width - 40 - level_text.width, description_text_y);
         // rank
         ctx.font = 'bold 80px' + font;
         ctx.fillStyle = "white";
         let rank_number = ctx.measureText(`${rank}`);
-        ctx.fillText(`${rank}`, 1000 - level_number.width - xp_text_width - 120 - level_text.width - rank_number.width, description_text_y);
+        ctx.fillText(`${rank}`, canvas.width - level_number.width - xp_text_width - 70 - level_text.width - rank_number.width, description_text_y);
         // rank text
         ctx.font = `34px ${font}`;
         let rank_text = ctx.measureText(`RANK`);
-        ctx.fillText(`RANK`, 1000 - level_number.width - xp_text_width - 120 - level_text.width - rank_number.width - rank_text.width, description_text_y);
+        ctx.fillText(`RANK`, canvas.width - level_number.width - xp_text_width - 80 - level_text.width - rank_number.width - rank_text.width, description_text_y);
 
-        loadImage(ds_user.displayAvatarURL({format: "png", size: 256})).then((image) => {
-            // clip profile picture
-            ctx.beginPath();
-            ctx.arc(150, 150, 120, 0, 6.28, false);
-            ctx.clip();
+        //#endregion
+
+        let avatar_url = ds_user.displayAvatarURL({format: "png", dynamic: true, size: 256});
+        let image = await loadImage(avatar_url);
+        //avatar_url = 'https://cdn.discordapp.com/avatars/268400056242143232/a_14ebd6e94d2088ca8ec143b3095fb533.gif?size=256';
+
+        // clip profile picture
+        ctx.beginPath();
+        ctx.arc(150, 150, 120, 0, 6.28, false);
+        ctx.clip();
+        
+        // Gif processing
+        if (false /* avatar_url.includes('.gif') */) {
+            const encoder = new GIFEncoder(canvas.width, canvas.height);
+            encoder.createReadStream().pipe(fs.createWriteStream('./imageData/level.gif'));
+            gifFrames({ url: avatar_url, frames: 'all', outputType: 'png', cumulative: true}, async (err, frameData) => {
+                if (err) {
+                    console.log(err);
+                    return msg.channel.send({ embed: {
+                        "color": 0xcf2d2d,
+                        "title": "Error!",
+                        "fields": {
+                            "name": ":octagonal_sign: Error:",
+                            "value": `\`${err.message}\``
+                        }
+                    }});
+                }
+                encoder.start();
+                encoder.setRepeat(0);
+                encoder.setDelay(frameData[0].frameInfo.delay*10);
+                frameData.forEach(async frame => {
+                    await frame.getImage().pipe(fs.createWriteStream(`./imageData/gifFrame-${frame.frameIndex}.png`));
+
+                    
+                    
+                });
+                loadImage(`./imageData/gifFrame-10.png`).then((img) => {
+                    //let image_element = new Image();
+                    //image_element.onload = function () {
+                        ctx.drawImage(img, 30, 30, 240, 240);
+                        encoder.addFrame(ctx);
+                    //}
+                    //image_element.src = `./imageData/gifFrame-${frame.frameIndex}.png`;
+                });
+                
+                encoder.finish();
+                const attachment = new Discord.MessageAttachment('./imageData/level.gif');
+                
+                return msg.channel.send({ files: [attachment], embed: {
+                    color: 2215713,
+                    image: {
+                        url: 'attachment://level.gif'
+                    }
+                }});       
+            });
+            
+        } else {
+            // if not a gif
             ctx.drawImage(image, 30, 30, 240, 240);
-
             const buffer = canvas.toBuffer('image/png');
             fs.writeFileSync('./imageData/level.png', buffer);
             const attachment = new Discord.MessageAttachment('./imageData/level.png');
     
-            msg.channel.send({ files: [attachment], embed: {
+            return msg.channel.send({ files: [attachment], embed: {
                 color: 2215713,
                 image: {
                     url: 'attachment://level.png'
                 }
-            }});
-        });
-
+            }});       
+        }
     }
 }
 
