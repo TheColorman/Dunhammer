@@ -22,14 +22,66 @@ module.exports = {
                     title: ":octagonal_sign: Error!",
                     description: `:question: No arguments! Use \`${guild.prefix}help levelsettings\` for help.`
                 }});
-                args_original_case_with_command.shift();
-                args_original_case_with_command.shift();
-                guild.levelSystem.levelup_message.title = args_original_case_with_command.join(' ');
-                guild_db.update(guild);
-                return msg.channel.send({ embed: {
-                    "color": 2215713,
-                    "description": `:repeat: Updated the levelup message to \`${guild.levelSystem.levelup_message.title}\`.`
-                }});
+                args_original_case_with_command.splice(0, 3);
+                switch (args[1]) {
+                    case 'title':
+                        if (!args[2]) {
+                            guild.levelSystem.levelup_message.title = undefined;
+                            guild_db.update(guild);
+                            return msg.channel.send({ embed: {
+                                color: 2215713,
+                                description: `:x: Removed message title.`
+                            }});            
+                        }
+                        guild.levelSystem.levelup_message.title = args_original_case_with_command.join(' ');
+                        guild_db.update(guild);
+                        return msg.channel.send({ embed: {
+                            color: 2215713,
+                            description: `:repeat: Updated the levelup title to \`${guild.levelSystem.levelup_message.title}\`.`
+                        }});
+                    case 'description':
+                        if (!args[2]) {
+                            guild.levelSystem.levelup_message.description = undefined;
+                            guild_db.update(guild);
+                            return msg.channel.send({ embed: {
+                                color: 2215713,
+                                description: `:x: Removed message description.`
+                            }});            
+                        }
+                        guild.levelSystem.levelup_message.description = args_original_case_with_command.join(' ');
+                        guild_db.update(guild);
+                        return msg.channel.send({ embed: {
+                            color: 2215713,
+                            description: `:repeat: Updated the levelup description to \`${guild.levelSystem.levelup_message.description}\`.`
+                        }});
+                    case 'image':
+                        if (!args[2]) return msg.channel.send({ embed: {
+                            color: 0xcf2d2d,
+                            title: ":octagonal_sign: Error!",
+                            description: `:question: No arguments! Use \`${guild.prefix}help levelsettings\` for help.`
+                        }});
+                        switch (args[2]) {
+                            case 'true':
+                                guild.levelSystem.levelup_image = true;
+                                guild_db.update(guild);
+                                return msg.channel.send({ embed: {
+                                    color: 2215713,
+                                    description: `:white_check_mark: Added image to the levelup message.`
+                                }});        
+                            case 'false':
+                                guild.levelSystem.levelup_image = false;
+                                guild_db.update(guild);
+                                return msg.channel.send({ embed: {
+                                    color: 2215713,
+                                    description: `:x: Removed image from the levelup message.`
+                                }});        
+                            default:
+                                return msg.channel.send({ embed: {
+                                    color: 0xcf2d2d,
+                                    title: ":octagonal_sign: Error!",
+                                    description: `:question: Not enough arguments! Use \`${guild.prefix}help levelsettings\` for help.`
+                                }});                            }
+                }
             case 'setxp':
                 if (!taggedUsers.size) return msg.channel.send({ embed: {
                     color: 0xcf2d2d,
@@ -148,6 +200,12 @@ module.exports = {
                         }});        
                 }
                 break;
+            case 'debug':
+                console.log(guild.levelSystem)
+                return msg.channel.send({ embed: {
+                    "color": 0xcf2d2d,
+                    "description": `${guild.levelSystem}`
+                }});
             default:
                 return msg.channel.send({ embed: {
                     "color": 0xcf2d2d,
