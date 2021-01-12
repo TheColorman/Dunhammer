@@ -200,12 +200,6 @@ module.exports = {
                         }});        
                 }
                 break;
-            case 'debug':
-                console.log(guild.levelSystem)
-                return msg.channel.send({ embed: {
-                    "color": 0xcf2d2d,
-                    "description": `${guild.levelSystem}`
-                }});
             default:
                 return msg.channel.send({ embed: {
                     "color": 0xcf2d2d,
