@@ -68,7 +68,7 @@ module.exports = {
                             value: "`" + guild.prefix + "levelsettings <setting>`.\nDisables or enables the levelsystem across the server. Note that everyones leveldata will not be reset."
                         }, {
                             name: "`setlevelupmessage`",
-                            value: "`" + guild.prefix + "levelsettings setlevelupmessage <message>`.\nChanges the message displayed whenever someone levels up. Supports the following custom text ingredients:\n`{user}` - The users tag.\n`{nickname}` - The users nickname on the server.\n`{level}` - The users level\n`{xp}` - The total amount of xp the user has gained.\nThe default message is `Congratulations {user}, you reached level {level}!`"
+                            value: "`" + guild.prefix + "levelsettings setlevelupmessage (title/description/image) ([message]/[message]/(true/false))`.\nChanges the message displayed whenever someone levels up. Supports the following custom text ingredients:\n`{username}` - The users username.\n`{nickname}` - The users nickname on the server.\n`{tag}` - The users username with their tag/\n`{level}` - The users level\n`{xp}` - The total amount of xp the user has gained.\nThe default message is `Congratulations {username}, you reached level {level}!`"
                         }, {
                             name: "`setxp`",
                             value: `\`${guild.prefix}levelsettings setxp <user> <xp_amount>\`\nSets a users XP on the server.`

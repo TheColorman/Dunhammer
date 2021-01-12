@@ -210,7 +210,7 @@ client.on("message", async (msg) => {
             "update_channel": undefined,
             "levelup_message": {
                 "color": 2215713,
-                "title": "Congratulations {user}, you reached level {level}!",
+                "title": "Congratulations {username}, you reached level {level}!",
                 "description": ''
             },
             "levelup_image": undefined,
