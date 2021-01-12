@@ -73,8 +73,8 @@ module.exports = {
                             name: "`setxp`",
                             value: `\`${guild.prefix}levelsettings setxp <user> <xp_amount>\`\nSets a users XP on the server.`
                         }, {
-                            name: `\`setupdatechannel\``,
-                            value: `\`${guild.prefix}levelsettings setchannel [channel name]\`\nSets which channel the levelup message should be sent in. If no channel name is provided, the message will be sent in response to the user leveling up.`
+                            name: `\`setlevelupmessagechannel\``,
+                            value: `\`${guild.prefix}levelsettings setlevelupmessagechannel [channel name]\`\nSets which channel the levelup message should be sent in. If no channel name is provided, the message will be sent in response to the user leveling up.`
                         }]
                     }});
                 case "me":

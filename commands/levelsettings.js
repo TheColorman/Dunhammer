@@ -2,7 +2,7 @@ module.exports = {
     name: 'levelsettings',
     aliases: ['levelsetting', 'lvlsettings', 'lvlsetting', 'lvlsett'],
     short_desc: 'Changes settings related to leveling.',
-    long_desc: 'Changes settings related to the level system. Subcommands:\n`enable/disable`, `setlevelupmessage`, `setxp`, `setupdatechannel`.\n\nUse \`help levelsystem\` for an in-depth explanation of each sub-command.',
+    long_desc: 'Changes settings related to the level system. Subcommands:\n`enable/disable`, `setlevelupmessage`, `setxp`, `setlevelupmessagechannel`.\n\nUse \`help levelsystem\` for an in-depth explanation of each sub-command.',
     usage: '<subcommand> [...arguments]',
     permissions: 'BAN_MEMBERS',
     cooldown: 2,
@@ -85,7 +85,7 @@ module.exports = {
                     "color": 2215713,
                     "description": `${type} the level system.`
                 }});
-            case 'setupdatechannel':
+            case 'setlevelupmessagechannel':
                 if (!args[1]) {
                     guild.levelSystem.update_channel = undefined;
                     guild_db.update(guild);
