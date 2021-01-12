@@ -276,7 +276,7 @@ client.on("message", async (msg) => {
                         title[index-1] = xp;
                         break;
                     case '{nickname}':
-                        title[index-1] = msg.member.nickname;
+                        title[index-1] = msg.member.nickname || msg.member.username;
                         break;
                 }
             }
