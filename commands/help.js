@@ -50,11 +50,11 @@ module.exports = {
                         "description": `When using the \`${guild.prefix}help\` command, some symbols such as \`<>\` and \`[]\` may appear. They are explained here:`,
                         "fields": [{
                             "name": "Argument",
-                            "value": "`[argument]`\n`<argument>`",
+                            "value": "`[argument]`\n`<argument>`\n`(arguments)`",
                             "inline": true
                         }, {
                             "name": "Meaning",
-                            "value": "Optional argument\nRequired argument",
+                            "value": "`Optional argument.`\n`Required argument.`\n`One of arguments required.`",
                             "inline": true
                         }]
                     }});
@@ -75,6 +75,9 @@ module.exports = {
                         }, {
                             name: `\`setlevelupmessagechannel\``,
                             value: `\`${guild.prefix}levelsettings setlevelupmessagechannel [channel name]\`\nSets which channel the levelup message should be sent in. If no channel name is provided, the message will be sent in response to the user leveling up.`
+                        }, {
+                            name: "`ignoredchannels`",
+                            value: `\`${guild.prefix}levelsettings ignoredchannels (add/remove) <channel name>\`\nUn-/ignores channels. XP cannot be gained from ignored channels.`
                         }]
                     }});
                 case "me":
