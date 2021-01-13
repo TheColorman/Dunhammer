@@ -1,8 +1,6 @@
 const fs = require('fs');
 const Discord = require('discord.js');
-const { createCanvas, loadImage, Image} = require('canvas');
-const gifFrames = require('gif-frames');
-const GIFEncoder = require('gifencoder');
+const { createCanvas, loadImage } = require('canvas');
 
 module.exports = {
     name: 'level',
@@ -104,66 +102,18 @@ module.exports = {
         ctx.beginPath();
         ctx.arc(150, 150, 120, 0, 6.28, false);
         ctx.clip();
-        
-        // Gif processing
-        if (false /* avatar_url.includes('.gif') */) {
-            const encoder = new GIFEncoder(canvas.width, canvas.height);
-            encoder.createReadStream().pipe(fs.createWriteStream('./imageData/level.gif'));
-            gifFrames({ url: avatar_url, frames: 'all', outputType: 'png', cumulative: true}, async (err, frameData) => {
-                if (err) {
-                    console.log(err);
-                    return msg.channel.send({ embed: {
-                        "color": 0xcf2d2d,
-                        "title": "Error!",
-                        "fields": {
-                            "name": ":octagonal_sign: Error:",
-                            "value": `\`${err.message}\``
-                        }
-                    }});
-                }
-                encoder.start();
-                encoder.setRepeat(0);
-                encoder.setDelay(frameData[0].frameInfo.delay*10);
-                frameData.forEach(async frame => {
-                    await frame.getImage().pipe(fs.createWriteStream(`./imageData/gifFrame-${frame.frameIndex}.png`));
 
-                    
-                    
-                });
-                loadImage(`./imageData/gifFrame-10.png`).then((img) => {
-                    //let image_element = new Image();
-                    //image_element.onload = function () {
-                        ctx.drawImage(img, 30, 30, 240, 240);
-                        encoder.addFrame(ctx);
-                    //}
-                    //image_element.src = `./imageData/gifFrame-${frame.frameIndex}.png`;
-                });
-                
-                encoder.finish();
-                const attachment = new Discord.MessageAttachment('./imageData/level.gif');
-                
-                return msg.channel.send({ files: [attachment], embed: {
-                    color: 2215713,
-                    image: {
-                        url: 'attachment://level.gif'
-                    }
-                }});       
-            });
-            
-        } else {
-            // if not a gif
-            ctx.drawImage(image, 30, 30, 240, 240);
-            const buffer = canvas.toBuffer('image/png');
-            fs.writeFileSync('./imageData/level.png', buffer);
-            const attachment = new Discord.MessageAttachment('./imageData/level.png');
+        ctx.drawImage(image, 30, 30, 240, 240);
+        const buffer = canvas.toBuffer('image/png');
+        fs.writeFileSync('./imageData/level.png', buffer);
+        const attachment = new Discord.MessageAttachment('./imageData/level.png');
     
-            return msg.channel.send({ files: [attachment], embed: {
-                color: 2215713,
-                image: {
-                    url: 'attachment://level.png'
-                }
-            }});       
-        }
+        return msg.channel.send({ files: [attachment], embed: {
+            color: 2215713,
+            image: {
+                url: 'attachment://level.png'
+            }
+        }});       
     }
 }
 
