@@ -94,7 +94,7 @@ const CanvasImage = {
         let next_level = current_level + 1;
         let current_xp = xp_total - 5*(118*current_level+2*current_level*current_level*current_level)/6;
         let xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*current_level+2*current_level*current_level*current_level)/6;
-        let rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id);
+        let rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1;
 
         // Creating the image
         const canvas = createCanvas(1000, 300);
