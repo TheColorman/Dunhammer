@@ -10,9 +10,9 @@ module.exports = {
     cooldown: 2,
     async execute(msg, args, taggedUsers, taggedMembers, guild, guild_db, user_db, user, args_original_case_with_command, taggedChannels) {
         if (args[0] == 'debug') {
-            await CanvasImage.levelup_image(msg.member, user_db);
+            await CanvasImage.levelup_image(taggedMembers.first() || msg.member, user_db);
         } else {
-            await CanvasImage.rank_image(msg.member, user_db);
+            await CanvasImage.rank_image(taggedMembers.first() || msg.member, user_db);
         }
 
         const attachment = new Discord.MessageAttachment('./imageData/level.png');
