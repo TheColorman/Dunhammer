@@ -277,7 +277,6 @@ client.on("message", async (msg) => {
                         title[index-1] = xp;
                         break;
                     case '{nickname}':
-                        console.log(msg);
                         title[index-1] = msg.member.nickname || msg.member.username;
                         break;
                     case '{tag}':
