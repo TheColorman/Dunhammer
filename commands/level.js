@@ -15,7 +15,7 @@ module.exports = {
             await CanvasImage.rank_image(taggedMembers.first() || msg.member, user_db);
         }
 
-        const attachment = new Discord.MessageAttachment('./imageData/level.png');
+        const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
     
         return msg.channel.send({ files: [attachment], embed: {
             color: 2215713,

@@ -311,7 +311,7 @@ client.on("message", async (msg) => {
             user_db.update(user);
             if (levelSystem.levelup_image) {
                 await CanvasImage.levelup_image(msg.member, user_db);
-                const attachment = new Discord.MessageAttachment('./imageData/level.png');
+                const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
                 reply.image = {
                     url: 'attachment://level.png'
                 }

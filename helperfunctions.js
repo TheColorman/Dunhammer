@@ -66,16 +66,39 @@ const CanvasImagesMeta = {
      * @param {string} text
      * @param {Number} x
      * @param {Number} y
-     * @param {string} textColor
-     * @param {string} strokeColor
-     * @param {Number} strokeWidth
+     * @param {Number} [strokeWidth = 5]
+     * @param {string} [strokeColor = black]
+     * @param {string} [textColor = white]
      */
-    fillStrokeText: function (ctx, text, x, y, textColor, strokeColor, strokeWidth) {
+    fillStrokeText: function (ctx, text, x, y, strokeWidth, strokeColor, textColor) {
+        strokeWidth = strokeWidth ? strokeWidth : 5;
+        strokeColor = strokeColor ? strokeColor : "black";
+        textColor = textColor ? textColor : "white";
         ctx.strokeStyle = strokeColor;
         ctx.lineWidth = strokeWidth*2;
+        ctx.lineJoin = 'round';
         ctx.strokeText(text, x, y);
         ctx.fillStyle = textColor;
         ctx.fillText(text, x, y);
+    },
+    //#endregion
+    //#region measureTextPlus
+    /**
+     * Measures text in a given font. Font uses regular Canvas font designation.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {string} text Text to measure
+     * @param {string} [font = ctx.font] Font to measure in
+     */
+    measureTextPlus: function (ctx, text, font) {
+        const old_font = ctx.font
+        ctx.font = font ? font : ctx.font;
+        const old = ctx.measureText(text);
+        const measured = {
+            old: old,
+            height: old.emHeightAscent + old.emHeightDescent,
+        }
+        ctx.font = old_font;
+        return measured;
     },
     //#endregion
 }
@@ -169,7 +192,7 @@ const CanvasImage = {
 
         ctx.drawImage(image, 30, 30, 240, 240);
         const buffer = canvas.toBuffer('image/png');
-        fs.writeFileSync('./imageData/level.png', buffer);
+        fs.writeFileSync('./imageData/generated/level.png', buffer);
     },
     //#endregion
     //#region levelup_image
@@ -182,21 +205,38 @@ const CanvasImage = {
         const database_user = user_database.findOne({ user_id: member.id });
         const avatar_size = 200;
 
-        const canvas = createCanvas(800, 400);
+        const canvas = createCanvas(600, 600);
         const ctx = canvas.getContext('2d');
+        const level_text = `LEVEL ${database_user.level}`;
+        const username_text = `${member.nickname || member.user.username}`;
+        const rank_text = `RANK #${user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1}`;
+        canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+100 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+100 : canvas.width;
+        const center = {
+            x: canvas.width/2,
+            y: canvas.height/2
+        }
+        
         //background
         ctx.fillStyle = "#9ED3FF";
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#4D8C69";
         ctx.fillRect(0, canvas.height/2+20, canvas.width, canvas.height/2-20);
-        //level
-        ctx.font = `80px Arial`;
-        ctx.lineWidt = 3;
-        ctx.strokeStyle = 'black';
-        ctx.fillStyle = 'white';
+        //username
+        ctx.font = `60px Arial`;
         ctx.textAlign = "center";
-        CanvasImagesMeta.fillStrokeText(ctx, `LEVEL ${database_user.level}`, canvas.width/2, canvas.height/2+avatar_size-20, '#white', '#black', 5);
-        
+        CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, center.y+avatar_size/2+ctx.measureText(ctx, username_text).emHeightAscent, 3);
+        //level
+        CanvasImagesMeta.fillStrokeText(
+            ctx, level_text, center.x, 
+            center.y+avatar_size/2+ctx.measureText(level_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, username_text).height, // y coordinate
+            3, "#1D8726", "#54B35D");
+        //rank
+        ctx.font = `40px Arial`;
+        CanvasImagesMeta.fillStrokeText(
+            ctx, rank_text, center.x, 
+            center.y+avatar_size/2+ctx.measureText(rank_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, level_text, `60px Arial`).height, // y coordinate
+            3);
+
         let avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 }));
         // crop
         let vOffset = 0;
@@ -207,7 +247,7 @@ const CanvasImage = {
         ctx.drawImage(avatar, canvas.width/2-avatar_size/2, canvas.height/2-avatar_size/2+vOffset, avatar_size, avatar_size);
 
         const buffer = canvas.toBuffer('image/png');
-        fs.writeFileSync('./imageData/level.png', buffer);
+        fs.writeFileSync('./imageData/generated/level.png', buffer);
     },
     //#endregion
 }
