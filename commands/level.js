@@ -1,3 +1,4 @@
+//@ts-check
 const Discord = require('discord.js');
 const { CanvasImage } = require('../helperfunctions.js');
 
@@ -8,8 +9,8 @@ module.exports = {
     usage: '[tagged user]',
     aliases: ['rank', 'lvl'],
     cooldown: 2,
-    async execute(msg, args, taggedUsers, taggedMembers, guild, guild_db, user_db, user, args_original_case_with_command, taggedChannels) {
-        await CanvasImage.rank_image(taggedMembers.first() || msg.member, user_db);
+    async execute(msg, args, tags, databases) {
+        await CanvasImage.rank_image(tags.members.first() || msg.member, databases.users);
 
         const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
     

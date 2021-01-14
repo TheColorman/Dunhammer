@@ -1,3 +1,4 @@
+//@ts-check
 module.exports = {
     name: 'prefix',
     short_desc: 'Sets the bot\'s prefix for this server.',
@@ -5,8 +6,10 @@ module.exports = {
     usage: '[prefix]',
     permissions: 'BAN_MEMBERS',
     cooldown: 5,
-    execute(msg, args, taggedUsers, taggedMembers, guild, guild_db) {
-        if (!args.length) {
+    execute(msg, args, tags, databases) {
+        const guild_db = databases.guilds;
+        const guild = guild_db.findOne({ guild_id: msg.guild.id });
+        if (!args.lowercase.length) {
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
@@ -14,11 +17,11 @@ module.exports = {
             }});
         }
         let db_guild = guild_db.findOne({ guild_id: msg.guild.id.toString()});
-        db_guild.prefix = args[0];
+        db_guild.prefix = args.original.join(` `);
         guild_db.update(db_guild);
         return msg.channel.send({ embed: {
             "color": 2215713,
-            "description": `:repeat: Updated server prefix to \`${args[0]}\`.`
+            "description": `:repeat: Updated server prefix to \`${db_guild.prefix}\`.`
         }});
     }
 }

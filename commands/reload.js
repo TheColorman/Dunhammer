@@ -1,3 +1,4 @@
+//@ts-check
 module.exports = {
     name: 'reload',
     short_desc: 'Reloads a specific command.',
@@ -5,13 +6,14 @@ module.exports = {
     usage: '<command name>',
     permissions: 'MANAGE_CHANNELS',
     cooldown: 2,
-    execute(msg, args, taggedUsers, taggedMembers, guild) {
-        if (!args.length) return msg.channel.send({ embed: {
+    execute(msg, args, tags, databases) {
+        const guild = databases.guilds.findOne({ guild_id: msg.guild.id});
+        if (!args.lowercase.length) return msg.channel.send({ embed: {
             "color": 0xcf2d2d,
             "title": ":octagonal_sign: Error!",
             "description": `:question: No arguments! Use \`${guild.prefix}help reload\` for help.`
         }});
-        const commandName = args[0];
+        const commandName = args.lowercase[0];
         const command = msg.client.commands.get(commandName) || msg.client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
         
         if (!command) return msg.channel.send({ embed: {

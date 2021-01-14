@@ -1,3 +1,4 @@
+//@ts-check
 module.exports = {
     name: 'help',
     short_desc: 'Commands and other help.',
@@ -5,11 +6,12 @@ module.exports = {
     usage: '[command name]',
     aliases: ['h', 'commands'],
     cooldown: 2,
-    execute(msg, args, taggedUsers, taggedMembers, guild) {
+    execute(msg, args, tags, databases) {
+        const guild = databases.guilds.findOne({ guild_id: msg.guild.id});
         const { commands } = msg.client;
         let reply_embed = {"title": "Error!", "color": 49919}
 
-        if (args.length == 0) {
+        if (args.lowercase.length == 0) {
             reply_embed = {
                 "color": 49919,
                 "title": ":scroll: List of commands",
@@ -39,7 +41,7 @@ module.exports = {
         }
 
         
-        const name = args[0].toLowerCase();
+        const name = args.lowercase[0].toLowerCase();
         const command = commands.get(name) || commands.find(command => command.aliases && command.aliases.includes(name));
         if (["syntax", "levelsystem", "me"].includes(name)) {
             switch (name) {

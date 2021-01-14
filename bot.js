@@ -1,3 +1,4 @@
+// @ts-check
 // Modules & config
 const Discord = require('discord.js');
 const fs = require('fs');
@@ -43,7 +44,6 @@ function runProgramLogic() {
 
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
-
     client.commands.set(command.name, command);
 }
 
@@ -59,18 +59,6 @@ client.once('ready', () => {
     setInterval(() => {
         refreshPresence();
     }, 21600000);   // 21600000 = 6 hours, default
-    const guild_ids = client.guilds.cache.map((guild) => guild.id);
-    let guild_db = guild_config.getCollection("guilds");
-    for (id of guild_ids) {
-        let guild = guild_db.findOne({guild_id: id});
-        if (guild === null) {
-            guild_db.insert({
-                guild_id: id,
-                prefix: '.',
-                allowbots: false
-            });
-        }
-    }
 });
 
 function refreshPresence() {
@@ -98,6 +86,7 @@ function refreshPresence() {
 
 // Commands
 client.on("message", async (msg) => {
+    // DM check
     if (msg.channel.type === "dm") {
         if (msg.author == client.user) return;
         return msg.channel.send({ embed: {
@@ -106,53 +95,58 @@ client.on("message", async (msg) => {
             description: ":no_entry: Dunhammer doesn't support DMs yet."
         }});
     }
-
-    let guild_db = guild_config.getCollection("guilds");
-    let guild = guild_db.findOne({guild_id: msg.guild.id.toString()});
-    let user_db = guild_config.getCollection(msg.guild.id);
-    if (user_db === null) {
-        user_db = guild_config.addCollection(msg.guild.id, {
+    // Load databases
+    const guild_db = guild_config.getCollection("guilds");  // guild database
+    // If no database exists, create one
+    if (guild_config.getCollection(msg.guild.id) === null) {   
+        guild_config.addCollection(msg.guild.id, {
             unique: ["user_id"],
             autoupdate: true
         });
     }
-    if (user_db.findOne({user_id: msg.author.id}) == null) {
-        user_db.insert({
-            user_id: msg.author.id,
-            xp: 0,
-            level: 0
+    const user_db = guild_config.getCollection(msg.guild.id);
+    // If current guild does not exist in database, add it
+    if (guild_db.findOne({guild_id: msg.guild.id}) === null) {
+        guild_db.insert({
+            guild_id: msg.guild.id,
+            prefix: '.',
+            allowbots: false
         });
     }
-    let user = user_db.findOne({ user_id: msg.author.id});
+    const db_guild = guild_db.findOne({guild_id: msg.guild.id});
+    // Update older databases with new variables
+    if (!db_guild.allowbots) db_guild.allowbots = false;
 
-    let original_message_content = msg.content;
+    // Message variables
+    const msg_content_original = msg.content;
     msg.content = msg.content.toLowerCase();
     const taggedUsers = msg.mentions.users;
     const taggedMembers = msg.mentions.members;
     const taggedChannels = msg.mentions.channels;
-    const args = msg.content.slice(guild.prefix.length).split(/ +/);
-    const commandName = args[0];
-    const args_original_case_with_command = original_message_content.slice(guild.prefix.length).split(/ +/);
-    args.shift();
+    const args_lowercase = msg.content.slice(db_guild.prefix.length).split(/ +/);
+    const args_original = msg_content_original.slice(db_guild.prefix.length).split(/ +/);
+    const commandName = args_lowercase[0];
+    args_lowercase.shift();
+    args_original.shift();
 
-    if (taggedUsers.first() == client.user && args[0] == "prefix") {
-        if (args.length < 2) return;
-        guild.prefix = args[1];
-        guild_db.update(guild);
+    // Emergency change prefix
+    if (taggedUsers.first() == client.user && msg.content.split(/ +/)[1] == "prefix") {
+        if (args_lowercase.length < 1) return;
+        db_guild.prefix = msg.content.substring(msg.content.indexOf("prefix ") + 7);
+        guild_db.update(db_guild);
         return msg.channel.send({ embed: {
             "color": 2215713,
-            "description": `:repeat: Updated server prefix to \`${args[1]}\`.`
+            "description": `:repeat: Updated server prefix to \`${db_guild.prefix}\`.`
         }});
     }
-    if (!msg.content.startsWith(guild.prefix)) return;
-
-
+    // If no command given, terminate
+    if (!msg_content_original.startsWith(db_guild.prefix)) return;
 
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
     
-    if (!guild.allowbots) guild.allowbots = false;
-    if (!command || (!guild.allowbots && msg.author.bot)) return;
-
+    if (!command || (!db_guild.allowbots && msg.author.bot)) return;
+    
+    // Check command permissions
     if (command.permissions) {
         const authorPerms = msg.channel.permissionsFor(msg.member);
         if (!authorPerms || !authorPerms.has(command.permissions)) {
@@ -163,14 +157,13 @@ client.on("message", async (msg) => {
             }});
         }
     }
-
-    if (!cooldowns.has(command.name)) {
+    // Command cooldowns
+    if (!cooldowns.has(command.name)) {     // Add a collection to each command, with user IDs and timestamps in them. If the Date.now() has not yet reached the timestamp, terminate.
         cooldowns.set(command.name, new Discord.Collection());
     }
     const now = Date.now();
     const timestamps = cooldowns.get(command.name);
     const cooldownAmount = (command.cooldown || 3) * 1000;
-
     if (timestamps.has(msg.author.id)) {
         const expirationTime = timestamps.get(msg.author.id) + cooldownAmount;
 
@@ -181,8 +174,10 @@ client.on("message", async (msg) => {
     }
     timestamps.set(msg.author.id, now);
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
+
+    // Execute command
     try {
-        command.execute(msg, args, taggedUsers, taggedMembers, guild, guild_db, user_db, user, args_original_case_with_command, taggedChannels);
+        command.execute(msg, { lowercase: args_lowercase, original: args_original }, { users: taggedUsers, members: taggedMembers, channels: taggedChannels }, { guilds: guild_db, users: user_db });
     } catch(err) {
         msg.channel.send({ embed: {
             "color": 0xcf2d2d,
@@ -196,13 +191,39 @@ client.on("message", async (msg) => {
     }
 });
 
+
 // Levelsystem
 client.on("message", async (msg) => {
+    // DM check
     if (msg.channel.type === "dm") return;
-    let guild_db = guild_config.getCollection("guilds");
-    let guild = guild_db.findOne({guild_id: msg.guild.id.toString()});
-    let user_db = guild_config.getCollection(msg.guild.id);
-
+    // If no guild database exists, create one
+    const guild_db = guild_config.getCollection("guilds");
+    if (guild_db.findOne({guild_id: msg.guild.id}) === null) {
+        guild_db.insert({
+            guild_id: msg.guild.id,
+            prefix: '.',
+            allowbots: false
+        });
+    }
+    const guild = guild_db.findOne({guild_id: msg.guild.id});
+    // If no user database exists, create one
+    if (guild_config.getCollection(msg.guild.id) === null) {   
+        guild_config.addCollection(msg.guild.id, {
+            unique: ["user_id"],
+            autoupdate: true
+        });
+    }
+    const user_db = guild_config.getCollection(msg.guild.id);
+    // If current user does not exist in user database, add them
+    if (user_db.findOne({user_id: msg.author.id}) == null) {
+        user_db.insert({
+            user_id: msg.author.id,
+            xp: 0,
+            level: 0
+        });
+    }
+    const db_user = user_db.findOne({ user_id: msg.author.id});
+    
     // Give guild a levelsystem
     if (guild.levelSystem == undefined) {
         guild.levelSystem = {
@@ -216,15 +237,13 @@ client.on("message", async (msg) => {
             },
             "levelup_image": undefined,
             "cooldown_timestamps": {
-
             }
         }
     }
-    let levelSystem = guild.levelSystem
+    guild_db.update(guild);
+    const levelSystem = guild.levelSystem;
 
     if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id)) return;
-    
-    guild_db.update(guild);
 
     // Check if user cooldown is over
     const now = Date.now();
@@ -235,37 +254,35 @@ client.on("message", async (msg) => {
     }
     levelSystem.cooldown_timestamps[msg.author.id] = now;
     setTimeout(() => delete levelSystem.cooldown_timestamps[msg.author.id], cooldownAmount);
-    
     guild_db.update(guild);
 
     // Calculate level
-    let user = user_db.findOne({user_id: msg.author.id});
-    user.xp += Math.floor(Math.random() * (25 - 15 + 1)) + 15;
-    let xp = user.xp;
+    db_user.xp += Math.floor(Math.random() * (25 - 15 + 1)) + 15;   // between 15 and 25 xp
+    const xp = db_user.xp;
 
     let lower = 0;
     let upper = 10000000000;
     while (lower + 1 < upper) {
-        let middle = Math.floor((lower + upper)/2);
-        let level_xp = 5*(118*middle+2*middle*middle*middle)/6;
+        const middle = Math.floor((lower + upper)/2);
+        const level_xp = 5*(118*middle+2*middle*middle*middle)/6;
         if (level_xp > xp) {
             upper = middle;
         } else {
             lower = middle;
         }
     }
-    let level = lower;
-    if (level > user.level) {
-        let channel = levelSystem.update_channel ? await client.channels.fetch(levelSystem.update_channel) : msg.channel;
-
+    const level = lower;
+    // Congratulate if new level
+    if (level > db_user.level) {
+        const channel = levelSystem.update_channel ? await client.channels.fetch(levelSystem.update_channel) : msg.channel;
+        // Get levelup message from database
         let reply = JSON.parse(JSON.stringify(levelSystem.levelup_message));
-        //["{user}", "{rank}", "{level}", "{xp}"]
+
         if ((reply.title + reply.description).includes("{")) {
-            let title = reply.title ? reply.title.replace(/{/g, "[{").replace(/}/g, "}]").split(/\[(.*?)\]/) : undefined;
-            let description = reply.description ? reply.description.replace(/{/g, "[{").replace(/}/g, "}]").split(/\[(.*?)\]/) : undefined;
-            let index = 0;
-            while (title !== undefined && title[index] !== undefined) {
-                index++;
+            let title = reply.title ? reply.title.replace(/{/g, "[{").replace(/}/g, "}]").split(/\[(.*?)\]/) : undefined;   // levelup title
+            let description = reply.description ? reply.description.replace(/{/g, "[{").replace(/}/g, "}]").split(/\[(.*?)\]/) : undefined; // levelup description
+            // Replace all instances of {username} e.g. with their respective variables
+            for (let index = 0; title !== undefined && title[index] !== undefined; index++) {
                 switch (title[index-1]) {
                     case '{username}':
                         title[index-1] = msg.author.username;
@@ -277,16 +294,14 @@ client.on("message", async (msg) => {
                         title[index-1] = xp;
                         break;
                     case '{nickname}':
-                        title[index-1] = msg.member.nickname || msg.member.username;
+                        title[index-1] = msg.member.nickname || msg.author.username;
                         break;
                     case '{tag}':
                         title[index-1] = msg.author.tag;
                         break;    
                 }
             }
-            index = 0;
-            while (description !== undefined && description[index] !== undefined) {
-                index++;
+            for (let index = 0; description !== undefined && description[index] !== undefined; index++) {
                 switch (description[index-1]) {
                     case '{username}':
                         description[index-1] = msg.author.username;
@@ -298,17 +313,19 @@ client.on("message", async (msg) => {
                         description[index-1] = xp;
                         break;
                     case '{nickname}':
-                        description[index-1] = msg.member.nickname || msg.member.username;
+                        description[index-1] = msg.member.nickname || msg.author.username;
                         break;
                     case '{tag}':
                         description[index-1] = msg.author.tag;
                         break;
                 }
             }
+            // Add the title and description to the reply
             reply.title = title ? title.join('') : '';
             reply.description = description ? description.join('') : '';
-            user.level = level;
-            user_db.update(user);
+            db_user.level = level;
+            user_db.update(db_user);
+            // Add image if set to true
             if (levelSystem.levelup_image) {
                 await CanvasImage.levelup_image(msg.member, user_db, msg.guild);
                 const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
@@ -317,12 +334,10 @@ client.on("message", async (msg) => {
                 }
                 return channel.send({ files: [attachment], embed: reply});
             }
+            return channel.send({ embed: reply});
         }
-        channel.send({ embed: reply});
     }
-
 });
-
 
 client.login(token);
 

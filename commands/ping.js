@@ -4,7 +4,7 @@ module.exports = {
     short_desc: "Measure delay between send-receive.",
     long_desc: 'Measures the timestamp delay in miliseconds between the ping message and reply message.',
     cooldown: 5,
-    execute(msg) {
+    execute(msg, args, tags, databases) {
         let reply_embed = {
             "color": 2215713,
             "description": ":ping_pong: Pong!"

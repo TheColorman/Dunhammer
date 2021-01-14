@@ -1,3 +1,4 @@
+//@ts-check
 module.exports = {
     name: 'roadmap',
     short_desc: 'Sends a link to the roadmap.',
@@ -6,7 +7,7 @@ module.exports = {
     usage: '[true/false]',
     permissions: 'BAN_MEMBERS',
     cooldown: 2,
-    execute(msg, args, taggedUsers, taggedMembers, guild, guild_db, user_db, user, args_original_case_with_command) {
+    execute(msg, args, tags, databases) {
         return msg.channel.send({ embed: {
             title: ":map: Roadmap",
             url: "https://trello.com/b/expgfSZa/dunhammer-roadmap",
