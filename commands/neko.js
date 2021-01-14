@@ -9,6 +9,7 @@ module.exports = {
     usage: '[type]',
     permissions: 'ATTACH_FILES',
     async execute(msg, args, tags, databases) {
+        const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
 
         if (args.original[0] == "help") {
             args.lowercase[0] = "neko";
@@ -53,7 +54,7 @@ module.exports = {
         if (returned == "404") return msg.channel.send({ embed: {
             "color": 0xcf2d2d,
             "title": ":octagonal_sign: Error!",
-            "description": `:question: Invalid argument! Use \`${databases.guilds.prefix}help neko\` for help.`
+            "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
         }});
 
         return msg.channel.send({ embed: {

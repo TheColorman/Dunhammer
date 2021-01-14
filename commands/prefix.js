@@ -8,15 +8,14 @@ module.exports = {
     cooldown: 5,
     execute(msg, args, tags, databases) {
         const guild_db = databases.guilds;
-        const guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
         if (!args.lowercase.length) {
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:question: No arguments! Use \`${guild.prefix}help prefix\` for help.`
+                "description": `:question: No arguments! Use \`${db_guild.prefix}help prefix\` for help.`
             }});
         }
-        let db_guild = guild_db.findOne({ guild_id: msg.guild.id.toString()});
         db_guild.prefix = args.original.join(` `);
         guild_db.update(db_guild);
         return msg.channel.send({ embed: {
