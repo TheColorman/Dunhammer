@@ -19,7 +19,8 @@ module.exports = {
             "title": ":octagonal_sign: Error!",
             "description": `:question: No command with the name or alias \`${commandName}\`, use \`${guild.prefix}help\` to get a list of commands.`
         }});
-
+        
+        delete require.cache[require.resolve(`../helperfunctions.js`)];
         delete require.cache[require.resolve(`./${command.name}.js`)];
         try {
             const newCommand = require(`./${command.name}.js`);
