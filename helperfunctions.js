@@ -200,17 +200,32 @@ const CanvasImage = {
      * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'imageData/'.
      * @param {GuildMember} member The Discord Guild member
      * @param {LokiJSCollection} user_database The database of saved users
+     * @param {Guild} guild The guild of the user
      */
-    levelup_image: async function (member, user_database) {
+    levelup_image: async function (member, user_database, guild) {
         const database_user = user_database.findOne({ user_id: member.id });
         const avatar_size = 200;
-
-        const canvas = createCanvas(600, 600);
+        const rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1;
+        let next_database_user = undefined;
+        let next_user_xp;
+        let xp_behind_text;
+        let next_discord_member;
+        if (rank != 1) {
+            next_database_user = user_database.chain().simplesort('xp', true).data().find((_element, index) => index == rank-2);
+            next_discord_member = await guild.members.fetch(next_database_user.user_id);
+            next_user_xp = next_database_user.xp;
+            xp_behind_text = `${next_user_xp - database_user.xp} xp behind`;
+        }
+        
+        const canvas = createCanvas(700, 600);
         const ctx = canvas.getContext('2d');
+        
         const level_text = `LEVEL ${database_user.level}`;
         const username_text = `${member.nickname || member.user.username}`;
-        const rank_text = `RANK #${user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1}`;
-        canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+100 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+100 : canvas.width;
+        const rank_text = `RANK #${rank}`;
+
+        canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 : canvas.width;
+        canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 : canvas.width;
         const center = {
             x: canvas.width/2,
             y: canvas.height/2
@@ -221,22 +236,54 @@ const CanvasImage = {
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.fillStyle = "#4D8C69";
         ctx.fillRect(0, canvas.height/2+20, canvas.width, canvas.height/2-20);
-        //username
-        ctx.font = `60px Arial`;
-        ctx.textAlign = "center";
-        CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, center.y+avatar_size/2+ctx.measureText(ctx, username_text).emHeightAscent, 3);
-        //level
-        CanvasImagesMeta.fillStrokeText(
-            ctx, level_text, center.x, 
-            center.y+avatar_size/2+ctx.measureText(level_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, username_text).height, // y coordinate
-            3, "#1D8726", "#54B35D");
+        //add images
+        let backgroundLeft = await loadImage('./imageData/levelupBGLeft.png');
+        let backgroundRight = await loadImage('./imageData/levelupBGRight.png');
+        ctx.drawImage(backgroundLeft, 0, 0, 246, 600);
+        ctx.drawImage(backgroundRight, canvas.width-246, 0, 246, 600);
         //rank
+        ctx.textAlign = "center";
         ctx.font = `40px Arial`;
         CanvasImagesMeta.fillStrokeText(
             ctx, rank_text, center.x, 
-            center.y+avatar_size/2+ctx.measureText(rank_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, level_text, `60px Arial`).height, // y coordinate
-            3);
-
+            0+ctx.measureText(rank_text).emHeightAscent, // y coordinate
+            3
+        );
+        //levelup
+        ctx.font = `70px Arial`;
+        CanvasImagesMeta.fillStrokeText(
+            ctx, `LEVEL UP!`, center.x, 
+            0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
+            3
+        );
+        if (next_database_user) {
+            //xp behind
+            ctx.font = `30px Arial`;
+            CanvasImagesMeta.fillStrokeText(
+                ctx, `${xp_behind_text}`, center.x,
+                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+ctx.measureText(`${xp_behind_text}`).emHeightAscent-10,
+                2
+            );
+            //person
+            CanvasImagesMeta.fillStrokeText(
+                ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, center.x,
+                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `${xp_behind_text}`).height+20,
+                2
+            );
+        }
+        //level
+        ctx.font = `100px Arial`;
+        CanvasImagesMeta.fillStrokeText(
+            ctx, level_text, center.x, 
+            center.y+avatar_size/2+ctx.measureText(ctx, level_text).emHeightAscent, // y coordinate
+            3, "#007820", "#2bd95a"
+        );
+        //username
+        ctx.font = `60px Arial`;
+        CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, 
+            center.y+avatar_size/2+ctx.measureText(ctx, username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
+            3
+        );
         let avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 }));
         // crop
         let vOffset = 0;
