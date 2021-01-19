@@ -1,4 +1,6 @@
 //@ts-check
+const { QuickMessage } = require('../helperfunctions.js');
+
 module.exports = {
     name: 'levelsettings',
     aliases: ['levelsetting', 'lvlsettings', 'lvlsetting', 'lvlsett'],
@@ -146,6 +148,8 @@ module.exports = {
                     "color": 2215713,
                     "description": `${type} the level system.`
                 }});
+            case 'levelupmessage':
+            case 'levelmessage':
             case 'setlevelupmessagechannel':
                 if (!args.lowercase[1]) {
                     db_guild.levelSystem.update_channel = undefined;
@@ -207,7 +211,20 @@ module.exports = {
                             "description": `:question: Not enough arguments! Use \`${db_guild.prefix}help levelsettings\` for help.`
                         }});        
                 }
-                break;
+            case 'levelroles':
+            case 'roles':
+                const role = tags.roles.first() || msg.guild.roles.cache.find(role_object => role_object ? role_object.name === args.lowercase[3] : undefined);
+                switch (args.lowercase[1]) {
+                    case 'add':
+                        if (isNaN(args[2]) && isNaN(parseFloat(args[2]))) {
+                            return QuickMessage.invalid_argument(msg.channel);
+                        }
+                        break;
+                    case 'remove':
+                        break;
+                    default:
+                        break;
+                }
             default:
                 return msg.channel.send({ embed: {
                     "color": 0xcf2d2d,
