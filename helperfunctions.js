@@ -215,7 +215,10 @@ const CanvasImage = {
             try {
                 next_discord_member = await guild.members.fetch(next_database_user.user_id);
             } catch (err) {
-                console.log(err);
+                if (err.message === "Unknown User") {
+                    next_database_user.inGuild = false;
+                    user_database.update(next_database_user);
+                }
             }
             next_user_xp = next_database_user.xp;
             xp_behind_text = `${next_user_xp - database_user.xp} xp behind`;

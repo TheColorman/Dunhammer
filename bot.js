@@ -299,6 +299,28 @@ client.on("message", async (msg) => {
     }
 });
 
+client.on("guildMemberRemove", member => {
+    const user_db = guild_config.getCollection(member.guild.id);
+    const db_user = user_db.findOne({ user_id: member.id });
+    db_user.inGuild = false;
+    user_db.update(db_user);
+});
+client.on("guildMemberAdd", member => {
+    const user_db = guild_config.getCollection(member.guild.id);
+    if (user_db.findOne({user_id: member.id}) == null) {
+        user_db.insert({
+            user_id: member.id,
+            xp: 0,
+            level: 0,
+            levelroles: [],
+            inGuild: true
+        });
+    }
+    const db_user = user_db.findOne({ user_id: member.id });
+    db_user.inGuild = true;
+    user_db.update(db_user);
+});
+
 client.login(token);
 
 // Make sure all databases are up to date
