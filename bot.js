@@ -123,6 +123,7 @@ client.on("message", async (msg) => {
     const taggedUsers = msg.mentions.users;
     const taggedMembers = msg.mentions.members;
     const taggedChannels = msg.mentions.channels;
+    const taggedRoles = msg.mentions.roles;
     const args_lowercase = msg.content.slice(db_guild.prefix.length).split(/ +/);
     const args_original = msg_content_original.slice(db_guild.prefix.length).split(/ +/);
     const commandName = args_lowercase[0];
@@ -177,7 +178,7 @@ client.on("message", async (msg) => {
 
     // Execute command
     try {
-        command.execute(msg, { lowercase: args_lowercase, original: args_original }, { users: taggedUsers, members: taggedMembers, channels: taggedChannels }, { guilds: guild_db, users: user_db });
+        command.execute(msg, { lowercase: args_lowercase, original: args_original }, { users: taggedUsers, members: taggedMembers, channels: taggedChannels, roles: taggedRoles }, { guilds: guild_db, users: user_db });
     } catch(err) {
         msg.channel.send({ embed: {
             "color": 0xcf2d2d,
@@ -236,7 +237,9 @@ client.on("message", async (msg) => {
                 "description": ''
             },
             "levelup_image": undefined,
-            "cooldown_timestamps": {
+            "cooldown_timestamps": {},
+            "roles": {
+                "cumulative": false
             }
         }
     }
