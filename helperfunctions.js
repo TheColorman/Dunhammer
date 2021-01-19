@@ -225,7 +225,7 @@ const CanvasImage = {
         const rank_text = `RANK #${rank}`;
 
         canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 : canvas.width;
-        canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 : canvas.width;
+        if (next_discord_member) canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${ next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 : canvas.width;
         const center = {
             x: canvas.width/2,
             y: canvas.height/2
@@ -318,23 +318,73 @@ const QuickMessage = {
     /**
      * Sends an "Invalid channel" error.
      * @param {TextChannel} channel Channel to send the error in
+     * @param {string} prefix Guild prefix
+     * @param {string} command Failed command
      */
-    invalid_channel: function (channel) {
+    invalid_channel: function (channel, prefix, command) {
         return channel.send({ embed: {
             color: 0xcf2d2d,
             title: ":octagonal_sign: Error!",
-            description: ":question: Invalid channel!"
+            description: `:question: Invalid channel! Use ${prefix}help ${command} for help.`
         }});
     },
     //#endregion
     //#region invalid_argument
-    invalid_argument: function (channel) {
+    /**
+     * Sends an "Invalid argument" error.
+     * @param {TextChannel} channel Channel to send the error in
+     * @param {string} prefix Guild prefix
+     * @param {string} command Failed command
+     */
+    invalid_argument: function (channel, prefix, command) {
         return channel.send({ embed: {
             color: 0xcf2d2d,
             title: ":octagonal_sign: Error!",
-            description: ":question: Invalid argument!"
+            description: `:question: Invalid argument! Use \`${prefix}help ${command}\` for help.`
         }});
-    }
+    },
+    //#endregion
+    //#region invalid_role
+    /**
+     * Sends an "Invalid role" error.
+     * @param {TextChannel} channel Channel to send the error in
+     * @param {string} prefix Guild prefix
+     * @param {string} command Failed command
+     */
+    invalid_role: function (channel, prefix, command) {
+        return channel.send({ embed: {
+            color: 0xcf2d2d,
+            title: ":octagonal_sign: Error!",
+            description: `:question: Invalid role! Use \`${prefix}help ${command}\` for help.`
+        }});
+    },
+    //#endregion
+    //#region add
+    /**
+     * Sends an "Add" message.
+     * @param {TextChannel} channel Channel to send the message in
+     * @param {string} message Message
+     */
+    add: function (channel, message) {
+        return channel.send({ embed: {
+            color: 2215713,
+            description: `:white_check_mark: ${message}`
+        }});
+    },
+    //#endregion
+    //#region remove
+    /**
+     * Sends a "remove" message.
+     * @param {TextChannel} channel Channel to send the message in
+     * @param {string} message Message
+     */
+    remove: function (channel, message) {
+        return channel.send({ embed: {
+            color: 2215713,
+            description: `:x: ${message}`
+        }});
+    },
+    //#endregion
 }
 
 module.exports = { CanvasImage, QuickMessage }
