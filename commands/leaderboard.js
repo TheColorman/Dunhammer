@@ -18,17 +18,19 @@ module.exports = {
         let top_ten_names = [];
         let top_ten_levels = [];
         await top_ten.forEach(async (element, index) => {
+                let ds_user
             try {
-                const ds_user = await msg.guild.members.fetch(element.user_id);
-                const extra = ds_member.id == element.user_id ? "__" : "";
-                top_ten_names.push(`${index+1}. ${extra}**${ds_user.nickname || ds_user.user.username}**${extra}`);
-                top_ten_levels.push(element.level);
+                ds_user = await msg.guild.members.fetch(element.user_id);
             } catch (err) {
                 if (err.message === "Unknown Member" || err.message === "Unknown User") {
                     element.inGuild = false;
                     user_db.update(element);
                 }
+                ds_user = { nickname: "DELETED USER" }
             }
+                const extra = ds_member.id == element.user_id ? "__" : "";
+                top_ten_names.push(`${index+1}. ${extra}**${ds_user.nickname || ds_user.user.username}**${extra}`);
+                top_ten_levels.push(element.level);
         });
         console.log(rank);
         if (rank > 10) {

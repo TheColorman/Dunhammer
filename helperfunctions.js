@@ -219,6 +219,7 @@ const CanvasImage = {
                     next_database_user.inGuild = false;
                     user_database.update(next_database_user);
                 }
+                next_discord_member = { nickname: "DELETED USER" }
             }
             next_user_xp = next_database_user.xp;
             xp_behind_text = `${next_user_xp - database_user.xp} xp behind`;
