@@ -299,6 +299,34 @@ const CanvasImage = {
     //#endregion
 }
 
-module.exports = {
-    CanvasImage
+const QuickMessage = {
+    //#region error
+    /**
+     * Sends an embed with an error message.
+     * @param {TextChannel} channel The channel to send the message
+     * @param {string} error The message to send
+     */
+    error: function (channel, error) {
+        return channel.send({ embed: {
+            color: 0xcf2f2f,
+            title: ":octagonal_sign: Error!",
+            description: error
+        }});
+    },
+    //#endregion
+    //#region invalid_channel
+    /**
+     * Sends an "Invalid channel" error.
+     * @param {TextChannel} channel Channel to send the error in
+     */
+    invalid_channel: function (channel) {
+        return channel.send({ embed: {
+            color: 0xcf2d2d,
+            title: ":octagonal_sign: Error!",
+            description: ":question: Invalid channel!"
+        }});
+    },
+    //#endregion
 }
+
+module.exports = { CanvasImage, QuickMessage }
