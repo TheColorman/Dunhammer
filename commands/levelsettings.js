@@ -9,7 +9,7 @@ module.exports = {
     usage: '<subcommand> [...arguments]',
     permissions: 'BAN_MEMBERS',
     cooldown: 2,
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases) {
         // Declare important variables
         const guild_db = databases.guilds;
         const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
@@ -234,8 +234,42 @@ module.exports = {
                             if (db_guild.levelSystem.roles[key] == role.id) delete db_guild.levelSystem.roles[key];
                         }
                         return QuickMessage.remove(msg.channel, `Removed ${role} from level roles.`);
+                    case 'reload':
+                        msg.channel.send({ embed: {
+                            color: 49919,
+                            description: ":arrows_counterclockwise: Reloading all level roles... (this might take a while depending on the amount of users on your server)."
+                        }});
+                        const userdata = user_db.chain().data();
+                        for (let user of userdata) {
+                            for (let level = 0; level < user.level; level++) {
+                                if (db_guild.levelSystem.roles.hasOwnProperty(level)) {
+                                    try {
+                                        let member = await msg.guild.members.fetch(user.user_id);
+                                        if (!db_guild.levelSystem.roles.cumulative) {
+                                            user.levelroles ||= [];
+                                            for (let role_id of user.levelroles) {
+                                                let role = await msg.guild.roles.fetch(role_id);
+                                                member.roles.remove(role);
+                                            }
+                                        }
+                                        const role = await msg.guild.roles.fetch(db_guild.levelSystem.roles[level]);
+                                        member.roles.add(role);
+                                        user.levelroles.push(db_guild.levelSystem.roles[level]);
+                                    } catch (err) {
+                                        if (err.message === "Unknown member") {
+                                            user.inGuild = false;
+                                        }
+                                    }
+                                    user_db.update(user);
+                                    }
+                            }
+                        }
+                        return msg.channel.send({ embed: {
+                            color: 2215713,
+                            description: ":white_check_mark: Reloaded all level roles."
+                        }})
                     default:
-                        break;
+                        return QuickMessage.info(msg.channel, "Level roles", `${db_guild.levelSystem.roles}`);
                 }
             default:
                 return msg.channel.send({ embed: {
