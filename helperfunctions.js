@@ -327,6 +327,14 @@ const QuickMessage = {
         }});
     },
     //#endregion
+    //#region invalid_argument
+    invalid_argument: function (channel) {
+        return channel.send({ embed: {
+            color: 0xcf2d2d,
+            title: ":octagonal_sign: Error!",
+            description: ":question: Invalid argument!"
+        }});
+    }
 }
 
 module.exports = { CanvasImage, QuickMessage }
