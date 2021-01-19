@@ -229,10 +229,11 @@ client.on("message", async (msg) => {
             }
             const role = await msg.guild.roles.fetch(levelSystem.roles[level]);
             msg.member.roles.add(role);
-            msg.channel.send({ embed: {
+            channel.send({ embed: {
                 description: `Congratulations ${msg.author.username}, you reached level ${level} and gained the role ${role}!`
             }});
             db_user.levelroles.push(levelSystem.roles[level]);
+            user_db.update(db_user);
         }
         // Get levelup message from database
         let reply = JSON.parse(JSON.stringify(levelSystem.levelup_message));
@@ -253,7 +254,7 @@ client.on("message", async (msg) => {
                         title[index-1] = xp;
                         break;
                     case '{nickname}':
-                        title[index-1] = msg.member.nickname || msg.author.username;
+                        title[index-1] = msg.member ? msg.member.nickname : msg.author.username;
                         break;
                     case '{tag}':
                         title[index-1] = msg.author.tag;
@@ -272,7 +273,7 @@ client.on("message", async (msg) => {
                         description[index-1] = xp;
                         break;
                     case '{nickname}':
-                        description[index-1] = msg.member.nickname || msg.author.username;
+                        description[index-1] = msg.member ? msg.member.nickname : msg.author.username;
                         break;
                     case '{tag}':
                         description[index-1] = msg.author.tag;
@@ -324,7 +325,8 @@ function update_database(msg, guild_db) {
             user_id: msg.author.id,
             xp: 0,
             level: 0,
-            levelroles: []
+            levelroles: [],
+            inGuild: true
         });
     }
     const guild = guild_db.findOne({guild_id: msg.guild.id});
@@ -352,6 +354,7 @@ function update_database(msg, guild_db) {
     guild.allowbots ||= false;
     guild.name ||= msg.guild.name;
     db_user.levelroles ||= [];
+    db_user.inGuild ||= true;
     guild_db.update(guild);
 }
 

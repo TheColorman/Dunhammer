@@ -212,7 +212,11 @@ const CanvasImage = {
         let next_discord_member;
         if (rank != 1) {
             next_database_user = user_database.chain().simplesort('xp', true).data().find((_element, index) => index == rank-2);
-            next_discord_member = await guild.members.fetch(next_database_user.user_id);
+            try {
+                next_discord_member = await guild.members.fetch(next_database_user.user_id);
+            } catch (err) {
+                console.log(err);
+            }
             next_user_xp = next_database_user.xp;
             xp_behind_text = `${next_user_xp - database_user.xp} xp behind`;
         }
@@ -256,7 +260,7 @@ const CanvasImage = {
             0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
             3
         );
-        if (next_database_user) {
+        if (next_discord_member) {
             //xp behind
             ctx.font = `30px Arial`;
             CanvasImagesMeta.fillStrokeText(
@@ -374,7 +378,7 @@ const QuickMessage = {
     //#endregion
     //#region remove
     /**
-     * Sends a "remove" message.
+     * Sends a "Remove" message.
      * @param {TextChannel} channel Channel to send the message in
      * @param {string} message Message
      */
@@ -384,6 +388,21 @@ const QuickMessage = {
             description: `:x: ${message}`
         }});
     },
+    //#endregion
+    //#region info
+    /**
+     * Sends an "Info" message.
+     * @param {TextChannel} channel Channel to send the message in
+     * @param {string} title Title of the message
+     * @param {string} message Message
+     */
+    info: function (channel, title, message) {
+        return channel.send({ embed: {
+            color: 49919,
+            title: `:information_source: ${title}`,
+            description: `${message}`
+        }});
+    }
     //#endregion
 }
 
