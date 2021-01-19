@@ -97,25 +97,9 @@ client.on("message", async (msg) => {
     }
     // Load databases
     const guild_db = guild_config.getCollection("guilds");  // guild database
-    // If no database exists, create one
-    if (guild_config.getCollection(msg.guild.id) === null) {   
-        guild_config.addCollection(msg.guild.id, {
-            unique: ["user_id"],
-            autoupdate: true
-        });
-    }
+    update_database(msg, guild_db);
     const user_db = guild_config.getCollection(msg.guild.id);
-    // If current guild does not exist in database, add it
-    if (guild_db.findOne({guild_id: msg.guild.id}) === null) {
-        guild_db.insert({
-            guild_id: msg.guild.id,
-            prefix: '.',
-            allowbots: false
-        });
-    }
     const db_guild = guild_db.findOne({guild_id: msg.guild.id});
-    // Update older databases with new variables
-    if (!db_guild.allowbots) db_guild.allowbots = false;
 
     // Message variables
     const msg_content_original = msg.content;
@@ -197,53 +181,11 @@ client.on("message", async (msg) => {
 client.on("message", async (msg) => {
     // DM check
     if (msg.channel.type === "dm") return;
-    // If no guild database exists, create one
     const guild_db = guild_config.getCollection("guilds");
-    if (guild_db.findOne({guild_id: msg.guild.id}) === null) {
-        guild_db.insert({
-            guild_id: msg.guild.id,
-            prefix: '.',
-            allowbots: false
-        });
-    }
-    const guild = guild_db.findOne({guild_id: msg.guild.id});
-    // If no user database exists, create one
-    if (guild_config.getCollection(msg.guild.id) === null) {   
-        guild_config.addCollection(msg.guild.id, {
-            unique: ["user_id"],
-            autoupdate: true
-        });
-    }
+    update_database(msg, guild_db);
+    const guild = guild_db.findOne({guild_id: msg.guild.id });
     const user_db = guild_config.getCollection(msg.guild.id);
-    // If current user does not exist in user database, add them
-    if (user_db.findOne({user_id: msg.author.id}) == null) {
-        user_db.insert({
-            user_id: msg.author.id,
-            xp: 0,
-            level: 0
-        });
-    }
-    const db_user = user_db.findOne({ user_id: msg.author.id});
-    
-    // Give guild a levelsystem
-    if (guild.levelSystem == undefined) {
-        guild.levelSystem = {
-            "enabled": false,
-            "disallowed_channels": [],
-            "update_channel": undefined,
-            "levelup_message": {
-                "color": 2215713,
-                "title": "Congratulations {username}, you reached level {level}!",
-                "description": ''
-            },
-            "levelup_image": undefined,
-            "cooldown_timestamps": {},
-            "roles": {
-                "cumulative": false
-            }
-        }
-    }
-    guild_db.update(guild);
+    const db_user = user_db.findOne({ user_id: msg.author.id });
     const levelSystem = guild.levelSystem;
 
     if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id)) return;
@@ -278,6 +220,20 @@ client.on("message", async (msg) => {
     // Congratulate if new level
     if (level > db_user.level) {
         const channel = levelSystem.update_channel ? await client.channels.fetch(levelSystem.update_channel) : msg.channel;
+        if (levelSystem.roles.hasOwnProperty(level)) {
+            if (!levelSystem.roles.cumulative) {
+                for (let role_id of db_user.levelroles) {
+                    let role = await msg.guild.roles.fetch(role_id);
+                    msg.member.roles.remove(role);
+                }
+            }
+            const role = await msg.guild.roles.fetch(levelSystem.roles[level]);
+            msg.member.roles.add(role);
+            msg.channel.send({ embed: {
+                description: `Congratulations ${msg.author.username}, you reached level ${level} and gained the role ${role}!`
+            }});
+            db_user.levelroles.push(levelSystem.roles[level]);
+        }
         // Get levelup message from database
         let reply = JSON.parse(JSON.stringify(levelSystem.levelup_message));
 
@@ -324,7 +280,7 @@ client.on("message", async (msg) => {
                 }
             }
             // Add the title and description to the reply
-            reply.title = title ? title.join('') : '';
+            reply.title = title ? title.join('') : ''; 
             reply.description = description ? description.join('') : '';
             db_user.level = level;
             user_db.update(db_user);
@@ -343,6 +299,61 @@ client.on("message", async (msg) => {
 });
 
 client.login(token);
+
+// Make sure all databases are up to date
+function update_database(msg, guild_db) {
+    // Check for guild in global database
+    if (guild_db.findOne({guild_id: msg.guild.id}) === null) {
+        guild_db.insert({
+            guild_id: msg.guild.id,
+            prefix: '.',
+            allowbots: false
+        });
+    }
+    // Check for guild user database in global database
+    if (guild_config.getCollection(msg.guild.id) === null) {   
+        guild_config.addCollection(msg.guild.id, {
+            unique: ["user_id"],
+            autoupdate: true
+        });
+    }
+    const user_db = guild_config.getCollection(msg.guild.id);
+    // Check for user in guild user database
+    if (user_db.findOne({user_id: msg.author.id}) == null) {
+        user_db.insert({
+            user_id: msg.author.id,
+            xp: 0,
+            level: 0,
+            levelroles: []
+        });
+    }
+    const guild = guild_db.findOne({guild_id: msg.guild.id});
+    // Check for levelSystem in guild
+    if (guild.levelSystem == undefined) {
+        guild.levelSystem = {
+            "enabled": false,
+            "disallowed_channels": [],
+            "update_channel": undefined,
+            "levelup_message": {
+                "color": 2215713,
+                "title": "Congratulations {username}, you reached level {level}!",
+                "description": ''
+            },
+            "levelup_image": undefined,
+            "cooldown_timestamps": {},
+            "roles": {
+                "cumulative": false
+            }
+        }
+    }
+    const db_user = user_db.findOne({ user_id: msg.author.id });
+    // Individual properies that may not be in older version of databases (will be updated manually in database when I feel like it)
+    guild.levelSystem.roles ||= { cumulative: false };
+    guild.allowbots ||= false;
+    guild.name ||= msg.guild.name;
+    db_user.levelroles ||= [];
+    guild_db.update(guild);
+}
 
 // fuck you
 function print(message, message2 = '', message3 = '') {

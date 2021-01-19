@@ -24,6 +24,7 @@ module.exports = {
         }
         // check for subcommand with switch/case
         let channel;
+        let role;
         switch (args.lowercase[0]) {
             case 'setlevelupmessage':
                 if(!args.lowercase[1]) return msg.channel.send({ embed: {
@@ -213,15 +214,26 @@ module.exports = {
                 }
             case 'levelroles':
             case 'roles':
-                const role = tags.roles.first() || msg.guild.roles.cache.find(role_object => role_object ? role_object.name === args.lowercase[3] : undefined);
                 switch (args.lowercase[1]) {
                     case 'add':
-                        if (isNaN(args[2]) && isNaN(parseFloat(args[2]))) {
-                            return QuickMessage.invalid_argument(msg.channel);
-                        }
-                        break;
+                        args.original.splice(0, 3)
+                        role = tags.roles.first() || msg.guild.roles.cache.find(role_object => role_object ? role_object.name === args.original.join(' ') : undefined);
+                        if (isNaN(args.lowercase[2]) && isNaN(parseFloat(args.lowercase[2]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
+                        if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                        
+                        db_guild.levelSystem.roles[args.lowercase[2]] = role.id;
+                        guild_db.update(db_guild);
+                        return QuickMessage.add(msg.channel, `Added ${role} to level roles at level ${args.lowercase[2]}.`);
                     case 'remove':
-                        break;
+                        args.original.splice(0, 2);    
+                        role = tags.roles.first() || msg.guild.roles.cache.find(role_object => role_object ? role_object.name === args.original.join(' ') : undefined);
+                        if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                        if (!(Object.values(db_guild.levelSystem.roles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
+
+                        for (let key in db_guild.levelSystem.roles) {
+                            if (db_guild.levelSystem.roles[key] == role.id) delete db_guild.levelSystem.roles[key];
+                        }
+                        return QuickMessage.remove(msg.channel, `Removed ${role} from level roles.`);
                     default:
                         break;
                 }
