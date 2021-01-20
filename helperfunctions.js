@@ -372,7 +372,7 @@ const QuickMessage = {
         return channel.send({ embed: {
             color: 0xcf2d2d,
             title: ":octagonal_sign: Error!",
-            description: `:no_pedestrian: User not found!`
+            description: `:no_pedestrians: User not found!`
         }});
     },
     //#region not_enough_arguments
