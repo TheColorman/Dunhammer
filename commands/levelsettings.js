@@ -5,7 +5,7 @@ module.exports = {
     name: 'levelsettings',
     aliases: ['levelsetting', 'lvlsettings', 'lvlsetting', 'lvlsett'],
     short_desc: 'Changes settings related to leveling.',
-    long_desc: 'Changes settings related to the level system. Subcommands:\n`enable/disable`, `setlevelupmessage`, `setxp`, `setlevelupmessagechannel`, `ignoredchannels`.\n\nUse \`help levelsystem\` for an in-depth explanation of each sub-command.',
+    long_desc: 'Changes settings related to the level system. Subcommands:\n`enable/disable`, `setlevelupmessage`, `setxp`, `setlevelupmessagechannel`, `ignoredchannels`, `levelroles`.\n\nUse \`help levelsystem\` for an in-depth explanation of each sub-command.',
     usage: '<subcommand> [...arguments]',
     permissions: 'BAN_MEMBERS',
     cooldown: 2,

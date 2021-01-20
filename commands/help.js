@@ -80,6 +80,9 @@ module.exports = {
                         }, {
                             name: "`ignoredchannels`",
                             value: `\`${guild.prefix}levelsettings ignoredchannels (add/remove) <channel name>\`\nUn-/ignores channels. XP cannot be gained from ignored channels.`
+                        }, {
+                            name: "`levelroles`",
+                            value: `\`${guild.prefix}levelsettings levelroles [(add/remove/reload/cumulative)] \`\n\`add <level> <role>\` Adds the role at the specific level.\n\`remove <role>\` Removes the role from the levelup system.\n\`reload\` Reloads all users and gives them their roles based on their level.\n\`cumulative (true/false)\` Specifies whether users should keep low level roles when reaching a higher level ones.\n\`No arguments\` Lists all roles and the level they are gained at.`
                         }]
                     }});
                 case "me":
