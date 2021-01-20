@@ -463,7 +463,15 @@ const QuickMessage = {
             color: 0x96430f,    // Darker/redder version of awaiting user input, user input timeout/fail
             description: `~~:grey_question: ${message}~~\n\n**:x: Timeout!**`
         }
-    }
+    },
+    //#region update
+    update: function (channel, message) {
+        return channel.send({ embed: {
+            color: 2215713,
+            description: `:repeat: ${message}`
+        }});
+    },
+    //#endregion
 }
 
 module.exports = { CanvasImage, QuickMessage }
