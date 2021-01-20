@@ -47,6 +47,9 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
+// Crash protection
+
+
 // When client is ready
 let rare_presence;
 let presence_temp = [...presences];
@@ -95,6 +98,7 @@ client.on("message", async (msg) => {
             description: ":no_entry: Dunhammer doesn't support DMs yet."
         }});
     }
+    if (msg.webhookID) return;
     // Load databases
     const guild_db = guild_config.getCollection("guilds");  // guild database
     update_database(msg, guild_db);
@@ -180,7 +184,7 @@ client.on("message", async (msg) => {
 // Levelsystem
 client.on("message", async (msg) => {
     // DM check
-    if (msg.channel.type === "dm") return;
+    if (msg.channel.type === "dm" || msg.webhookID) return;
     const guild_db = guild_config.getCollection("guilds");
     update_database(msg, guild_db);
     const guild = guild_db.findOne({guild_id: msg.guild.id });
@@ -287,6 +291,8 @@ client.on("message", async (msg) => {
             user_db.update(db_user);
             // Add image if set to true
             if (levelSystem.levelup_image) {
+                console.log(msg);
+                console.log(msg.member);
                 await CanvasImage.levelup_image(msg.member, user_db, msg.guild);
                 const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
                 reply.image = {
