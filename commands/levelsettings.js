@@ -92,7 +92,7 @@ module.exports = {
                                     description: `:question: Not enough arguments! Use \`${db_guild.prefix}help levelsettings\` for help.`
                                 }});                            
                         }
-                }
+                };
             case 'setxp':
                 if (!tags.users.size) return msg.channel.send({ embed: {
                     color: 0xcf2d2d,
@@ -211,7 +211,7 @@ module.exports = {
                             "title": ":octagonal_sign: Error!",
                             "description": `:question: Not enough arguments! Use \`${db_guild.prefix}help levelsettings\` for help.`
                         }});        
-                }
+                };
             case 'levelroles':
             case 'roles':
                 switch (args.lowercase[1]) {
@@ -267,9 +267,24 @@ module.exports = {
                         return msg.channel.send({ embed: {
                             color: 2215713,
                             description: ":white_check_mark: Reloaded all level roles."
-                        }})
+                        }});
+                    case 'cumulative':
+                        switch (args.lowercase[2]) {
+                            case 'true':
+                                db_guild.levelSystem.roles.cumulative = true;
+                                return QuickMessage.add(msg.channel, "Set cumulative roles to `true`.")
+                            case 'false':
+                                db_guild.levelSystem.roles.cumulative = false;
+                                return QuickMessage.remove(msg.channel, "Set cumulative roles to `false`.")
+                            default:
+                                return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
+                        }                         
                     default:
-                        return QuickMessage.info(msg.channel, "Level roles", `${db_guild.levelSystem.roles}`);
+                        const arr = [];
+                        for (const [key, value] of Object.entries(db_guild.levelSystem.roles)) {
+                            arr.push(`${key == "cumulative" ? "Cumulative roles: " : `Level: ${key}`}: ${key == "cumulative" ? `${value}` : await msg.guild.roles.fetch(value)}`);
+                        }
+                        return QuickMessage.info(msg.channel, "Level roles", `${arr.join('\n')}`);
                 }
             default:
                 return msg.channel.send({ embed: {
