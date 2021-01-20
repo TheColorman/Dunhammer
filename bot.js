@@ -48,7 +48,15 @@ for (const file of commandFiles) {
 }
 
 // Crash protection
-
+process.on('beforeExit', (code) => {
+    fs.writeFile('CRASH.txt', `Program exited with code ${code}.`, (err) => {});
+    const spawn = require('child_process').spawn;
+    const child = spawn('./bot.js', [], {
+        detached: true,
+        stdio: ['ignore', 'ignore', 'ignore']
+    });
+    child.unref();
+});
 
 // When client is ready
 let rare_presence;
