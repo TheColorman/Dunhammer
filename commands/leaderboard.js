@@ -1,3 +1,5 @@
+const { QuickMessage } = require('../helperfunctions.js');
+
 module.exports = {
     name: 'leaderboard',
     aliases: ['scoreboard', 'scores', 'leader'],
@@ -6,50 +8,52 @@ module.exports = {
     usage: '[user]',
     cooldown: 2,
     async execute(msg, args, tags, databases) {
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
-        const user_db = databases.users;
-        const ds_member = tags.users.first() || msg.member;
-        const db_user = user_db.findOne({ user_id: ds_member.id });
+        const reply = await msg.channel.send({ embed: {
+            color: 49919,
+            title: ":arrows_counterclockwise: Getting leaderboard..."
+        }});
 
-        const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == db_user.id) + 1;
-        
+        const tag = tags.users.first() || msg.member;
+        const user_db = databases.users;
         const top_ten = user_db.chain().simplesort('xp', true).limit(10).data();
-        let top_ten_names = [];
-        let top_ten_levels = [];
-        await top_ten.forEach(async (element, index) => {
-                let ds_user
+        
+        const top_ten_array = [];
+        let index = 1;
+        let tag_in_top_ten = false;
+        for (const db_user of top_ten) {
+            let ds_user;
             try {
-                ds_user = await msg.guild.members.fetch(element.user_id);
+                ds_user = db_user.inGuild ? await msg.guild.members.fetch(db_user.user_id) : { id: db_user.user_id }
             } catch (err) {
-                if (err.message === "Unknown Member" || err.message === "Unknown User") {
-                    element.inGuild = false;
-                    user_db.update(element);
+                if (err.message === "Unknown User" || err.message === "Unknown Member") {
+                    db_user.inGuild = false;
+                    user_db.update(db_user);
                 }
-                ds_user = { nickname: "DELETED USER" }
+                ds_user = { id: db_user.user_id }
             }
-                const extra = ds_member.id == element.user_id ? "__" : "";
-                top_ten_names.push(`${index+1}. ${extra}**${ds_user.nickname || ds_user.user.username}**${extra}`);
-                top_ten_levels.push(element.level);
-        });
-        console.log(rank);
-        if (rank > 10) {
-            top_ten_names.push(`${rank}. __**${ds_member.nickname || ds_member.user.username}**__`);
-            top_ten_levels.push(db_user.level);
+            let text_decor = "";
+            if (tag.id == ds_user.id) {
+                text_decor = "__";
+                tag_in_top_ten = true;
+            }
+            
+            top_ten_array.push(`${text_decor}#${index} - <@!${ds_user.id}> - Level ${db_user.level}${text_decor}`);
+            index++;
         }
-        let reply = {
-            color: 2215713,
-            title: ":exclamation: This command is currently Work In Progress :exclamation:",
-            fields: [{
-                name: "Users",
-                value: top_ten_names.join('\n'),
-                inline: true
-            }, {
-                name: "Level",
-                value: top_ten_levels.join('\n'),
-                inline: true
-            }]
+
+        if (!tag_in_top_ten) {
+            const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == tag.id);
+            const next_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank-1);
+            const previous_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank+1);
+            top_ten_array.push("...");
+            if (rank > 10) top_ten_array.push(`#${rank} - <@!${next_user.user_id}> - Level ${next_user.level}`);
+            top_ten_array.push(`__#${rank+1} - <@!${tag.id}> - Level ${user_db.findOne({ user_id: tag.id }).level}__`);
+            top_ten_array.push(`#${rank+2} - <@!${previous_user.user_id}> - Level ${previous_user.level}`);
         }
-        return msg.channel.send({ embed: reply });
+        return reply.edit({ embed: {
+            color: 49919,
+            title: ":trophy: Top 10",
+            description: `${top_ten_array.join('\n')}`
+        }});
     }
 }
