@@ -374,7 +374,7 @@ const QuickMessage = {
             title: ":octagonal_sign: Error!",
             description: `:no_pedestrian: User not found!`
         }});
-    }
+    },
     //#region not_enough_arguments
     /**
      * Sends a "Not enough arguments" error.
