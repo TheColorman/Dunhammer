@@ -94,12 +94,16 @@ module.exports = {
                         }
                 };
             case 'setxp':
-                if (!tags.users.size) return msg.channel.send({ embed: {
+                let taggedmember = tags.members.first();
+                if (!taggedmember && args.lowercase.length) {
+                    taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.lowercase[0]);
+                }        
+                if (!taggedmember) return msg.channel.send({ embed: {
                     color: 0xcf2d2d,
                     title: ":octagonal_sign: Error!",
                     description: `:no_pedestrians: No user tagged! Use \`${db_guild.prefix}help levelsettings\` for help.`
                 }});
-                let user = user_db.findOne({user_id: tags.users.first().id});
+                let user = user_db.findOne({user_id: taggedmember.id});
                 if (args.lowercase.length < 3) {
                     return msg.channel.send({ embed: {
                         "color": 0xcf2d2d,
@@ -132,7 +136,7 @@ module.exports = {
                 user_db.update(user);
                 return msg.channel.send({ embed: {
                     "color": 2215713,
-                    "description": `:sparkles: Updated ${tags.users.first().username}'s XP level to ${args.lowercase[2]}.`
+                    "description": `:sparkles: Updated ${taggedmember.username}'s XP level to ${args.lowercase[2]}.`
                 }});
             case 'disable':
             case 'enable':

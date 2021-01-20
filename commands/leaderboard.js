@@ -12,8 +12,10 @@ module.exports = {
             color: 49919,
             title: ":arrows_counterclockwise: Getting leaderboard..."
         }});
-
-        const tag = tags.users.first() || msg.member;
+        let taggedmember = tags.members.first();
+        if (!taggedmember && args.lowercase.length) {
+            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.lowercase[0]);
+        }
         const user_db = databases.users;
         const top_ten = user_db.chain().simplesort('xp', true).limit(10).data();
         
@@ -32,7 +34,7 @@ module.exports = {
                 ds_user = { id: db_user.user_id }
             }
             let text_decor = "";
-            if (tag.id == ds_user.id) {
+            if (taggedmember.id == ds_user.id) {
                 text_decor = "__";
                 tag_in_top_ten = true;
             }
@@ -42,12 +44,12 @@ module.exports = {
         }
 
         if (!tag_in_top_ten) {
-            const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == tag.id);
+            const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == taggedmember.id);
             const next_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank-1);
             const previous_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank+1);
             top_ten_array.push("...");
             if (rank > 10) top_ten_array.push(`#${rank} - <@!${next_user.user_id}> - Level ${next_user.level}`);
-            top_ten_array.push(`__#${rank+1} - <@!${tag.id}> - Level ${user_db.findOne({ user_id: tag.id }).level}__`);
+            top_ten_array.push(`__#${rank+1} - <@!${taggedmember.id}> - Level ${user_db.findOne({ user_id: taggedmember.id }).level}__`);
             top_ten_array.push(`#${rank+2} - <@!${previous_user.user_id}> - Level ${previous_user.level}`);
         }
         return reply.edit({ embed: {
