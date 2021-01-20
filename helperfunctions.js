@@ -436,6 +436,26 @@ const QuickMessage = {
         }});
     },
     //#endregion
+    //#region confirmation
+    /**
+     * Sends a "Confirmation" message.
+     * @param {TextChannel} channel Channel to send the message in
+     * @param {string} message Message
+     */
+    confirmation: function (channel, message) {
+        return channel.send({ embed: {
+            color: 0xe86b0c,    // Orange, awaiting user input
+            description: `:grey_question: ${message}`
+        }});
+    },
+    //#endregion
+    //#region confirmation_timeout
+    confirmation_timeout: function (message) {
+        return {
+            color: 0x96430f,    // Darker/redder version of awaiting user input, user input timeout/fail
+            description: `~~:grey_question: ${message}~~\n\n**:x: Timeout!**`
+        }
+    }
 }
 
 module.exports = { CanvasImage, QuickMessage }
