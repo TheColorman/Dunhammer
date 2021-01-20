@@ -236,11 +236,11 @@ client.on("message", async (msg) => {
             if (!levelSystem.roles.cumulative) {
                 for (let role_id of db_user.levelroles) {
                     let role = await msg.guild.roles.fetch(role_id);
-                    msg.member.roles.remove(role);
+                    msg.member.roles.remove(role, "Levelroles.");
                 }
             }
             const role = await msg.guild.roles.fetch(levelSystem.roles[level]);
-            msg.member.roles.add(role);
+            msg.member.roles.add(role, "Levelroles.");
             channel.send({ embed: {
                 description: `Congratulations ${msg.author.username}, you reached level ${level} and gained the role ${role}!`
             }});
