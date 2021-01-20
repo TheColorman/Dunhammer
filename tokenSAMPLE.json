@@ -1,3 +1,4 @@
 {
-    "token": "INSERT BOT TOKEN HERE"
+    "token": "INSERT BOT TOKEN HERE",
+    "trelloToken": "INSERT TRELLO TOKEN HERE"
 }

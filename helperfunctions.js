@@ -150,7 +150,7 @@ const CanvasImage = {
         ctx.fillStyle = "#4a4a4a";
         CanvasImagesMeta.roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
         ctx.fillStyle = "#54b35d";
-        CanvasImagesMeta.roundRect(ctx, 290, 240, (current_xp/xp_for_next_level) * (canvas.width - 320), 30, 16, true, false);    // xp_total filled up
+        if (current_xp != 0) CanvasImagesMeta.roundRect(ctx, 290, 240, ((current_xp/xp_for_next_level) > 0.03 ? current_xp/xp_for_next_level : 0.0) * (canvas.width - 320), 30, 16, true, false);    // xp_total filled up
         // xp for next lvl
         ctx.font = `34px ${font}`;
         ctx.fillStyle = '#A6A7AA';
@@ -367,6 +367,21 @@ const QuickMessage = {
         }});
     },
     //#endregion
+    //#region not_enough_arguments
+    /**
+     * Sends a "Not enough arguments" error.
+     * @param {TextChannel} channel Channel to send the error in
+     * @param {string} prefix Guild prefix
+     * @param {string} command Failed command
+     */
+    not_enough_arguments: function (channel, prefix, command) {
+        return channel.send({ embed: {
+            color: 0xcf2d2d,
+            title: ":octagonal_sign: Error!",
+            description: `:question: Not enough arguments! Use \`${prefix}help ${command}\` for help.`
+        }});
+    },
+    //#endregion
     //#region add
     /**
      * Sends an "Add" message.
@@ -406,7 +421,20 @@ const QuickMessage = {
             title: `:information_source: ${title}`,
             description: `${message}`
         }});
-    }
+    },
+    //#endregion
+    //#region success
+    /**
+     * Sends a "Success" message.
+     * @param {TextChannel} channel Channel to send the message in
+     * @param {string} message Message
+     */
+    success: function (channel, message) {
+        return channel.send({ embed: {
+            color: 2215713,
+            description: `${message}`
+        }});
+    },
     //#endregion
 }
 
