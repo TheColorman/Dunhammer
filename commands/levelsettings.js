@@ -96,7 +96,7 @@ module.exports = {
             case 'setxp':
                 let taggedmember = tags.members.first();
                 if (!taggedmember && args.lowercase.length) {
-                    taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.lowercase[1]);
+                    taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original[1]);
                 }        
                 if (!taggedmember) return msg.channel.send({ embed: {
                     color: 0xcf2d2d,
