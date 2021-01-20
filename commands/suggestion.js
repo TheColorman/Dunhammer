@@ -14,38 +14,51 @@ module.exports = {
     async execute(msg, args, tags, databases) {
         const guild_db = databases.guilds;
         db_guild = guild_db.findOne({ guild_id: msg.guild.id });
-        if (!args.original.length) return QuickMessage.not_enough_arguments(msg.channel, db_guild.prefix, "suggestion")
-        const trello_key = "bc34d08189a136ae7ebe4fd978e7980b";
-        const list_id = "60082643ec4279863610f11f";
-        const host = 'api.trello.com';
-        const path = `/1/cards?key=${trello_key}&token=${trelloToken}&idList=${list_id}`;
+        if (!args.original.length) return QuickMessage.not_enough_arguments(msg.channel, db_guild.prefix, "suggestion");
 
-        const data = querystring.stringify({
-            "name": args.original.join(" ")
-        });
-        const options = {
-            hostname: host,
-            path: path,
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        }
-
-        const req = https.request(options, (res) => {
-            
-            res.on('data', (d) =>{
-                if (res.statusCode != 200) return QuickMessage.error(msg.channel, `${d}`);
-                return QuickMessage.add(msg.channel, `Added \`${args.original.join(' ')}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).`);
+        const confirmation = await QuickMessage.confirmation(msg.channel, `Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`);
+        const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === msg.author.id;
+        confirmation.react('✅')
+            .then(() => {
+                confirmation.awaitReactions(filter, { idle: 15000, max: 1 })
+                    .then(async (collected) => {
+                        if (!collected.first()) {
+                            await confirmation.reactions.removeAll();
+                            return confirmation.edit({embed: QuickMessage.confirmation_timeout(`Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`)});
+                        }
+                        const trello_key = "bc34d08189a136ae7ebe4fd978e7980b";
+                        const list_id = "60082643ec4279863610f11f";
+                        const host = 'api.trello.com';
+                        const path = `/1/cards?key=${trello_key}&token=${trelloToken}&idList=${list_id}`;
                 
+                        const data = querystring.stringify({
+                            "name": args.original.join(" ")
+                        });
+                        const options = {
+                            hostname: host,
+                            path: path,
+                            method: 'POST',
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            }
+                        }
+                
+                        const req = https.request(options, (res) => {
+                            
+                            res.on('data', (d) =>{
+                                if (res.statusCode != 200) return QuickMessage.error(msg.channel, `${d}`);
+                                return QuickMessage.add(msg.channel, `Added \`${args.original.join(' ')}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).`);
+                                
+                            });
+                        });
+                        
+                        req.on('error', (err) => {
+                            console.log(err);
+                        });
+                        
+                        req.write(data);
+                        req.end();        
+                    });
             });
-        });
-        
-        req.on('error', (err) => {
-            console.log(err);
-        });
-        
-        req.write(data);
-        req.end();
     }
 }
