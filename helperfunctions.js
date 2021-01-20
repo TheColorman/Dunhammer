@@ -367,6 +367,14 @@ const QuickMessage = {
         }});
     },
     //#endregion
+    //#region invalid_user
+    invalid_user: function (channel) {
+        return channel.send({ embed: {
+            color: 0xcf2d2d,
+            title: ":octagonal_sign: Error!",
+            description: `:no_pedestrian: User not found!`
+        }});
+    }
     //#region not_enough_arguments
     /**
      * Sends a "Not enough arguments" error.
