@@ -5,13 +5,14 @@ module.exports = {
     long_desc: 'Measures the timestamp delay in miliseconds between the ping message and reply message.',
     cooldown: 5,
     execute(msg, args, tags, databases) {
+        const sound = msg.content.includes("ping") ? "Pong" : "Ping";
         let reply_embed = {
             "color": 2215713,
-            "description": ":ping_pong: Pong!"
+            "description": `:ping_pong: ${sound}!`
         }
         msg.channel.send({ embed: reply_embed}).then((reply) => {
             let ping = reply.createdTimestamp - msg.createdTimestamp;
-            reply_embed.description = ":ping_pong: Pong! `(" + ping + " ms)`";
+            reply_embed.description = `:ping_pong: ${sound}! \`(${ping} ms)\``;
             reply.edit({ embed: reply_embed});
         });
     }
