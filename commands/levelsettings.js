@@ -178,11 +178,6 @@ module.exports = {
                 }});
             case 'ignoredchannels':
                 channel = tags.channels.first() || msg.guild.channels.cache.find(channel_object => channel_object ? channel_object.name === args.lowercase[2] : undefined);
-                if (!channel) return msg.channel.send({ embed: {
-                    "color": 0xcf2d2d,
-                    "title": ":octagonal_sign: Error!",
-                    "description": `:question: Invalid channel!`
-                }});
                 switch (args.lowercase[1]) {
                     case 'add':
                         if (db_guild.levelSystem.disallowed_channels.includes(channel.id)) return msg.channel.send({ embed: {
@@ -210,11 +205,16 @@ module.exports = {
                             description: `:repeat: No longer ignoring ${channel}.`
                         }});
                     default:
+                        const ignored_channels = [];
+                        for (let channel_id of db_guild.levelSystem.disallowed_channels) {
+                            const ign_channel = msg.guild.channels.resolve(channel_id);
+                            ignored_channels.push(ign_channel);
+                        }
                         return msg.channel.send({ embed: {
-                            "color": 0xcf2d2d,
-                            "title": ":octagonal_sign: Error!",
-                            "description": `:question: Not enough arguments! Use \`${db_guild.prefix}help levelsettings\` for help.`
-                        }});        
+                            color: 49919,
+                            title: ":hash: Ignored channels",
+                            description: ignored_channels.join('\n')
+                        }});
                 };
             case 'levelroles':
             case 'roles':
