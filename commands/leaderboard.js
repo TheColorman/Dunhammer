@@ -16,6 +16,7 @@ module.exports = {
         if (!taggedmember && args.lowercase.length) {
             taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original[0]);
         }
+        taggedmember ||= msg.member;
         const user_db = databases.users;
         const top_ten = user_db.chain().simplesort('xp', true).limit(10).data();
         
