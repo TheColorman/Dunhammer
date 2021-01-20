@@ -212,7 +212,7 @@ module.exports = {
                         }
                         return msg.channel.send({ embed: {
                             color: 49919,
-                            title: ":hash: Ignored channels",
+                            title: ":hash: These channels will not grant any xp:",
                             description: ignored_channels.join('\n')
                         }});
                 };
