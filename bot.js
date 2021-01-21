@@ -166,7 +166,7 @@ client.on("message", async (msg) => {
 
         if (now < expirationTime) {
             const timeLeft = (expirationTime - now) / 1000;
-            return msg.reply(`Cooldown, ${timeLeft} seconds left.`);
+            return msg.reply(`cooldown, ${timeLeft} seconds left.`);
         }
     }
     timestamps.set(msg.author.id, now);
@@ -311,6 +311,7 @@ client.on("message", async (msg) => {
     }
 });
 
+// Make sure we mark removed users so they don't break the program.
 client.on("guildMemberRemove", member => {
     const user_db = guild_config.getCollection(member.guild.id);
     const db_user = user_db.findOne({ user_id: member.id });
@@ -331,6 +332,28 @@ client.on("guildMemberAdd", member => {
     const db_user = user_db.findOne({ user_id: member.id });
     db_user.inGuild = true;
     user_db.update(db_user);
+});
+
+// Get use roles - possibly more data in the future.
+client.on("guildMemberUpdate", (oldMember, newMember) => {
+    const user_db = guild_config.getCollection(newMember.guild.id);
+    const db_user = user_db.findOne({ user_id: newMember.id });
+
+    db_user.roles = [];
+    newMember.roles.cache.forEach(role => db_user.roles.push(role.id));
+    user_db.update(db_user);
+});
+
+// Add new guilds to database
+client.on("guildCreate", guild => {
+    const guild_db = guild_config.getCollection("guilds");
+    if (guild_db.findOne({guild_id: guild.id}) === null) {
+        guild_db.insert({
+            guild_id: guild.id,
+            prefix: '.',
+            allowbots: false
+        });
+    }
 });
 
 client.login(token);
@@ -360,6 +383,7 @@ function update_database(msg, guild_db) {
             xp: 0,
             level: 0,
             levelroles: [],
+            roles: [],
             inGuild: true
         });
     }
@@ -375,7 +399,7 @@ function update_database(msg, guild_db) {
                 "title": "Congratulations {username}, you reached level {level}!",
                 "description": ''
             },
-            "levelup_image": undefined,
+            "levelup_image": true,
             "cooldown_timestamps": {},
             "roles": {
                 "cumulative": false
