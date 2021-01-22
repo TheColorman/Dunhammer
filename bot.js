@@ -336,9 +336,23 @@ client.on("guildMemberAdd", member => {
 
 // Get use roles - possibly more data in the future.
 client.on("guildMemberUpdate", (oldMember, newMember) => {
+    if (guild_config.getCollection(newMember.guild.id) === null) {   
+        guild_config.addCollection(newMember.guild.id, {
+            unique: ["user_id"],
+            autoupdate: true
+        });
+    }    
     const user_db = guild_config.getCollection(newMember.guild.id);
+    if (user_db.findOne({user_id: newMember.id}) == null) {
+        user_db.insert({
+            user_id: newMember.id,
+            xp: 0,
+            level: 0,
+            levelroles: [],
+            inGuild: true
+        });
+    }
     const db_user = user_db.findOne({ user_id: newMember.id });
-
     db_user.roles = [];
     newMember.roles.cache.forEach(role => db_user.roles.push(role.id));
     user_db.update(db_user);
