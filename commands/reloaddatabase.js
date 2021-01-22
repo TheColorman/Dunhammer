@@ -66,10 +66,12 @@ module.exports = {
                     db_user.inGuild = false;
                 }
             }
+            db_user.roles ||= [];
+            databases.users.update(db_user);
         }
         await message.edit({ embed: {
             color: 49919,
-            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\`\n\n:white_check_mark: Done!`
+            description: `~~:arrows_counterclockwise: Refreshing database... (This might take a while).~~\n\n\`\`\`\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\`\n\n:white_check_mark: Done!`
         }});
         return msg.channel.send({ embed: {
             color: 2215713,
