@@ -48,8 +48,8 @@ module.exports = {
             top_ten_array.push(`${text_decor}#${index} - <@!${ds_user.id}> - Level ${db_user.level}${text_decor}`);
             index++;
         }
-
-        if (!tag_in_top_ten && user_db.findOne({ user_id: taggedmember.id }).roles.includes(taggedrole.id)) {
+        const hasrole = taggedrole ? user_db.findOne({ user_id: taggedmember.id }).roles.includes(taggedrole.id) : true;
+        if (!tag_in_top_ten && hasrole) {
             const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == taggedmember.id);
             const next_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank-1);
             const previous_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank+1);
