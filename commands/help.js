@@ -64,7 +64,7 @@ module.exports = {
                     return msg.channel.send({ embed: {
                         color: 49919,
                         title: ":arrow_up: Level system",
-                        description: `The level system promotes activity in a server and gives users a sense of pride and accomplishment when they send messages and gain levels.\n\`${guild.prefix}levels [subcommand]\` controls the level system and the subcommands are shown here.`,
+                        description: `The level system promotes activity in a server and gives users a sense of pride and accomplishment when they send messages and gain levels.\n\`${guild.prefix}levelsettings [subcommand]\` controls the level system and the subcommands are shown here.`,
                         fields: [{
                             name: "`disable/enable` " + (guild.levelSystem.enabled ? ":white_check_mark:" : ":x:"),
                             value: "`" + guild.prefix + "levelsettings <setting>`.\nDisables or enables the levelsystem across the server. Note that everyones leveldata will not be reset."
