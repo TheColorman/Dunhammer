@@ -59,7 +59,6 @@ process.on('beforeExit', (code) => {
 });
 
 // When client is ready
-let rare_presence;
 let presence_temp = [...presences];
 let current_presence = "This is a bug";
 client.once('ready', () => {
@@ -73,21 +72,14 @@ client.once('ready', () => {
 });
 
 function refreshPresence() {
-    console.log("Setting presence...");
-    if (Math.random() > 0.99) {
-        rare_presence = "This message has a 0.1% chance of appearing, you're lucky!";
-    } else {
-        rare_presence = undefined;
-    }
+    const rare_presence = Math.random() > 0.99 ? "This message has a 0.1% chance of appearing, you're lucky!" : undefined;
     if (presence_temp.length == 0) {
         presence_temp = [...presences];
     }
     current_presence = presence_temp[Math.floor(Math.random() * presence_temp.length)];
-    for (let i of presence_temp) {
-        if (i === current_presence) {
-            presence_temp.splice(presence_temp.indexOf(i), 1);
-        }
-    }
+    console.log(`Setting presence... ["${current_presence}"]`);
+    
+    presence_temp.splice(presence_temp.indexOf(current_presence, 1));
     client.user.setPresence({
     	activity: {
             name: ".help | " + (rare_presence || current_presence)
