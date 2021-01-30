@@ -214,9 +214,9 @@ client.on("message", async (msg) => {
     // Calculate level
     db_user.xp += Math.floor(Math.random() * (25 - 15 + 1)) + 15;   // between 15 and 25 xp
     const xp = db_user.xp;
-
+    
     let lower = 0;
-    let upper = 10000000000;
+    let upper = 10000000000;    // max xp. equivalent to sending 500 million messages, which would take 951 years at 1 message/minute.
     while (lower + 1 < upper) {
         const middle = Math.floor((lower + upper)/2);
         const level_xp = 5*(118*middle+2*middle*middle*middle)/6;
@@ -233,6 +233,7 @@ client.on("message", async (msg) => {
     if (level > db_user.level) {
         db_user.level = level;
         const channel = levelSystem.update_channel ? await client.channels.fetch(levelSystem.update_channel) : msg.channel;
+        // Roles
         if (levelSystem.roles.hasOwnProperty(level)) {
             if (!levelSystem.roles.cumulative) {
                 for (let role_id of db_user.levelroles) {
