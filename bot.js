@@ -47,15 +47,10 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
-// Crash protection
-process.on('beforeExit', (code) => {
-    fs.writeFile('CRASH.txt', `Program exited with code ${code}.`, (err) => {});
-    const spawn = require('child_process').spawn;
-    const child = spawn('./bot.js', [], {
-        detached: true,
-        stdio: ['ignore', 'ignore', 'ignore']
-    });
-    child.unref();
+// State of the art crash protection (don't do this)
+process.on('uncaughtException', (err, _origin) => {
+    console.error("WARNING: PROGRAM WAS SUPPOSED TO BE TERMINATED. I hope you (I) know what you are (I am) doing.")
+    console.error(err);
 });
 
 // When client is ready
