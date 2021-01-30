@@ -136,7 +136,7 @@ module.exports = {
                 user_db.update(user);
                 return msg.channel.send({ embed: {
                     "color": 2215713,
-                    "description": `:sparkles: Updated ${taggedmember.username}'s XP level to ${args.lowercase[2]}.`
+                    "description": `:sparkles: Updated ${taggedmember}'s XP level to ${args.lowercase[2]}.`
                 }});
             case 'disable':
             case 'enable':
