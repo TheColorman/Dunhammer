@@ -115,13 +115,18 @@ client.on("message", async (msg) => {
     args_original.shift();
 
     // Emergency change prefix
-    if (taggedUsers.first() == client.user && msg.content.split(/ +/)[1] == "prefix") {
-        if (args_lowercase.length < 1) return;
-        db_guild.prefix = msg.content.substring(msg.content.indexOf("prefix ") + 7);
-        guild_db.update(db_guild);
+    if (taggedUsers.first() == client.user && msg.content.includes("prefix")) {
+        if (args_lowercase[0] == "prefix") {
+            args_original.shift();
+            db_guild.prefix = args_original.join(" ");
+            return msg.channel.send({ embed: {
+                "color": 2215713,
+                "description": `:repeat: Updated server prefix to \`${db_guild.prefix}\`.`
+            }});
+        }
         return msg.channel.send({ embed: {
-            "color": 2215713,
-            "description": `:repeat: Updated server prefix to \`${db_guild.prefix}\`.`
+            color: 49919,
+            description: `You can change my prefix using either\n**${db_guild.prefix}prefix <new prefix>**\nor\n**${client.user} prefix <new prefix>**.`
         }});
     }
     // If no command given, terminate
