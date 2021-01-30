@@ -169,14 +169,20 @@ client.on("message", async (msg) => {
     try {
         command.execute(msg, { lowercase: args_lowercase, original: args_original }, { users: taggedUsers, members: taggedMembers, channels: taggedChannels, roles: taggedRoles }, { guilds: guild_db, users: user_db });
     } catch(err) {
-        msg.channel.send({ embed: {
-            "color": 0xcf2d2d,
-            "title": "Error!",
-            "fields": {
-                "name": ":octagonal_sign: Error:",
-                "value": `\`${err.message}\``
-            }
-        }});
+        try {
+            msg.channel.send({ embed: {
+                "color": 0xcf2d2d,
+                "title": "Error!",
+                "fields": {
+                    "name": ":octagonal_sign: Error:",
+                    "value": `\`${err.message}\``
+                }
+            }});
+        } catch (error2) {
+            console.log("Unable to send error message error:");
+            console.error(error2);
+        }
+        console.log("Original Error:");
         console.error(err);
     }
 });
