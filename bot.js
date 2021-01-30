@@ -268,6 +268,24 @@ client.on("message", async (msg) => {
     }
 });
 
+/**
+ * Extracts text ingredients from strings and returns the updated string. Current ingredients are
+ * {username}, {level}, {xp}, {nickname}, {tag} and {role}
+ * @param {string} string String to extract ingredients from
+ * @param {Discord.GuildMember} member 
+ * @param {Object} db_user 
+ * @param {Discord.Role | string} role
+ */
+function replaceIngredients(string, member, db_user, role) {
+    string = string.replace(/{username}/g, member.user.username);
+    string = string.replace(/{level}/g, `${db_user.level}`);
+    string = string.replace(/{xp}/g, `${db_user.xp}`);
+    string = string.replace(/{nickname}/g, member.nickname || member.user.username);
+    string = string.replace(/{tag}/g, member.user.tag);
+    string = string.replace(/{role}/g, `${role}`);
+    return string;
+}
+
 // Make sure we mark removed users so they don't break the program.
 client.on("guildMemberRemove", member => {
     const user_db = get_user_db(member.guild);
