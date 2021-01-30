@@ -54,11 +54,9 @@ process.on('uncaughtException', (err, _origin) => {
 });
 
 // When client is ready
-let rare_presence;
-let presence_temp = Array.from(presences);
-let current_presence = "This is a bug";
+let remainingPresences = Array.from(presences);
 client.once('ready', () => {
-    console.log('Ready as ' + client.user.tag);
+    console.log(`${client.user.tag} is online.`);
     client.user.setStatus('online');
     refreshPresence();
 
@@ -67,22 +65,16 @@ client.once('ready', () => {
     }, 21600000);   // 21600000 = 6 hours, default
 });
 
+// Sets a presence with a 0.1% chance of a rare one
 function refreshPresence() {
-    console.log("Setting presence...");
-    if (Math.random() > 0.99) {
-        rare_presence = "This message has a 0.1% chance of appearing, you're lucky!";
-    } else {
-        rare_presence = undefined;
-    }
-    if (presence_temp.length == 0) {
-        presence_temp = Array.from(presences);
-    }
-    current_presence = presence_temp[Math.floor(Math.random() * presence_temp.length)];
-    for (let i of presence_temp) {
-        if (i === current_presence) {
-            presence_temp.splice(presence_temp.indexOf(i), 1);
-        }
-    }
+    const rare_presence = Math.random() > 0.99 ? "This message has a 0.1% chance of appearing, you're lucky!" : undefined;
+    if (!remainingPresences.length) remainingPresences = Array.from(presences);
+
+    const current_presence = remainingPresences[Math.floor(Math.random() * remainingPresences.length)];
+    
+    console.log(`Setting presence... ["${current_presence}"]`);
+    
+    remainingPresences.splice(remainingPresences.indexOf(current_presence, 1));
     client.user.setPresence({
     	activity: {
             name: `.help | ${rare_presence || current_presence}`
@@ -95,11 +87,13 @@ client.on("message", async (msg) => {
     // DM check
     if (msg.channel.type === "dm") {
         if (msg.author == client.user) return;
-        return msg.channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: ":no_entry: Dunhammer doesn't support DMs yet."
-        }});
+        return msg.channel.send({
+            embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: ":no_entry: Dunhammer doesn't support DMs yet."
+            }
+        });
     }
     if (msg.webhookID) return;
     // Load databases
@@ -189,11 +183,11 @@ client.on("message", async (msg) => {
     if (msg.channel.type === "dm" || msg.webhookID) return;
     const guild_db = guild_config.getCollection("guilds");
     const db_guild = get_db_guild(msg.guild);
-    const user_db = get_user_db(msg.guild)
     const db_user = get_db_user(msg.guild, msg.author);
+    const user_db = get_user_db(msg.guild)
     const levelSystem = db_guild.levelSystem;
 
-    if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id)) return;
+    if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id || (!db_guild.allowbots && msg.author.bot))) return;
 
     // Check if user cooldown is over
     const now = Date.now();
@@ -222,85 +216,43 @@ client.on("message", async (msg) => {
         }
     }
     const level = lower;
+    user_db.update(db_user);
+    
     // Congratulate if new level
     if (level > db_user.level) {
+        db_user.level = level;
         const channel = levelSystem.update_channel ? await client.channels.fetch(levelSystem.update_channel) : msg.channel;
         if (levelSystem.roles.hasOwnProperty(level)) {
             if (!levelSystem.roles.cumulative) {
                 for (let role_id of db_user.levelroles) {
-                    let role = await msg.guild.roles.fetch(role_id);
+                    const role = await msg.guild.roles.fetch(role_id);
                     msg.member.roles.remove(role, "Levelroles.");
                 }
             }
             const role = await msg.guild.roles.fetch(levelSystem.roles[level]);
-            msg.member.roles.add(role, "Levelroles.");
+            msg.member.roles.add(role, "Levelroles");
             channel.send({ embed: {
-                description: `Congratulations ${msg.author.username}, you reached level ${level} and gained the role ${role}!`
+                color: levelSystem.newrole_message.color,
+                description: replaceIngredients(levelSystem.newrole_message.description, msg.member, db_user, role)
             }});
             db_user.levelroles.push(levelSystem.roles[level]);
-            user_db.update(db_user);
         }
-        // Get levelup message from database
-        let reply = JSON.parse(JSON.stringify(levelSystem.levelup_message));
+        user_db.update(db_user);
 
-        if ((reply.title + reply.description).includes("{")) {
-            let title = reply.title ? reply.title.replace(/{/g, "[{").replace(/}/g, "}]").split(/\[(.*?)\]/) : undefined;   // levelup title
-            let description = reply.description ? reply.description.replace(/{/g, "[{").replace(/}/g, "}]").split(/\[(.*?)\]/) : undefined; // levelup description
-            // Replace all instances of {username} e.g. with their respective variables
-            for (let index = 0; title !== undefined && title[index] !== undefined; index++) {
-                switch (title[index-1]) {
-                    case '{username}':
-                        title[index-1] = msg.author.username;
-                        break;
-                    case '{level}':
-                        title[index-1] = level;
-                        break;
-                    case '{xp}':
-                        title[index-1] = xp;
-                        break;
-                    case '{nickname}':
-                        title[index-1] = msg.member ? msg.member.nickname : msg.author.username;
-                        break;
-                    case '{tag}':
-                        title[index-1] = msg.author.tag;
-                        break;    
-                }
-            }
-            for (let index = 0; description !== undefined && description[index] !== undefined; index++) {
-                switch (description[index-1]) {
-                    case '{username}':
-                        description[index-1] = msg.author.username;
-                        break;
-                    case '{level}':
-                        description[index-1] = level;
-                        break;
-                    case '{xp}':
-                        description[index-1] = xp;
-                        break;
-                    case '{nickname}':
-                        description[index-1] = msg.member ? msg.member.nickname : msg.author.username;
-                        break;
-                    case '{tag}':
-                        description[index-1] = msg.author.tag;
-                        break;
-                }
-            }
-            // Add the title and description to the reply
-            reply.title = title ? title.join('') : ''; 
-            reply.description = description ? description.join('') : '';
-            db_user.level = level;
-            user_db.update(db_user);
-            // Add image if set to true
-            if (levelSystem.levelup_image) {
-                await CanvasImage.levelup_image(msg.member, user_db, msg.guild);
-                const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
-                reply.image = {
-                    url: 'attachment://level.png'
-                }
-                return channel.send({ files: [attachment], embed: reply});
-            }
-            return channel.send({ embed: reply });
+        const levelup_message = {
+            color: levelSystem.levelup_message.color,
+            title: replaceIngredients(levelSystem.levelup_message.title, msg.member, db_user, "{role}"),
+            description: replaceIngredients(levelSystem.levelup_message.description, msg.member, db_user, "{role}")
         }
+        if (levelSystem.levelup_image) {
+            await CanvasImage.levelup_image(msg.member, user_db, msg.guild);
+            const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
+            levelup_message.image = {
+                url: 'attachment://level.png'
+            }
+            return channel.send({ files: [attachment], embed: levelup_message });
+        }
+        return channel.send({ embed: levelup_message });
     }
 });
 
@@ -350,6 +302,10 @@ function get_db_guild(guild) {
                     title: "Congratulations {username}, you reached level {level}!",
                     description: ''
                 },
+                newrole_message: {
+                    color: 2215713,
+                    description: "Congratulations {username}, you reached level {level} and gained the role {role}!"
+                },
                 levelup_image: true,
                 cooldown_timestamps: {},
                 roles: {
@@ -362,6 +318,10 @@ function get_db_guild(guild) {
     const db_guild = guild_db.findOne({ guild_id: guild_id });
     /// to be removed ///
     db_guild.levelSystem.roles ||= { cumulative: false };
+    db_guild.levelSystem.newrole_message ||= {
+        color: 2215713,
+        description: "Congratulations {username}, you reached level {level} and gained the role {role}!"
+    }
     db_guild.allowbots ||= false;
     db_guild.name ||= guild.name;
     guild_db.update(db_guild);
@@ -381,7 +341,7 @@ function get_user_db(guild) {
 function get_db_user(guild, user) {
     const guild_id = guild.id;
     const user_id = user.id;
-    const user_db = get_user_db(guild_id);
+    const user_db = get_user_db(guild);
     if (user_db.findOne({ user_id: user_id }) === null) {
         user_db.insert({
             user_id: user_id,
@@ -398,7 +358,7 @@ function get_db_user(guild, user) {
     db_user.inGuild ||= true;
     user_db.update(db_user);
     /// ------------ ///
-    return db_user;
+    return user_db.findOne({ user_id: user_id });
     
 }
 
