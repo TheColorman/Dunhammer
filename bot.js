@@ -47,22 +47,16 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
-// Crash protection
-process.on('beforeExit', (code) => {
-    fs.writeFile('CRASH.txt', `Program exited with code ${code}.`, (err) => {});
-    const spawn = require('child_process').spawn;
-    const child = spawn('./bot.js', [], {
-        detached: true,
-        stdio: ['ignore', 'ignore', 'ignore']
-    });
-    child.unref();
+// State of the art crash protection
+process.on('uncaughtException', (err, _origin) => {
+    console.error("WARNING: PROGRAM WAS SUPPOSED TO BE TERMINATED. I hope you (I) know what you are (I am) doing.")
+    console.error(err);
 });
 
 // When client is ready
-let presence_temp = [...presences];
-let current_presence = "This is a bug";
+let remainingPresences = Array.from(presences);
 client.once('ready', () => {
-    console.log('Ready as ' + client.user.tag);
+    console.log(`${client.user.tag} is online.`);
     client.user.setStatus('available');
     refreshPresence();
 
@@ -71,18 +65,19 @@ client.once('ready', () => {
     }, 21600000);   // 21600000 = 6 hours, default
 });
 
+// Sets a presence with a 0.1% chance of a rare one
 function refreshPresence() {
     const rare_presence = Math.random() > 0.99 ? "This message has a 0.1% chance of appearing, you're lucky!" : undefined;
-    if (presence_temp.length == 0) {
-        presence_temp = [...presences];
-    }
-    current_presence = presence_temp[Math.floor(Math.random() * presence_temp.length)];
+    if (!remainingPresences.length) remainingPresences = Array.from(presences);
+
+    const current_presence = remainingPresences[Math.floor(Math.random() * remainingPresences.length)];
+    
     console.log(`Setting presence... ["${current_presence}"]`);
     
-    presence_temp.splice(presence_temp.indexOf(current_presence, 1));
+    remainingPresences.splice(remainingPresences.indexOf(current_presence, 1));
     client.user.setPresence({
     	activity: {
-            name: ".help | " + (rare_presence || current_presence)
+            name: `.help | ${rare_presence || current_presence}`
         }
     });
 }
@@ -92,15 +87,17 @@ client.on("message", async (msg) => {
     // DM check
     if (msg.channel.type === "dm") {
         if (msg.author == client.user) return;
-        return msg.channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: ":no_entry: Dunhammer doesn't support DMs yet."
-        }});
+        return msg.channel.send({
+            embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: ":no_entry: Dunhammer doesn't support DMs yet."
+            }
+        });
     }
     if (msg.webhookID) return;
     // Load databases
-    const guild_db = guild_config.getCollection("guilds");  // guild database
+    const guild_db = guild_config.getCollection("guilds"); // guild database
     update_database(msg, guild_db);
     const user_db = guild_config.getCollection(msg.guild.id);
     const db_guild = guild_db.findOne({guild_id: msg.guild.id});
