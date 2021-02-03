@@ -13,7 +13,7 @@ const client = new Discord.Client();
 client.commandCategories = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 
-// Load the commands with their categories
+// Load the commands with their categories 
 const commandFilesObj = {};
 fs.readdirSync('./commands').forEach(folder => {
     commandFilesObj[folder] ||= fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
