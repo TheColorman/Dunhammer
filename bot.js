@@ -10,10 +10,14 @@ const { token } = require('./token.json');
 
 // Create a new Discord client
 const client = new Discord.Client();
-client.commands = new Discord.Collection();
+client.commandCategories = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+// Load the commands with their categories
+const commandFilesObj = {};
+fs.readdirSync('./commands').forEach(folder => {
+    commandFilesObj[folder] ||= fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+});
 
 // Database
 var guild_config = new loki('./databases/guild_config.db', {
@@ -41,10 +45,12 @@ function runProgramLogic() {
     console.log("Number of guilds in database: " + guildCount);
 }
 
-
-for (const file of commandFiles) {
-    const command = require(`./commands/${file}`);
-    client.commands.set(command.name, command);
+for (const folder of Object.keys(commandFilesObj)) {
+    client.commandCategories.set(folder, new Discord.Collection());
+    for (const file of commandFilesObj[folder]) {
+        const command = require(`./commands/${folder}/${file}`);
+        client.commandCategories.get(folder).set(command.name, command);
+    }
 }
 
 // State of the art crash protection (don't do this)
@@ -132,7 +138,13 @@ client.on("message", async (msg) => {
     // If no command given, terminate
     if (!msg_content_original.startsWith(db_guild.prefix)) return;
 
-    const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
+    let command;
+    client.commandCategories.forEach(category => {
+        category.forEach((cmd, cmd_name) => {
+            const com = (cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName)) ? cmd : undefined;
+            if (com) command = com;
+        });
+    });
     
     if (!command || (!db_guild.allowbots && msg.author.bot)) return;
     

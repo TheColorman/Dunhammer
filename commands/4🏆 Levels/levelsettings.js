@@ -1,5 +1,5 @@
 //@ts-check
-const { QuickMessage } = require('../helperfunctions.js');
+const { QuickMessage } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'levelsettings',
