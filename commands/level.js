@@ -1,6 +1,6 @@
 //@ts-check
 const Discord = require('discord.js');
-const { CanvasImage } = require('../../helperfunctions.js');
+const { CanvasImage } = require('../helperfunctions.js');
 
 module.exports = {
     name: 'level',

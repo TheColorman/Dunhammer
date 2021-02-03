@@ -1,12 +1,12 @@
 {
-  "name": "dunhammer",
-  "version": "2.4.0",
-  "description": "The Discord bot Dunhammer.",
+  "name": "new",
+  "version": "1.0.0",
+  "description": "",
   "main": "bot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "The Colorman",
+  "author": "",
   "license": "ISC",
   "dependencies": {
     "canvas": "^2.6.1",

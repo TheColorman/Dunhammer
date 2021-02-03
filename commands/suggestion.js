@@ -1,8 +1,8 @@
 const https = require('https');
 const querystring = require('querystring');
-const { trelloToken } = require('../../token.json');
+const { trelloToken } = require('../token.json');
 
-const { QuickMessage } = require('../../helperfunctions.js');
+const { QuickMessage } = require('../helperfunctions.js');
 
 module.exports = {
     name: 'suggestion',
