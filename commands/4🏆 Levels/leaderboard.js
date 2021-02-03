@@ -1,4 +1,4 @@
-const { QuickMessage } = require('../helperfunctions.js');
+const { QuickMessage } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'leaderboard',
@@ -18,7 +18,7 @@ module.exports = {
         }
         let taggedrole = tags.roles.first();
         if (!taggedrole && args.lowercase.length) {
-            taggedrole = msg.guild.roles.cache.find(role => role.name == args.original.join(" "));
+            taggedrole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == args.lowercase.join(" "));
         }
 
         taggedmember ||= msg.member;
