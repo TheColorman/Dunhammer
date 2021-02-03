@@ -16,10 +16,14 @@ module.exports = {
         if (!taggedmember && args.lowercase.length) {
             taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original[0]);
         }
+        let taggedrole = tags.roles.first();
+        if (!taggedrole && args.lowercase.length) {
+            taggedrole = msg.guild.roles.cache.find(role => role.name.toLowerCase() == args.lowercase.join(" "));
+        }
 
         taggedmember ||= msg.member;
         const user_db = databases.users;
-        const top_ten = user_db.chain().simplesort('xp', true).limit(10).data();
+        const top_ten = taggedrole ? user_db.chain().where(obj => obj.roles.includes(taggedrole.id)).simplesort('xp', true).limit(10).data() : user_db.chain().simplesort('xp', true).limit(10).data();
         
         const top_ten_array = [];
         let index = 1;
@@ -44,8 +48,8 @@ module.exports = {
             top_ten_array.push(`${text_decor}#${index} - <@!${ds_user.id}> - Level ${db_user.level}${text_decor}`);
             index++;
         }
-
-        if (!tag_in_top_ten) {
+        const hasrole = taggedrole ? user_db.findOne({ user_id: taggedmember.id }).roles.includes(taggedrole.id) : true;
+        if (!tag_in_top_ten && hasrole) {
             const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == taggedmember.id);
             const next_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank-1);
             const previous_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank+1);
@@ -56,7 +60,7 @@ module.exports = {
         }
         return reply.edit({ embed: {
             color: 49919,
-            title: ":trophy: Top 10",
+            title: `:trophy: Top 10 ${taggedrole ? `with role \`${taggedrole.name}\`` : ""}`,
             description: `${top_ten_array.join('\n')}`
         }});
     }
