@@ -13,7 +13,11 @@ const client = new Discord.Client();
 client.commands = new Discord.Collection();
 const cooldowns = new Discord.Collection();
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+// Load the commands with their categories 
+const commandFilesObj = {};
+fs.readdirSync('./commands').forEach(folder => {
+    commandFilesObj[folder] ||= fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
+});
 
 // Database
 var guild_config = new loki('./databases/guild_config.db', {
