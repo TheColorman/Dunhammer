@@ -23,7 +23,6 @@ module.exports = {
 
         taggedmember ||= msg.member;
         const user_db = databases.users;
-        console.log(obj);
         const top_ten = taggedrole ? user_db.chain().where(obj => obj.roles.includes(taggedrole.id)).simplesort('xp', true).limit(10).data() : user_db.chain().simplesort('xp', true).limit(10).data();
         
         const top_ten_array = [];
