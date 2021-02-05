@@ -18,8 +18,13 @@ module.exports = {
         }});
 
         // Guild
+        await message.edit({ embed: {
+            color: 49919,
+            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nUpdating old database versions...\n\`\`\``
+        }});
         const db_guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         db_guild.levelSystem.roles ||= { cumulative: false};
+        db_guild.levelSystem.cooldown_timestamps ||= {};
         db_guild.allowbots ||= false;
         db_guild.name ||= msg.guild.name;
         databases.guilds.update(db_guild);
@@ -29,7 +34,7 @@ module.exports = {
         const members_length = members.size;
         await message.edit({ embed: {
             color: 49919,
-            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nRefreshing roles for ${members_length} members...\n\`\`\``
+            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nUpdating old database versions...\nRefreshing roles for ${members_length} members...\n\`\`\``
         }});
         members.each(async member => {
             // roles
@@ -56,7 +61,7 @@ module.exports = {
         const db_users_length = db_users.length;
         await message.edit({ embed: {
             color: 49919,
-            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\``
+            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nUpdating old database versions...\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\``
         }});        
         for (const db_user of db_users) {
             try {
@@ -71,7 +76,7 @@ module.exports = {
         }
         await message.edit({ embed: {
             color: 49919,
-            description: `~~:arrows_counterclockwise: Refreshing database... (This might take a while).~~\n\n\`\`\`\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\`\n\n:white_check_mark: Done!`
+            description: `~~:arrows_counterclockwise: Refreshing database... (This might take a while).~~\n\n\`\`\`\nUpdating old database versions...\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\`\n\n:white_check_mark: Done!`
         }});
         return msg.channel.send({ embed: {
             color: 2215713,
