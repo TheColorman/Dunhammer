@@ -273,8 +273,8 @@ client.on("message", async (msg) => {
 
         const levelup_message = {
             color: levelSystem.levelup_message.color,
-            title: replaceIngredients(levelSystem.levelup_message.title, msg.member, db_user, "{role}"),
-            description: replaceIngredients(levelSystem.levelup_message.description, msg.member, db_user, "{role}")
+            title: levelSystem.levelup_message.title ? replaceIngredients(levelSystem.levelup_message.title, msg.member, db_user, "{role}") : "",
+            description: levelSystem.levelup_message.description ? replaceIngredients(levelSystem.levelup_message.description, msg.member, db_user, "{role}") : ""
         }
         if (levelSystem.levelup_image) {
             await CanvasImage.levelup_image(msg.member, user_db, msg.guild);
