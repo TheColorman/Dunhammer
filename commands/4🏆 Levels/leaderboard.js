@@ -14,7 +14,7 @@ module.exports = {
         }});
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
-            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original[0]);
+            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original.join(" "));
         }
         let taggedrole = tags.roles.first();
         if (!taggedrole && args.lowercase.length) {

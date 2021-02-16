@@ -12,7 +12,7 @@ module.exports = {
     async execute(msg, args, tags, databases) {
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
-            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original[0]);
+            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original.join(" "));
         }
         await CanvasImage.rank_image(taggedmember || msg.member, databases.users);
 
