@@ -123,6 +123,14 @@ client.on("message", async (msg) => {
     // Emergency change prefix
     if (taggedUsers.first() == client.user && msg.content.includes("prefix")) {
         if (args_lowercase[0] == "prefix") {
+            const authorPerms = msg.channel.permissionsFor(msg.member);
+            if (!authorPerms || !authorPerms.has("BAN_MEMBERS")) {
+                return msg.channel.send({ embed: {
+                    "color": 0xcf2d2d,
+                    "title": ":octagonal_sign: Error!",
+                    "description": `:no_entry: You don't have permission to change the bot prefix!`
+                }});
+            }
             args_original.shift();
             db_guild.prefix = args_original.join(" ");
             return msg.channel.send({ embed: {
