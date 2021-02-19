@@ -11,14 +11,6 @@ module.exports = {
             }});
         }
 
-        
-        msg.client.guilds.cache.each(guild => {
-            guild.channels.cache.each(channel => {
-                if (channel.id == "780446870035103774") {
-                    console.log(`Error from guild ${guild.name}`);
-                    console.log(`In channel ${channel.name}`);
-                }
-            });
-        });
+        const client = msg.client;
     }
 }
