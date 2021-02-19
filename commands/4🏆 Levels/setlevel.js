@@ -37,6 +37,10 @@ module.exports = {
             }});
         }
         
+        const new_level = parseInt(args.lowercase[tags.members.first() ? 1 : taggedmember.user.tag.split(" ").length], 10); // explanation in ../Moderation/nickname.js
+        const new_xp = parseInt(args.lowercase[tags.members.first() ? 2 : taggedmember.user.tag.split(" ").length], 10);
+        db_user.xp = (5*(118*new_level+2*new_level*new_level*new_level)/6) + (new_xp || 0);
+
         let xp = db_user.xp;
         let lower = 0;
         let upper = 10000000000;
