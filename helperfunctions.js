@@ -150,7 +150,9 @@ const CanvasImage = {
         ctx.fillStyle = "#4a4a4a";
         CanvasImagesMeta.roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
         ctx.fillStyle = "#54b35d";
-        if (current_xp != 0) CanvasImagesMeta.roundRect(ctx, 290, 240, ((current_xp/xp_for_next_level) > 0.03 ? current_xp/xp_for_next_level : 0.0) * (canvas.width - 320), 30, 16, true, false);    // xp_total filled up
+        if (current_xp/xp_for_next_level > 0.02) {
+            CanvasImagesMeta.roundRect(ctx, 290, 240, (current_xp/xp_for_next_level) * (canvas.width - 320), 30, 16, true, false);
+        }    // xp_total filled up
         // xp for next lvl
         ctx.font = `34px ${font}`;
         ctx.fillStyle = '#A6A7AA';
