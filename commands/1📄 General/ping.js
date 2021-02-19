@@ -4,7 +4,29 @@ module.exports = {
     short_desc: "Measure delay between send-receive.",
     long_desc: 'Measures the timestamp delay in miliseconds between the ping message and reply message.',
     cooldown: 5,
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+
+        if (interaction) {
+            msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 4,
+                data: {
+                    embeds: [{
+                        color: 2215713,
+                        description: `:ping_pong: Pong! \`${Date.now()-msg.createdTimestamp} ms\``
+                    }]
+                }
+            }});
+
+            // msg.client.api.webhooks(msg.client.user.id)[interaction.token].messages["@original"].patch({
+            //     embeds: [{
+            //         color: 2215713,
+            //         description: `:ping_pong: Pong, but edited!`
+            //     }],
+            // });
+
+            return
+        }
+        
         const sound = msg.content.includes("ping") ? "Pong" : "Ping";
         let reply_embed = {
             "color": 2215713,

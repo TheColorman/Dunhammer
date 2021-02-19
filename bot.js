@@ -414,5 +414,98 @@ function get_db_user(guild, user) {
     
 }
 
+
+// SLASH COMMAND TESTING - most of the code is from the normal message recieve event code, but some parts are replaced to match interaction code
+client.ws.on('INTERACTION_CREATE', async interaction => {
+    const msg = {
+        author: interaction.member.user,
+        channel: await client.channels.fetch(interaction.channel_id),
+        client: client,
+        content: ".ping",
+        createdTimestamp: Date.now(),
+        guild: await client.guilds.fetch(interaction.guild_id),
+        id: interaction.id,
+        member: interaction.member,
+    }
+
+    const guild_db = guild_config.getCollection("guilds");
+    const user_db = get_user_db(msg.guild);
+
+    const commandName = interaction.data.name;
+    let command;
+    client.commandCategories.forEach(category => {
+        category.forEach((cmd, cmd_name) => {
+            const com = (cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName)) ? cmd : undefined;
+            if (com) command = com;
+        });
+    });
+
+
+    if (command.permissions) {
+        const authorPerms = msg.channel.permissionsFor(msg.member);
+        if (!authorPerms || !authorPerms.has(command.permissions)) {
+            return client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 4,
+                data: {
+                    embeds: [{
+                        color: 0xcf2d2d,
+                        title: ":octagonal_sign: Error!",
+                        description: `:no_entry: You don't have access to \`${command.name}\``
+                    }]
+                }
+            }});
+        }
+    }
+
+    if (!cooldowns.has(command.name)) {
+        cooldowns.set(command.name, new Discord.Collection());
+    }
+    const now = Date.now();
+    const timestamps = cooldowns.get(command.name);
+    const cooldownAmount = (command.cooldown || 3) * 1000;
+    if (timestamps.has(msg.author.id)) {
+        const expirationTime = timestamps.get(msg.author.id) + cooldownAmount;
+
+        if (now < expirationTime) {
+            const timeLeft = (expirationTime - now) / 1000;
+            return client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 4,
+                data: {
+                    embeds: [{
+                        color: 0xcf2d2d,
+                        title: ":alarm_clock: Cooldown!",
+                        description: `${timeLeft} seconds left.`
+                    }]
+                }
+            }});
+        }
+    }
+    timestamps.set(msg.author.id, now);
+    setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
+
+    try {
+        command.execute(
+            msg,    // msg
+            {},     // args
+            {},     // tags
+            { guilds: guild_db, users: user_db},    // databases
+            interaction     // interaction
+        )
+    } catch(err) {
+        console.error(err);
+        client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+            type: 4,
+            data: {
+                embeds: [{
+                    color: 0xcf2d2d,
+                    title: ":octagonal_sign: Error!",
+                    description: `It seems this command doesn't work with slash commands! Have you tried using it with the bot prefix?`
+                }]
+            }
+        }});
+    }
+});
+
+
 // login
 client.login(token);
