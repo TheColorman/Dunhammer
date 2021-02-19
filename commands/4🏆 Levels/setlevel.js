@@ -1,10 +1,11 @@
 //@ts-check
 
 module.exports = {
-    name: "setxp",
-    short_desc: "Updates a members xp.",
-    long_desc: "Changes the total amount of xp a member has gained. Total amount of xp is currently not visible anywhere, and the command functionality will be changed in the future.",
-    usage: "<member> <xp>",
+    name: "setlevel",
+    aliases: ["setxp", "setlvl"],
+    short_desc: "Updates a members level.",
+    long_desc: "Changes the level and optionally also the amount of XP a member has. If no XP amount is given, the member will have 0 xp. If XP amount exceeds the threshold for a levelup, the member will level up.\n\n**Arguments:**\n`<member>`, required. A member mention or tag (e.g. <@671681661296967680> or Dunhammer#2797)\n`<level>`, required. The members new level.\n`[xp]`, optional. The members new XP amount.\n\n**Example:** `setlevel Dunhammer#2797 10 500`",
+    usage: "<member> <level> [xp]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,
     execute(msg, args, tags, databases) {
@@ -18,14 +19,14 @@ module.exports = {
         if (!taggedmember) return msg.channel.send({ embed: {
             color: 0xcf2d2d,
             title: ":octagonal_sign: Error!",
-            description: `:no_pedestrians: No user tagged! Use \`${db_guild.prefix}help setxp\` for help.`
+            description: `:no_pedestrians: No user tagged! Use \`${db_guild.prefix}help setlevel\` for help.`
         }});
         let db_user = user_db.findOne({user_id: taggedmember.id});
         if (args.lowercase.length < 2) {
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:question: Not enough argument! Use \`${db_guild.prefix}help setxp\` for help.`
+                "description": `:question: Not enough argument! Use \`${db_guild.prefix}help setlevel\` for help.`
             }});
         }
         if (db_user == null) {
@@ -35,7 +36,7 @@ module.exports = {
                 "description": ":no_pedestrians: User not found!"
             }});
         }
-        db_user.xp = parseInt(args.lowercase[taggedmember.user.tag.split(" ").length], 10) || parseInt(args.lowercase[1]);  // explanation in ../Moderation/nickname.js
+        
         let xp = db_user.xp;
         let lower = 0;
         let upper = 10000000000;
