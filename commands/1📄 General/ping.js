@@ -17,7 +17,7 @@ module.exports = {
             "description": `:ping_pong: ${sound}!`
         }
         msg.channel.send({ embed: reply_embed}).then((reply) => {
-            let ping = reply.createdTimestamp - msg.createdTimestamp;
+            const ping = (new Date(reply.id / 4194304 + 1420070400000)) - (new Date(msg.id / 4194304 + 1420070400000));
             reply_embed.description = `:ping_pong: ${sound}! \`(${ping} ms)\``;
             reply.edit({ embed: reply_embed});
         });
