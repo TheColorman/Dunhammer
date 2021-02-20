@@ -483,15 +483,32 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     }
     timestamps.set(msg.author.id, now);
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
-
+    
+    const arguments = [];
+    const arguments_lowercase = [];
+    if (interaction.data.options) {
+        interaction.data.options.forEach(option => {
+            if (option.options) {
+                arguments.push(option.name);
+                option.options.forEach(nested_option => {
+                    arguments.push(nested_option.value);
+                });
+            } else {
+                arguments.push(option.value || option.name);
+            }
+        });
+        arguments.forEach(argument => {
+            arguments_lowercase.push(`${argument}`.toLowerCase());
+        });
+    }
     try {
         command.execute(
             msg,    // msg
-            {},     // args
-            {},     // tags
+            { lowercase: arguments_lowercase, original: arguments}, // args
+            {}, // tags
             { guilds: guild_db, users: user_db},    // databases
-            interaction     // interaction
-        )
+            interaction // interaction
+        );
     } catch(err) {
         console.error(err);
         client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
