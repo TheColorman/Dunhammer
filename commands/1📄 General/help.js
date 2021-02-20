@@ -6,9 +6,9 @@ module.exports = {
     usage: '[command name]',
     aliases: ['h', 'commands'],
     cooldown: 2,
-    execute(msg, args, tags, databases, interaction) {
+    async execute(msg, args, tags, databases, interaction) {
         if (interaction) {
-            msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
                 type: 5,
             }});
         }
