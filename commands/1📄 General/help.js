@@ -6,7 +6,13 @@ module.exports = {
     usage: '[command name]',
     aliases: ['h', 'commands'],
     cooldown: 2,
-    execute(msg, args, tags, databases) {
+    execute(msg, args, tags, databases, interaction) {
+        if (interaction) {
+            msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id});
         const { commandCategories } = msg.client;
         let reply_embed = {"title": "Error!", "color": 49919}

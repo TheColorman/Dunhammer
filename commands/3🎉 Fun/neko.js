@@ -8,7 +8,18 @@ module.exports = {
     aliases: ['image', 'catgirl'],
     usage: '[type]',
     permissions: 'ATTACH_FILES',
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+            // interaction compatability
+            if (args.lowercase.length > 1) {
+                args.lowercase.shift()
+                args.original.shift()
+            }
+        }
+
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
 
         if (args.original[0] == "help") {

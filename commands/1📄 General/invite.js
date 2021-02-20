@@ -5,7 +5,13 @@ module.exports = {
     long_desc: 'Sends an invite link for Dunhammer.',
     aliases: ['inv'],
     cooldown: 2,
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+
         return msg.channel.send({ embed: {
             color: 49919,
             description: ":robot: To invite me to a server, please choose one of the following:\n[Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot).\n[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot).\n\n",

@@ -7,7 +7,12 @@ module.exports = {
     usage: '[true/false]',
     permissions: 'BAN_MEMBERS',
     cooldown: 2,
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
         return msg.channel.send({ embed: {
             title: ":map: Roadmap",
             url: "https://trello.com/b/expgfSZa/dunhammer-roadmap",
