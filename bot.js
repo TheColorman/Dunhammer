@@ -417,15 +417,16 @@ function get_db_user(guild, user) {
 
 // SLASH COMMAND TESTING - most of the code is from the normal message recieve event code, but some parts are replaced to match interaction code
 client.ws.on('INTERACTION_CREATE', async interaction => {
+    const guild = await client.guilds.fetch(interaction.guild_id);
     const msg = {
         author: interaction.member.user,
         channel: await client.channels.fetch(interaction.channel_id),
         client: client,
         content: ".ping",
         createdTimestamp: Date.now(),
-        guild: await client.guilds.fetch(interaction.guild_id),
+        guild: guild,
         id: interaction.id,
-        member: interaction.member,
+        member: await guild.members.fetch(interaction.member.user.id),
     }
 
     const guild_db = guild_config.getCollection("guilds");
