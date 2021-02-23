@@ -23,7 +23,6 @@ module.exports = {
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
 
         if (args.lowercase[0] == "help") {
-            args.lowercase[0] = "neko";
             return msg.client.commands.get("help").execute(msg, args, tags, databases);
         }
 
