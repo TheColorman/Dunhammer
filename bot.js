@@ -80,7 +80,7 @@ function refreshPresence() {
     
     console.log(`Setting presence... ["${current_presence}"]`);
     
-    remainingPresences.splice(remainingPresences.indexOf(current_presence, 1));
+    remainingPresences.splice(remainingPresences.indexOf(current_presence), 1);
     client.user.setPresence({
     	activity: {
             name: `.help | ${rare_presence || current_presence}`
@@ -483,7 +483,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     }
     timestamps.set(msg.author.id, now);
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
-    
+
     const arguments = [];
     const arguments_lowercase = [];
     if (interaction.data.options) {
