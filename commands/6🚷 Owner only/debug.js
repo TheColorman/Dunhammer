@@ -270,6 +270,13 @@ module.exports = {
         //                 value: "feet"
         //             }]
         //         }]
+        //     }, {
+        //         type: 1,
+        //         name: "default",
+        //         description: "Default, sends a catgirl",
+        //         required: false,
+        //     }]
+        // }});
         //     }]
         // }});
     }
