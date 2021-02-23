@@ -501,11 +501,26 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             arguments_lowercase.push(`${argument}`.toLowerCase());
         });
     }
+    const userTags = new Discord.Collection();
+    const memberTags = new Discord.Collection();
+    const channelTags = new Discord.Collection();
+    const roleTags = new Discord.Collection();
+    if (interaction.data.options) {
+        interaction.data.options.forEach(async option => {
+            if (option.type == 6) {
+                memberTags.set(option.value, await guild.members.fetch(option.value));
+                userTags.set(option.value, memberTags.get(option.value).user);
+            }
+            if (option.type == 7) channelTags.set(option.value, await guild.channels.resolve(option.value));
+            if (option.type == 8) roleTags.set(option.value, await guild.roles.fetch(option.value));
+        });
+    }
+
     try {
         command.execute(
             msg,    // msg
             { lowercase: arguments_lowercase, original: arguments}, // args
-            {}, // tags
+            { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
             { guilds: guild_db, users: user_db},    // databases
             interaction // interaction
         );
