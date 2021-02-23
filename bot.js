@@ -494,7 +494,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
                     arguments.push(nested_option.value);
                 });
             } else {
-                arguments.push(option.value || option.name);
+                arguments.push(`${option.value}` || `${option.name}`);
             }
         });
         arguments.forEach(argument => {
