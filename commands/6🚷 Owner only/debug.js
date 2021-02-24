@@ -1,3 +1,5 @@
+///@ts-check
+
 module.exports = {
     name: 'debug',
     short_desc: 'Debug command.',
