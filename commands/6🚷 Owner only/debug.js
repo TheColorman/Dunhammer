@@ -280,7 +280,65 @@ module.exports = {
         //         required: false,
         //     }]
         // }});
+        // // ignore
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'ignore',
+        //     description: 'Prevent XP from being gained in chosen channels.',
+        //     options: [{
+        //         type: 7,
+        //         name: "channel",
+        //         description: "The channel to either ignore/unignore",
+        //         required: true,
         //     }]
         // }});
+        // // leaderboard
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'leaderboard',
+        //     description: 'Displays the server leaderboard.',
+        //     options: [{
+        //         type: 6,
+        //         name: "user",
+        //         description: "The user to focus on",
+        //         required: false,
+        //     }, {
+        //         type: 8,
+        //         name: "role",
+        //         description: "The role to filter",
+        //         required: false,
+        //     }]
+        // }});
+        // // level
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'level',
+        //     description: 'Shows a uses level.',
+        //     options: [{
+        //         type: 6,
+        //         name: "user",
+        //         description: "Selected user",
+        //         required: false,
+        //     }]
+        // }});
+        // // levelsenabled
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'levelsenabled',
+        //     description: 'Changes whether the level system is enabled.',
+        //     options: [{
+        //         type: 5,
+        //         name: "boolean",
+        //         description: "True to enable levelsystem, False to disable",
+        //         required: true,
+        //     }]
+        // }});
+        // levelupchannel
+        client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+            name: 'levelupchannel',
+            description: 'Change the levelup channel.',
+            options: [{
+                type: 7,
+                name: "channel",
+                description: "Selected channel",
+                required: false,
+            }]
+        }});
     }
 }
