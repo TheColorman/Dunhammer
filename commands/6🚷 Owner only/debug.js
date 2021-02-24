@@ -4,7 +4,7 @@ module.exports = {
     name: 'debug',
     short_desc: 'Debug command.',
     long_desc: 'Debug command. Can only be used by bot owner, and is a placeholder for random testing.',
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases) {
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {
             return msg.channel.send({ embed: {
