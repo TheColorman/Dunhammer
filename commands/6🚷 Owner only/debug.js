@@ -110,7 +110,7 @@ module.exports = {
         //     options: [{
         //         type: 1,
         //         name: "SFW",
-        //         description: "The type of catgirl to send",
+        //         description: "Send a SFW image",
         //         required: false,
         //         options: [{
         //             type: 3,
