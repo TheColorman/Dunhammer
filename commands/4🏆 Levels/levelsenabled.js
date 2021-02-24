@@ -21,7 +21,6 @@ module.exports = {
             db_guild.levelSystem.enabled = false;
             type = ':x: Disabled';
         } else if (args.lowercase[0] == 'true') {
-            console.log("test")
             db_guild.levelSystem.enabled = true;
             type = ':white_check_mark: Enabled';
         } else {
