@@ -8,7 +8,13 @@ module.exports = {
     usage: "<true/false>",
     permissions: "BAN_MEMBERS",
     cooldown: 5,
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+
         const db_guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         let type;
         if (args.lowercase[0] == 'false') {

@@ -7,7 +7,13 @@ module.exports = {
     long_desc: 'Displays a leaderboard of the top 10 members on the server from the LevelSystem if it is enabled. If you/tagged user is not in top 10, it still shows your/tagged users score.',
     usage: '[user]',
     cooldown: 2,
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+
         const reply = await msg.channel.send({ embed: {
             color: 49919,
             title: ":arrows_counterclockwise: Getting leaderboard..."
