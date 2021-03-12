@@ -204,7 +204,19 @@ client.on("message", async (msg) => {
 
     // Execute command
     try {
-        command.execute(msg, { lowercase: args_lowercase, original: args_original }, { users: taggedUsers, members: taggedMembers, channels: taggedChannels, roles: taggedRoles }, { guilds: guild_db, users: user_db });
+        command.execute(msg, {
+            lowercase: args_lowercase, 
+            original: args_original,
+        }, {
+            users: taggedUsers,
+            members: taggedMembers,
+            channels: taggedChannels,
+            roles: taggedRoles,
+        }, {
+            guilds: guild_db,
+            users: user_db,
+            client: client_config,
+        });
     } catch(err) {
         try {
             msg.channel.send({ embed: {

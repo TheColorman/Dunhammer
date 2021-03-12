@@ -5,7 +5,6 @@ module.exports = {
     long_desc: 'Measures the timestamp delay in miliseconds between the ping message and reply message.',
     cooldown: 5,
     async execute(msg, args, tags, databases, interaction) {
-
         if (interaction) {  // Acknowledge slash command if it exists
             await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
                 type: 5,
