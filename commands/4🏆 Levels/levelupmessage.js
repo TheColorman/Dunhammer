@@ -8,7 +8,14 @@ module.exports = {
     usage: "<setting> [change]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,
-    execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+            args.lowercase[0] = interaction.data.options
+        }
+
         const guild_db = databases.guilds;
         const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
 
@@ -18,6 +25,22 @@ module.exports = {
             description: `:question: No arguments! Use \`${db_guild.prefix}help levelupmessage\` for help.`
         }});
         args.original.splice(0, 2);
+        if (interaction) {
+            interaction.data.options.forEach(option => {
+                switch (option.name) {
+                    case "title":
+                        title(msg, guild_db, db_guild, option.value.toLowerCase() == "none" ? undefined : option.value);
+                        break;
+                    case "description":
+                        description(msg, guild_db, db_guild, option.value.toLowerCase() == "none" ? undefined : option.value);
+                        break;
+                    case "image":
+                        image(msg, guild_db, db_guild, `${option.value}`);
+                        break;
+                }
+            });
+            return;
+        }
         switch (args.lowercase[0]) {
             case 'title':
                 if (!args.lowercase[1]) {
