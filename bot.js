@@ -27,6 +27,13 @@ var guild_config = new loki('./databases/guild_config.db', {
     autosaveInterval: 4000
 });
 
+var client_config = new loki('./databases/client_config.db', {
+    autoload: true,
+    autoloadCallback: client_configDatabseInitialize,
+    autosave: true,
+    autosaveInterval: 400
+});
+
 // Implement the autoloadback referenced in loki constructor
 function configDatabseInitialize() {
     var guilds = guild_config.getCollection("guilds");
@@ -38,6 +45,16 @@ function configDatabseInitialize() {
     }
     // kick off any program logic or start listening to external events
     runProgramLogic();
+}
+function client_configDatabseInitialize() {
+    var api_db = client_config.getCollection("apis");
+    if (api_db === null) {
+        api_db = client_config.addCollection("apis", {
+            unique: ["api_name"],
+            autoupdate: true
+        });
+    }
+    console.log("Initialized client database");
 }
 
 function runProgramLogic() {
