@@ -329,7 +329,180 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
-        // levelupchannel
+        // // levelupchannel
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'levelupchannel',
+        //     description: 'Change the levelup channel.',
+        //     options: [{
+        //         type: 7,
+        //         name: "channel",
+        //         description: "Selected channel",
+        //         required: false,
+        //     }]
+        // }});
+        // // speak
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'speak',
+        //     description: 'Speaks a message. Supports SSML.',
+        //     options: [{
+        //         type: 3,
+        //         name: "message",
+        //         description: "Text to speak",
+        //         required: true
+        //     }, {
+        //         type: 7,
+        //         name: "channel",
+        //         description: "The voice channel to speak in. Default is the channel you are in",
+        //         required: false,
+        //     }, {
+        //         type: 3,
+        //         name: "gender",
+        //         description: "The voice to use",
+        //         choices: [{
+        //             name: "Male",
+        //             value: "MALE"
+        //         }, {
+        //             name: "Female",
+        //             value: "FEMALE"
+        //         }]
+        //     }, {
+        //         type: 3,
+        //         name: "language_A-K",
+        //         description: "The language to use, A-K. Default is English (US)",
+        //         requried: false,
+        //         choices: [{
+        //             name: "Arabic",
+        //             value: "ar-XA"
+        //         }, {
+        //             name: "Bengali (India)",
+        //             value: "bn-IN"
+        //         }, {
+        //             name: "Chinese (Hong Kong)",
+        //             value: "yue-HK"
+        //         }, {
+        //             name: "Czech (Czech Republic)",
+        //             value: "cs-CZ"
+        //         }, {
+        //             name: "Danish (Denmark)",
+        //             value: "da-DK"
+        //         }, {
+        //             name: "Dutch (Netherlands)",
+        //             value: "nl-NL"
+        //         }, {
+        //             name: "English (Australia)",
+        //             value: "en-AU"
+        //         }, {
+        //             name: "English (India)",
+        //             value: "en-IN"
+        //         }, {
+        //             name: "English (UK)",
+        //             value: "en-GB"
+        //         }, {
+        //             name: "English (US)",
+        //             value: "en-US"
+        //         }, {
+        //             name: "Filipino (Philippines)",
+        //             value: "fil-PH"
+        //         }, {
+        //             name: "Finnish (Finland)",
+        //             value: "fi-FI"
+        //         }, {
+        //             name: "French (Canada)",
+        //             value: "fr-CA"
+        //         }, {
+        //             name: "French (France)",
+        //             value: "fr-FR"
+        //         }, {
+        //             name: "German (Germany)",
+        //             value: "de-DE"
+        //         }, {
+        //             name: "Greek (Greece)",
+        //             value: "el-GR"
+        //         }, {
+        //             name: "Gujarati (India)",
+        //             value: "gu-IN"
+        //         }, {
+        //             name: "Hindi (India)",
+        //             value: "hi-IN"
+        //         }, {
+        //             name: "Hungarian (Hungary)",
+        //             value: "hu_HU"
+        //         }, {
+        //             name: "Indonesian (Indonesia)",
+        //             value: "id-ID"
+        //         }, {
+        //             name: "Italian (Italy)",
+        //             value: "it-IT"
+        //         }, {
+        //             name: "Japanese (Japan)",
+        //             value: "ja-JP"
+        //         }, {
+        //             name: "Kannada (India)",
+        //             value: "kn-IN"
+        //         }, {
+        //             name: "Korean (South Korea)",
+        //             value: "ko-KR"
+        //         }]
+        //     }, {
+        //     }, {
+        //         type: 3,
+        //         name: "language_L-Z",
+        //         description: "The language to use, L-Z. Default is English (US)",
+        //         requried: false,
+        //         choices: [{
+        //             name: "Malayalam (India)",
+        //             value: "ml-IN"
+        //         }, {
+        //             name: "Mandarin Chinese",
+        //             value: "cmn-CN"
+        //         }, {
+        //             name: "Norwegian (Norway)",
+        //             value: "nb-NO"
+        //         }, {
+        //             name: "Polish (Poland)",
+        //             value: "pl-PL"
+        //         }, {
+        //             name: "Portuguese (Brazil)",
+        //             value: "pt-BR"
+        //         }, {
+        //             name: "Portuguese (Portugal)",
+        //             value: "pt-PT"
+        //         }, {
+        //             name: "Romanian (Romania)",
+        //             value: "ro-RO"
+        //         }, {
+        //             name: "Russian (Russia)",
+        //             value: "ru-RU"
+        //         }, {
+        //             name: "Slovak (Slovakia)",
+        //             value: "sk-SK"
+        //         }, {
+        //             name: "Spanish (Spain)",
+        //             value: "es-ES"
+        //         }, {
+        //             name: "Swedish (Sweden)",
+        //             value: "sv-SE"
+        //         }, {
+        //             name: "Tamil (India)",
+        //             value: "ta-IN"
+        //         }, {
+        //             name: "Telugu (India)",
+        //             value: "te-IN"
+        //         }, {
+        //             name: "Thai (Thailand)",
+        //             value: "th-TH"
+        //         }, {
+        //             name: "Turkish (Turkey)",
+        //             value: "tr-TR"
+        //         }, {
+        //             name: "Ukrainian (Ukraine)",
+        //             value: "uk-UA"
+        //         }, {
+        //             name: "Vietnamese (Vietnam)",
+        //             value: "vi-VN"
+        //         }]
+        //     }]
+        // }});
         client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
             name: 'levelupchannel',
             description: 'Change the levelup channel.',
