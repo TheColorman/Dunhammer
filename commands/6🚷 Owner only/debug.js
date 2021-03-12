@@ -504,14 +504,24 @@ module.exports = {
         //     }]
         // }});
         client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
-            name: 'levelupchannel',
-            description: 'Change the levelup channel.',
+            name: 'levelupmessage',
+            description: 'Changes the message displayed on levelup.',
             options: [{
-                type: 7,
-                name: "channel",
-                description: "Selected channel",
+                type: 3,
+                name: "title",
+                description: "The title of the message. Use \"none\" to clear the title",
                 required: false,
+            }, {
+                type: 3,
+                name: "description",
+                description: "The description of the message. Use \"none\" to clear the description",
+                requried: false,
+            }, {
+                type: 5,
+                name: "image",
+                description: "Whether or not to display an image on levelup",
+                requried: false,
             }]
-        }});
+        }});  
     }
 }
