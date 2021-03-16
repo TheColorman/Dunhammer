@@ -1,6 +1,6 @@
 {
   "name": "dunhammer",
-  "version": "2.4.4",
+  "version": "2.5.0",
   "description": "The Discord bot Dunhammer.",
   "main": "bot.js",
   "scripts": {
