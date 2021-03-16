@@ -152,7 +152,13 @@ module.exports = {
                                 inline: true,
                             }, {
                                 name: "Invites (don't actually use)",
-                                value: `${(await msg.guild.fetchInvites()).first(5).join("\n")}`
+                                value: `${(async () => {
+                                    try {    
+                                        return (await msg.guild.fetchInvites()).first(5).join("\n")
+                                    } catch(err) {
+                                        return "Can't fetch invites."
+                                    }
+                                })()}`
                             }],
                             image: {
                                 url: returned
