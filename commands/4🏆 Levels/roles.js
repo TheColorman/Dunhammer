@@ -50,9 +50,9 @@ module.exports = {
                 }
                 return QuickMessage.remove(msg.channel, `Removed ${role} from level roles.`);
             case 'reload':
-                msg.channel.send({ embed: {
+                const message = await msg.channel.send({ embed: {
                     color: 49919,
-                    description: ":arrows_counterclockwise: Reloading all level roles... (this might take a while depending on the amount of users on your server)."
+                    description: "<a:discord_loading:821347252085063680> Reloading all level roles..."
                 }});
                 const userdata = user_db.chain().data();
                 for (let user of userdata) {
@@ -79,6 +79,10 @@ module.exports = {
                             }
                     }
                 }
+                message.edit({ embed: {
+                    color: 2215713,
+                    description: "~~:white_check_mark: Reloading all level roles...~~\n\nDone!"
+                }});
                 return msg.channel.send({ embed: {
                     color: 2215713,
                     description: ":white_check_mark: Reloaded all level roles."
