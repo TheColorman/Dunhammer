@@ -5,3 +5,4 @@ imageData/
 audioData/
 .vscode/
 GCloudKey.json
+databases/client_config.db
