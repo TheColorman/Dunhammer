@@ -111,6 +111,46 @@ client.on("message", async (msg) => {
     // DM check
     if (msg.channel.type === "dm") {
         if (msg.author == client.user) return;
+        if (msg.content.toLowerCase() == 'stop') {
+            const client_user_db = client_config.getCollection("users");
+            if (client_user_db.findOne({ user_id: msg.author.id }) === null) {
+                client_user_db.insert({
+                    user_id: msg.author.id,
+                    unsubscribed: true
+                });
+            } else {
+                const clientUser = client_user_db.findOne({ user_id: msg.author.id });
+                clientUser.unsubscribed = true;
+                client_user_db.update(clientUser);
+            }
+            return msg.channel.send({ embed: {
+                color: 2215713,
+                description: "You will no longer receive direct messages from Dunhamer.",
+                footer: {
+                    text: "If you want to receive messages again, reply with \"START\"."
+                }
+            }});
+        }
+        if (msg.content.toLowerCase() == 'start') {
+            const client_user_db = client_config.getCollection("users");
+            if (client_user_db.findOne({ user_id: msg.author.id }) === null) {
+                client_user_db.insert({
+                    user_id: msg.author.id,
+                    unsubscribed: false
+                });
+            } else {
+                const clientUser = client_user_db.findOne({ user_id: msg.author.id });
+                clientUser.unsubscribed = false;
+                client_user_db.update(clientUser);
+            }
+            return msg.channel.send({ embed: {
+                color: 2215713,
+                description: "You will now receive direct messages from Dunhamer.",
+                footer: {
+                    text: "If you want to disable direct messages again, reply with \"STOP\"."
+                }
+            }});
+        }
         return msg.channel.send({
             embed: {
                 color: 0xcf2d2d,
