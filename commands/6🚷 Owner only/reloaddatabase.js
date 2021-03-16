@@ -14,7 +14,7 @@ module.exports = {
         }
         const message = await msg.channel.send({ embed: {
             color: 49919,
-            description: ":arrows_counterclockwise: Refreshing database... (This might take a while)."
+            description: "<a:discord_loading:821347252085063680> Refreshing database... (This might take a while)."
         }});
 
         // Guild
@@ -34,7 +34,7 @@ module.exports = {
         const members_length = members.size;
         await message.edit({ embed: {
             color: 49919,
-            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nUpdating old database versions...\nRefreshing roles for ${members_length} members...\n\`\`\``
+            description: `<a:discord_loading:821347252085063680> Refreshing database... (This might take a while).\n\n\`\`\`\nRefreshing roles for ${members_length} members...\n\`\`\``
         }});
         members.each(async member => {
             // roles
@@ -61,7 +61,7 @@ module.exports = {
         const db_users_length = db_users.length;
         await message.edit({ embed: {
             color: 49919,
-            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nUpdating old database versions...\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\``
+            description: `<a:discord_loading:821347252085063680> Refreshing database... (This might take a while).\n\n\`\`\`\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\``
         }});        
         for (const db_user of db_users) {
             try {
@@ -76,7 +76,7 @@ module.exports = {
         }
         await message.edit({ embed: {
             color: 49919,
-            description: `~~:arrows_counterclockwise: Refreshing database... (This might take a while).~~\n\n\`\`\`\nUpdating old database versions...\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\`\n\n:white_check_mark: Done!`
+            description: `~~:white_check_mark: Refreshing database... (This might take a while).~~\n\n\`\`\`\nRefreshing roles for ${members_length} members...\nVerifying ${db_users_length} users in database...\n\`\`\`\n\n Done!`
         }});
         return msg.channel.send({ embed: {
             color: 2215713,

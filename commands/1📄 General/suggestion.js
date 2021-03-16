@@ -11,7 +11,12 @@ module.exports = {
     long_desc: 'Submits an anonymous suggestion/bug report to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).',
     usage: '<message>',
     cooldown: 10,
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
         const guild_db = databases.guilds;
         db_guild = guild_db.findOne({ guild_id: msg.guild.id });
         if (!args.original.length) return QuickMessage.not_enough_arguments(msg.channel, db_guild.prefix, "suggestion");

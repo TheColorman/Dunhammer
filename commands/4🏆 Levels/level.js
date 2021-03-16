@@ -9,7 +9,13 @@ module.exports = {
     usage: '[(tagged user/user tag e.g. example#0000)]',
     aliases: ['rank', 'lvl'],
     cooldown: 2,
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+        
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
             const members = await msg.guild.members.fetch({ cache: false });
