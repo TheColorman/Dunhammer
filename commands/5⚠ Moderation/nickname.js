@@ -9,7 +9,13 @@ module.exports = {
     usage: '<(tagged user/user tag)> <new nickname>',
     permissions: 'MANAGE_NICKNAMES',
     cooldown: 2,
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+        
         let taggedMember = tags.members.first();
         if (!taggedMember && args.lowercase.length) {
             taggedMember = msg.guild.members.cache.find(member => args.original.join(" ").includes(member.user.tag));   // could get false positives, but I'm not really sure how to get around it

@@ -503,25 +503,112 @@ module.exports = {
         //         }]
         //     }]
         // }});
-        client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
-            name: 'levelupmessage',
-            description: 'Changes the message displayed on levelup.',
-            options: [{
-                type: 3,
-                name: "title",
-                description: "The title of the message. Use \"none\" to clear the title",
-                required: false,
-            }, {
-                type: 3,
-                name: "description",
-                description: "The description of the message. Use \"none\" to clear the description",
-                requried: false,
-            }, {
-                type: 5,
-                name: "image",
-                description: "Whether or not to display an image on levelup",
-                requried: false,
-            }]
-        }});  
+        // // levelupmessage
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'levelupmessage',
+        //     description: 'Changes the message displayed on levelup.',
+        //     options: [{
+        //         type: 3,
+        //         name: "title",
+        //         description: "The title of the message. Use \"none\" to clear the title",
+        //         required: false,
+        //     }, {
+        //         type: 3,
+        //         name: "description",
+        //         description: "The description of the message. Use \"none\" to clear the description",
+        //         requried: false,
+        //     }, {
+        //         type: 5,
+        //         name: "image",
+        //         description: "Whether or not to display an image on levelup",
+        //         requried: false,
+        //     }]
+        // }});  
+        // // roles
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: 'roles',
+        //     description: 'Change which roles are given at what levels.',
+        //     options: [{
+        //         type: 1,
+        //         name: "add",
+        //         description: "Add a role to be gained at a level",
+        //         options: [{
+        //             type: 8,
+        //             name: "role",
+        //             description: "The role to add",
+        //             required: true
+        //         }, {
+        //             type: 4,
+        //             name: "level",
+        //             description: "Leve the role is gained at",
+        //             required: true
+        //         }]
+        //     }, {
+        //         type: 1,
+        //         name: "remove",
+        //         description: "Remove a role from being added by levelups",
+        //         options: [{
+        //             type: 8,
+        //             name: "role",
+        //             description: "The role to be removed from levelups",
+        //             required: true,
+        //         }]
+        //     }, {
+        //         type: 1,
+        //         name: "options",
+        //         description: "Options for levelup roles",
+        //         options: [{
+        //             type: 5,
+        //             name: "cumulative",
+        //             description: "Whether or not old roles are removed upon gaining new role",
+        //             required: true,
+        //         }]
+        //     }, {
+        //         type: 1,
+        //         name: "view",
+        //         description: "See all roles and the levels they are gained at"
+        //     }, {
+        //         type: 1,
+        //         name: "reload",
+        //         description: "Reloads roles for all members based on their level"
+        //     }]
+        // }}); 
+        // // setlevel
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: "setlevel",
+        //     description: "Set a members level",
+        //     options: [{
+        //         type: 6,
+        //         name: "member",
+        //         description: "Member to update",
+        //         required: true
+        //     }, {
+        //         type: 4,
+        //         name: "level",
+        //         description: "New level",
+        //         required: true,
+        //     }, {
+        //         type: 4,
+        //         name: "xp",
+        //         description: "XP to add",
+        //         requried: false
+        //     }]
+        // }});
+        // // nickname
+        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        //     name: "nickname",
+        //     description: "Change a members nickname",
+        //     options: [{
+        //         type: 6,
+        //         name: "member",
+        //         description: "Member to change nickname of",
+        //         required: true,
+        //     }, {
+        //         type: 3,
+        //         name: "nickname",
+        //         description: "New nickname",
+        //         required: true,
+        //     }]
+        // }});
     }
 }

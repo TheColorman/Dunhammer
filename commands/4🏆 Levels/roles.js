@@ -10,15 +10,28 @@ module.exports = {
     usage: "<add/remove/cumulative/reload> [...arguments]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+            args.lowercase[0] = interaction.data.options[0].name == "options" ? interaction.data.options[0].options[0].name : interaction.data.options[0].name;
+        }
+        if (interaction) console.log(interaction.data)
+
         const guild_db = databases.guilds;
         const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
         const user_db = databases.users;
-        let role;
+        // Get role from interaction
+        let role; 
+        if (interaction && ["add", "remove"].includes(interaction.data.options[0].name)) role = await msg.guild.roles.fetch(interaction.data.options[0].options.find(option => option.name == "role").value);
+
         
         switch (args.lowercase[0]) {
             case 'add':
-                role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
+                // Set interaction values to match old code
+                if (interaction) args.lowercase[1] = interaction.data.options[0].options.find(option => option.name == "level").value;
+                if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
                 if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
                 if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
                 
@@ -26,8 +39,10 @@ module.exports = {
                 guild_db.update(db_guild);
                 return QuickMessage.add(msg.channel, `Added ${role} to level roles at level ${args.lowercase[1]}.`);
             case 'remove':
-                role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
+                // Set interaction values to match old code
+                if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
                 if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                // Check if role is in saved in database
                 if (!(Object.values(db_guild.levelSystem.roles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
 
                 for (let key in db_guild.levelSystem.roles) {
@@ -78,11 +93,12 @@ module.exports = {
                         return QuickMessage.remove(msg.channel, "Set cumulative roles to `false`.")
                     default:
                         return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
-                }                         
+                }
+            case 'view':
             default:
                 const arr = [];
                 for (const [key, value] of Object.entries(db_guild.levelSystem.roles)) {
-                    arr.push(`${key == "cumulative" ? "Cumulative roles: " : `Level: ${key}`}: ${key == "cumulative" ? `${value}` : await msg.guild.roles.fetch(value)}`);
+                    arr.push(`${key == `cumulative` ? `Cumulative: ${value}` : `Level: ${key} - ${await msg.guild.roles.fetch(value)}`}`);
                 }
                 return QuickMessage.info(msg.channel, "Level roles", `${arr.join('\n')}`);
         }
