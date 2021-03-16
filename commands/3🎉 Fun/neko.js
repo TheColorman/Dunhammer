@@ -81,16 +81,84 @@ module.exports = {
             "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
         }});
 
-        return msg.channel.send({ embed: {
+        const confirmation = await msg.channel.send({ embed: {
             "color": 0xa914ff,
             "title": ":cat: " + endpoint,
             "image": {
                 "url": returned
             },
-            "footer": {
+            "author": {
                 "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
-                "text": "nekos.life"
+                "name": "nekos.life",
+                "url": "https://nekos.life/"
+            },
+            "footer": {
+                "text": "React with ⚠ to remove and report the image."
             }
         }});
+        // reactions
+        const filter = (reaction, user) => reaction.emoji.name === '⚠' && user.id === msg.author.id;
+        confirmation.react('⚠')
+            .then(() => {
+                confirmation.awaitReactions(filter, { idle: 15000, max: 1 })
+                    .then(async (collected) => {
+                        if (!collected.first()) {
+                            await confirmation.reactions.removeAll();
+                            return confirmation.edit({ embed: {
+                                "color": 0xa914ff,
+                                "title": ":cat: " + endpoint,
+                                "image": {
+                                    "url": returned
+                                },
+                                "author": {
+                                    "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
+                                    "name": "nekos.life",
+                                    "url": "https://nekos.life/"
+                                },
+                                "footer": {
+                                    "text": "R̶e̶a̶c̶t̶ ̶w̶i̶t̶h̶ ̶⚠̶ ̶t̶o̶ ̶r̶e̶m̶o̶v̶e̶ ̶a̶n̶d̶ ̶r̶e̶p̶o̶r̶t̶ ̶t̶h̶e̶ ̶i̶m̶a̶g̶e̶.̶\nTimeout! Message an admin to remove the image."
+                                }
+                            }});
+                        }
+                        confirmation.edit({ embed: {
+                            "color": 0xa914ff,
+                            "title": ":cat: " + endpoint,
+                            "description": "Image reported.",
+                            "author": {
+                                "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
+                                "name": "nekos.life",
+                                "url": "https://nekos.life/"
+                            },
+                            "footer": {
+                                "text": "React with ⚠ to remove and report the image."
+                            }
+                        }});
+
+                        const reportChannel = await msg.client.channels.fetch('821393392771923978');
+                        reportChannel.send({ embed: {
+                            color: 0xa914ff,
+                            title: "Neko report",
+                            description: `Reported by ${await msg.member.user}`,
+                            fields: [{
+                                name: "Guild",
+                                value: `Name: ${msg.guild.name}\nID: ${msg.guild.id}`
+                            }, {
+                                name: "NSFW channel?",
+                                value: `${msg.channel.nsfw}`,
+                                inline: true,
+                            }, {
+                                name: "Channel name",
+                                value: `#${msg.channel.name}`,
+                                inline: true,
+                            }, {
+                                name: "Invites (don't actually use)",
+                                value: `${(await msg.guild.fetchInvites()).first(5).join("\n")}`
+                            }],
+                            image: {
+                                url: returned
+                            }
+                        }});
+                    });
+            });
     }
 }
