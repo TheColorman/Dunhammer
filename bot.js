@@ -7,6 +7,7 @@ const { CanvasImage } = require('./helperfunctions.js');
 
 const { presences } = require('./config.json');
 const { token } = require('./token.json');
+const { POINT_CONVERSION_COMPRESSED } = require('constants');
 
 // Create a new Discord client
 const client = new Discord.Client();
@@ -27,6 +28,13 @@ var guild_config = new loki('./databases/guild_config.db', {
     autosaveInterval: 4000
 });
 
+var client_config = new loki('./databases/client_config.db', {
+    autoload: true,
+    autoloadCallback: client_configDatabseInitialize,
+    autosave: true,
+    autosaveInterval: 400
+});
+
 // Implement the autoloadback referenced in loki constructor
 function configDatabseInitialize() {
     var guilds = guild_config.getCollection("guilds");
@@ -38,6 +46,16 @@ function configDatabseInitialize() {
     }
     // kick off any program logic or start listening to external events
     runProgramLogic();
+}
+function client_configDatabseInitialize() {
+    var api_db = client_config.getCollection("apis");
+    if (api_db === null) {
+        api_db = client_config.addCollection("apis", {
+            unique: ["api_name"],
+            autoupdate: true
+        });
+    }
+    console.log("Initialized client database");
 }
 
 function runProgramLogic() {
@@ -54,7 +72,7 @@ for (const folder of Object.keys(commandFilesObj)) {
 }
 
 // State of the art crash protection (don't do this)
-process.on('uncaughtException', (err, _origin) => {
+process.on('uncaughtException', async (err, _origin) => {
     console.error("WARNING: PROGRAM WAS SUPPOSED TO BE TERMINATED. I hope you (I) know what you are (I am) doing.")
     console.error(err);
 });
@@ -80,7 +98,7 @@ function refreshPresence() {
     
     console.log(`Setting presence... ["${current_presence}"]`);
     
-    remainingPresences.splice(remainingPresences.indexOf(current_presence, 1));
+    remainingPresences.splice(remainingPresences.indexOf(current_presence), 1);
     client.user.setPresence({
     	activity: {
             name: `.help | ${rare_presence || current_presence}`
@@ -93,6 +111,46 @@ client.on("message", async (msg) => {
     // DM check
     if (msg.channel.type === "dm") {
         if (msg.author == client.user) return;
+        if (msg.content.toLowerCase() == 'stop') {
+            const client_user_db = client_config.getCollection("users");
+            if (client_user_db.findOne({ user_id: msg.author.id }) === null) {
+                client_user_db.insert({
+                    user_id: msg.author.id,
+                    unsubscribed: true
+                });
+            } else {
+                const clientUser = client_user_db.findOne({ user_id: msg.author.id });
+                clientUser.unsubscribed = true;
+                client_user_db.update(clientUser);
+            }
+            return msg.channel.send({ embed: {
+                color: 2215713,
+                description: "You will no longer receive direct messages from Dunhamer.",
+                footer: {
+                    text: "If you want to receive messages again, reply with \"START\"."
+                }
+            }});
+        }
+        if (msg.content.toLowerCase() == 'start') {
+            const client_user_db = client_config.getCollection("users");
+            if (client_user_db.findOne({ user_id: msg.author.id }) === null) {
+                client_user_db.insert({
+                    user_id: msg.author.id,
+                    unsubscribed: false
+                });
+            } else {
+                const clientUser = client_user_db.findOne({ user_id: msg.author.id });
+                clientUser.unsubscribed = false;
+                client_user_db.update(clientUser);
+            }
+            return msg.channel.send({ embed: {
+                color: 2215713,
+                description: "You will now receive direct messages from Dunhamer.",
+                footer: {
+                    text: "If you want to disable direct messages again, reply with \"STOP\"."
+                }
+            }});
+        }
         return msg.channel.send({
             embed: {
                 color: 0xcf2d2d,
@@ -123,6 +181,14 @@ client.on("message", async (msg) => {
     // Emergency change prefix
     if (taggedUsers.first() == client.user && msg.content.includes("prefix")) {
         if (args_lowercase[0] == "prefix") {
+            const authorPerms = msg.channel.permissionsFor(msg.member);
+            if (!authorPerms || !authorPerms.has("BAN_MEMBERS")) {
+                return msg.channel.send({ embed: {
+                    "color": 0xcf2d2d,
+                    "title": ":octagonal_sign: Error!",
+                    "description": `:no_entry: You don't have permission to change the bot prefix!`
+                }});
+            }
             args_original.shift();
             db_guild.prefix = args_original.join(" ");
             return msg.channel.send({ embed: {
@@ -179,7 +245,19 @@ client.on("message", async (msg) => {
 
     // Execute command
     try {
-        command.execute(msg, { lowercase: args_lowercase, original: args_original }, { users: taggedUsers, members: taggedMembers, channels: taggedChannels, roles: taggedRoles }, { guilds: guild_db, users: user_db });
+        command.execute(msg, {
+            lowercase: args_lowercase, 
+            original: args_original,
+        }, {
+            users: taggedUsers,
+            members: taggedMembers,
+            channels: taggedChannels,
+            roles: taggedRoles,
+        }, {
+            guilds: guild_db,
+            users: user_db,
+            client: client_config,
+        });
     } catch(err) {
         try {
             msg.channel.send({ embed: {
@@ -199,6 +277,129 @@ client.on("message", async (msg) => {
     }
 });
 
+// SLASH COMMAND TESTING - most of the code is from the normal message recieve event code, but some parts are replaced to match interaction code
+client.ws.on('INTERACTION_CREATE', async interaction => {
+    const guild = await client.guilds.fetch(interaction.guild_id);
+    const msg = {
+        author: await interaction.member.user,
+        channel: await client.channels.fetch(interaction.channel_id),
+        client: client,
+        content: ".ping",
+        createdTimestamp: Date.now(),
+        guild: guild,
+        id: interaction.id,
+        member: await guild.members.fetch(interaction.member.user.id),
+    }
+
+    const guild_db = guild_config.getCollection("guilds");
+    const user_db = get_user_db(msg.guild);
+
+    const commandName = interaction.data.name;
+    let command;
+    client.commandCategories.forEach(category => {
+        category.forEach((cmd, cmd_name) => {
+            const com = (cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName)) ? cmd : undefined;
+            if (com) command = com;
+        });
+    });
+
+
+    if (command.permissions) {
+        const authorPerms = msg.channel.permissionsFor(msg.member);
+        if (!authorPerms || !authorPerms.has(command.permissions)) {
+            return client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 4,
+                data: {
+                    embeds: [{
+                        color: 0xcf2d2d,
+                        title: ":octagonal_sign: Error!",
+                        description: `:no_entry: You don't have access to \`${command.name}\``
+                    }]
+                }
+            }});
+        }
+    }
+
+    if (!cooldowns.has(command.name)) {
+        cooldowns.set(command.name, new Discord.Collection());
+    }
+    const now = Date.now();
+    const timestamps = cooldowns.get(command.name);
+    const cooldownAmount = (command.cooldown || 3) * 1000;
+    if (timestamps.has(msg.author.id)) {
+        const expirationTime = timestamps.get(msg.author.id) + cooldownAmount;
+
+        if (now < expirationTime) {
+            const timeLeft = (expirationTime - now) / 1000;
+            return client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 4,
+                data: {
+                    embeds: [{
+                        color: 0xcf2d2d,
+                        title: ":alarm_clock: Cooldown!",
+                        description: `${timeLeft} seconds left.`
+                    }]
+                }
+            }});
+        }
+    }
+    timestamps.set(msg.author.id, now);
+    setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
+
+    const arguments = [];
+    const arguments_lowercase = [];
+    if (interaction.data.options) {
+        interaction.data.options.forEach(option => {
+            if (option.options) {
+                arguments.push(option.name);
+                option.options.forEach(nested_option => {
+                    arguments.push(nested_option.value);
+                });
+            } else {
+                arguments.push(`${option.value}` || `${option.name}`);
+            }
+        });
+        arguments.forEach(argument => {
+            arguments_lowercase.push(`${argument}`.toLowerCase());
+        });
+    }
+    const userTags = new Discord.Collection();
+    const memberTags = new Discord.Collection();
+    const channelTags = new Discord.Collection();
+    const roleTags = new Discord.Collection();
+    if (interaction.data.options) {
+        interaction.data.options.forEach(async option => {
+            if (option.type == 6) {
+                memberTags.set(option.value, await guild.members.fetch(option.value));
+                userTags.set(option.value, memberTags.get(option.value).user);
+            }
+            if (option.type == 7) channelTags.set(option.value, await guild.channels.resolve(option.value));
+            if (option.type == 8) roleTags.set(option.value, await guild.roles.fetch(option.value));
+        });
+    }
+
+    try {
+        command.execute(
+            msg,    // msg
+            { lowercase: arguments_lowercase, original: arguments}, // args
+            { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
+            { guilds: guild_db, users: user_db, client: client_config },    // databases
+            interaction // interaction
+        );
+    } catch(err) {
+        console.error(err);
+        client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+            type: 4,
+            data: {
+                embeds: [{
+                    color: 0xcf2d2d,
+                    title: ":octagonal_sign: Error!",
+                    description: `It seems this command doesn't work with slash commands! Have you tried using it with the bot prefix?`
+                }]
+            }
+        }});
+    }
+});
 
 // Levelsystem
 client.on("message", async (msg) => {
@@ -265,8 +466,8 @@ client.on("message", async (msg) => {
 
         const levelup_message = {
             color: levelSystem.levelup_message.color,
-            title: replaceIngredients(levelSystem.levelup_message.title, msg.member, db_user, "{role}"),
-            description: replaceIngredients(levelSystem.levelup_message.description, msg.member, db_user, "{role}")
+            title: levelSystem.levelup_message.title ? replaceIngredients(levelSystem.levelup_message.title, msg.member, db_user, "{role}") : "",
+            description: levelSystem.levelup_message.description ? replaceIngredients(levelSystem.levelup_message.description, msg.member, db_user, "{role}") : ""
         }
         if (levelSystem.levelup_image) {
             await CanvasImage.levelup_image(msg.member, user_db, msg.guild);
@@ -290,10 +491,12 @@ client.on("message", async (msg) => {
  */
 function replaceIngredients(string, member, db_user, role) {
     string = string.replace(/{username}/g, member.user.username);
+    string = string.replace(/{tag}/g, member.user.tag);
+    string = string.replace(/{nickname}/g, member.nickname || member.user.username);
     string = string.replace(/{level}/g, `${db_user.level}`);
     string = string.replace(/{xp}/g, `${db_user.xp}`);
-    string = string.replace(/{nickname}/g, member.nickname || member.user.username);
-    string = string.replace(/{tag}/g, member.user.tag);
+    string = string.replace(/{user}/g, `${member.user.username}`);  // legacy code
+
     string = string.replace(/{role}/g, `${role}`);
     return string;
 }
@@ -403,6 +606,9 @@ function get_db_user(guild, user) {
     return user_db.findOne({ user_id: user_id });
     
 }
+
+
+
 
 // login
 client.login(token);

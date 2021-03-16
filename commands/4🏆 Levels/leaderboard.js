@@ -7,14 +7,20 @@ module.exports = {
     long_desc: 'Displays a leaderboard of the top 10 members on the server from the LevelSystem if it is enabled. If you/tagged user is not in top 10, it still shows your/tagged users score.',
     usage: '[user]',
     cooldown: 2,
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, databases, interaction) {
+        if (interaction) {  // Acknowledge slash command if it exists
+            await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
+                type: 5,
+            }});
+        }
+
         const reply = await msg.channel.send({ embed: {
             color: 49919,
-            title: ":arrows_counterclockwise: Getting leaderboard..."
+            title: "<a:discord_loading:821347252085063680> Getting leaderboard..."
         }});
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
-            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original[0]);
+            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original.join(" "));
         }
         let taggedrole = tags.roles.first();
         if (!taggedrole && args.lowercase.length) {
@@ -56,7 +62,7 @@ module.exports = {
             top_ten_array.push("...");
             if (rank > 10) top_ten_array.push(`#${rank} - <@!${next_user.user_id}> - Level ${next_user.level}`);
             top_ten_array.push(`__#${rank+1} - <@!${taggedmember.id}> - Level ${user_db.findOne({ user_id: taggedmember.id }).level}__`);
-            top_ten_array.push(`#${rank+2} - <@!${previous_user.user_id}> - Level ${previous_user.level}`);
+            if (previous_user) top_ten_array.push(`#${rank+2} - <@!${previous_user.user_id}> - Level ${previous_user.level}`);
         }
         return reply.edit({ embed: {
             color: 49919,
