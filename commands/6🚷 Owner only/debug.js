@@ -1,4 +1,4 @@
-///@ts-check
+// @ts-check-
 
 module.exports = {
     name: 'debug',
@@ -663,7 +663,7 @@ To read more about Slash Commands, click [here](https://support.discord.com/hc/e
             try {
                 const integrations = await guild.fetchIntegrations({ includeApplications: true });
                 const me = integrations.find(integration => integration.application.id == client.user.id);
-                if (me.user === null) {
+                if (me.user === null || !guild.member(me.user.id)) {
                     (await guild.members.fetch(guild.ownerID)).user.send({ embed: messageOwn });
                     console.log((await guild.members.fetch(guild.ownerID)).user);
                 } else {
