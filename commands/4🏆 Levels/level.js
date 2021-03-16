@@ -18,7 +18,8 @@ module.exports = {
         
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
-            taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original.join(" "));
+            const members = await msg.guild.members.fetch({ cache: false });
+            taggedmember = await members.find(member => member.user.tag == args.original.join(" "));
         }
         await CanvasImage.rank_image(taggedmember || msg.member, databases.users);
 
