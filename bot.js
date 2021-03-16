@@ -72,7 +72,7 @@ for (const folder of Object.keys(commandFilesObj)) {
 }
 
 // State of the art crash protection (don't do this)
-process.on('uncaughtException', (err, _origin) => {
+process.on('uncaughtException', async (err, _origin) => {
     console.error("WARNING: PROGRAM WAS SUPPOSED TO BE TERMINATED. I hope you (I) know what you are (I am) doing.")
     console.error(err);
 });
