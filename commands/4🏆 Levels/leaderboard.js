@@ -16,7 +16,7 @@ module.exports = {
 
         const reply = await msg.channel.send({ embed: {
             color: 49919,
-            title: ":arrows_counterclockwise: Getting leaderboard..."
+            title: "<a:discord_loading:821347252085063680> Getting leaderboard..."
         }});
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
