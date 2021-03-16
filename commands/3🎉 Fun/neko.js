@@ -14,12 +14,21 @@ module.exports = {
                 type: 5,
             }});
             // interaction compatability
-            if (args.lowercase.length > 1) {
-                args.lowercase.shift()
-                args.original.shift()
+            const interactionNekoType = interaction.data.options[0].options ? interaction.data.options[0].options[0].value : interaction.data.options[0].name;
+            switch (interactionNekoType) {
+                case "default":
+                    args.lowercase = ["neko"];
+                    break;
+                case "sfw":
+                    args.lowercase = ["sfw"];
+                    break;
+                case "nsfw":
+                    args.lowercase = ["nsfw"];
+                    break;
+                default:
+                    args.lowercase = [interaction.data.options[0].options[0].value];
             }
         }
-
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
 
         if (args.lowercase[0] == "help") {
@@ -31,6 +40,7 @@ module.exports = {
         if (endpoint == "default") endpoint = "neko";
 
         if (endpoint == "random_hentai_gif") endpoint = "Random_hentai_gif"; // this api is staright shit
+
         if (["i'm_feeling_lucky", "lucky", "random", "im_feeling_lucky", "sfw"].includes(endpoint)) endpoint = (msg.channel.nsfw ? ["Random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic", "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog", "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero", "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok", "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm", "tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"][Math.round(Math.random()*62)] : ["tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"][Math.round(Math.random()*23)])
         let nsfw = ["random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic", "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog", "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero", "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok", "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm"];
         if (["nsfw", "im_feeling_horny", "i'm_feeling_horny", "horny"].includes(endpoint)) endpoint = nsfw[Math.floor(Math.random() * nsfw.length)];
