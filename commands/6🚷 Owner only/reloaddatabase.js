@@ -18,8 +18,13 @@ module.exports = {
         }});
 
         // Guild
+        await message.edit({ embed: {
+            color: 49919,
+            description: `:arrows_counterclockwise: Refreshing database... (This might take a while).\n\n\`\`\`\nUpdating old database versions...\n\`\`\``
+        }});
         const db_guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         db_guild.levelSystem.roles ||= { cumulative: false};
+        db_guild.levelSystem.cooldown_timestamps ||= {};
         db_guild.allowbots ||= false;
         db_guild.name ||= msg.guild.name;
         databases.guilds.update(db_guild);

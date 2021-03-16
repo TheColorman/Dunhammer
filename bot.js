@@ -490,14 +490,13 @@ client.on("message", async (msg) => {
  * @param {Discord.Role | string} role
  */
 function replaceIngredients(string, member, db_user, role) {
-    string = string.replace(/{username}/g, member.user.username);
-    string = string.replace(/{tag}/g, member.user.tag);
-    string = string.replace(/{nickname}/g, member.nickname || member.user.username);
+    string = string.replace(/{username}/g, `${member.user.username}`);
     string = string.replace(/{level}/g, `${db_user.level}`);
     string = string.replace(/{xp}/g, `${db_user.xp}`);
-    string = string.replace(/{user}/g, `${member.user.username}`);  // legacy code
-
+    string = string.replace(/{nickname}/g, `${member.nickname || member.user.username}`);
+    string = string.replace(/{tag}/g, `${member.user.tag}`);
     string = string.replace(/{role}/g, `${role}`);
+    string = string.replace(/{user}/g, `${member.user.username}`);
     return string;
 }
 
