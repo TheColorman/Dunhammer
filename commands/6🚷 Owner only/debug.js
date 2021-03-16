@@ -16,8 +16,8 @@ module.exports = {
 
         const client = msg.client;
 
-        // // help
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("help");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'help',
         //     description: 'Shows either a list of all commands, or shows help for a specific command.',
         //     options: [{
@@ -55,23 +55,23 @@ module.exports = {
         //         }]
         //     }]
         // }});   
-        // // ping
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("ping");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'ping',
         //     description: 'Checks latency between Discord and the bot.'
         // }});
-        // // invite
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("invite");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'invite',
         //     description: 'Sends an invite link for Dunhammer.'
         // }});
-        // // roadmap
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("roadmap");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'roadmap',
         //     description: 'Sends a link for the Dunhammer roadmap.'
         // }});
-        // // suggestion
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("suggestion");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'suggestion',
         //     description: 'Submits a suggestion directly to the roadmap. See /roadmap for more information.',
         //     options: [{
@@ -81,8 +81,8 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
-        // // allowbots
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("allowbots");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'allowbots',
         //     description: 'Change whether bots are ignored by Dunhammer.',
         //     options: [{
@@ -92,8 +92,8 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
-        // // prefix
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("prefix");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'prefix',
         //     description: 'Change the bot prefix. Prefix is used for making non-slash commands. Default prefix is ".".',
         //     options: [{
@@ -103,8 +103,8 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
-        // neko
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("neko");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'neko',
         //     description: 'Sends a picture from nekos.life. Note that not all types will result in a catgirl.',
         //     options: [{
@@ -280,8 +280,8 @@ module.exports = {
         //         required: false,
         //     }]
         // }});
-        // // ignore
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("ignore");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'ignore',
         //     description: 'Prevent XP from being gained in chosen channels.',
         //     options: [{
@@ -291,8 +291,8 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
-        // // leaderboard
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("leaderboard");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'leaderboard',
         //     description: 'Displays the server leaderboard.',
         //     options: [{
@@ -307,8 +307,8 @@ module.exports = {
         //         required: false,
         //     }]
         // }});
-        // // level
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("level");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'level',
         //     description: 'Shows a uses level.',
         //     options: [{
@@ -318,8 +318,8 @@ module.exports = {
         //         required: false,
         //     }]
         // }});
-        // // levelsenabled
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("levelsenabled");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'levelsenabled',
         //     description: 'Changes whether the level system is enabled.',
         //     options: [{
@@ -329,8 +329,8 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
-        // // levelupchannel
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("levelupchannel");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'levelupchannel',
         //     description: 'Change the levelup channel.',
         //     options: [{
@@ -340,8 +340,8 @@ module.exports = {
         //         required: false,
         //     }]
         // }});
-        // // speak
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("speak");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'speak',
         //     description: 'Speaks a message. Supports SSML.',
         //     options: [{
@@ -444,7 +444,6 @@ module.exports = {
         //             value: "ko-KR"
         //         }]
         //     }, {
-        //     }, {
         //         type: 3,
         //         name: "language_L-Z",
         //         description: "The language to use, L-Z. Default is English (US)",
@@ -503,8 +502,8 @@ module.exports = {
         //         }]
         //     }]
         // }});
-        // // levelupmessage
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("levelupmessage");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'levelupmessage',
         //     description: 'Changes the message displayed on levelup.',
         //     options: [{
@@ -524,8 +523,8 @@ module.exports = {
         //         requried: false,
         //     }]
         // }});  
-        // // roles
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("roles");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'roles',
         //     description: 'Change which roles are given at what levels.',
         //     options: [{
@@ -573,8 +572,8 @@ module.exports = {
         //         description: "Reloads roles for all members based on their level"
         //     }]
         // }}); 
-        // // setlevel
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("setlevel");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: "setlevel",
         //     description: "Set a members level",
         //     options: [{
@@ -594,8 +593,8 @@ module.exports = {
         //         requried: false
         //     }]
         // }});
-        // // nickname
-        // client.api.applications(msg.client.user.id).guilds(msg.guild.id).commands.post({data: {
+        // console.log("nickname");
+        // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: "nickname",
         //     description: "Change a members nickname",
         //     options: [{
@@ -610,5 +609,72 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
+
+        const updateMessageIntegrationInvite = {
+            color: 0xfce303,
+            title: ":sparkles: Update, Dunhammer now supports Slash Commands!",
+            description: 
+`You are receiving this message because you have invited Dunhammer to the server {guildName}.
+Discord recently introduced a new system for using Bots: Slash Commands! This new feature also comes with a new invite link.
+All you have to do to make Slash Commands work with Dunhammer on you server is invite Dunhammer again! (no need to remove Dunhammer from your server).
+There are 2 invite links, Full Access and Limited Access. Full Access will make Dunhammer administrator, while Limited Access will only give Dunhammer the permissions it needs to function (notice that Limited Access may be updated in the future as new features are added).
+Note that you sometimes have to restart Discord to see the new Slash Commands.
+
+[Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot%20applications.commands).
+[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands).
+
+You of course don't need to invite Dunhammer again if you don't want to enable Slash Commands.
+To read more about Slash Commands, click [here](https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ).`,
+            image: {
+                url: "https://discord.com/assets/5002338abeaf8532983a1be594a10683.png"
+            },
+            footer: {
+                text: "Never want to receive a message like this again? Reply with \"STOP\" to stop me from ever sending you a DM again."
+            }
+        };
+        const updateMessageUnableToGetIntegrationInvite = {
+            color: 0xfce303,
+            title: ":sparkles: Update, Dunhammer now supports Slash Commands!",
+            description: 
+`You are receiving this message because I tried to find out who invited me to {guildName}, but I am missing the permissions. Instead, I have messaged you, the Server Owner.
+Discord recently introduced a new system for using Bots: Slash Commands! This new feature also comes with a new invite link.
+All you have to do to make Slash Commands work with Dunhammer on you server is invite Dunhammer again! (no need to remove Dunhammer from your server).
+There are 2 invite links, Full Access and Limited Access. Full Access will make Dunhammer administrator, while Limited Access will only give Dunhammer the permissions it needs to function (notice that Limited Access may be updated in the future as new features are added).
+Note that you sometimes have to restart Discord to see the new Slash Commands.
+
+[Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot%20applications.commands).
+[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands).
+
+You of course don't need to invite Dunhammer again if you don't want to enable Slash Commands.
+To read more about Slash Commands, click [here](https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ).`,
+            image: {
+                url: "https://discord.com/assets/5002338abeaf8532983a1be594a10683.png"
+            },
+            footer: {
+                text: "Never want to receive a message like this again? Reply with \"STOP\" to stop me from ever sending you a DM again."
+            }
+        };
+        client.guilds.cache.each(async guild => {
+            if (!guild.available) return;
+            const messageInv = JSON.parse(JSON.stringify(updateMessageIntegrationInvite));
+            messageInv.description = updateMessageIntegrationInvite.description.replace("{guildName}", `\`${guild.name}\``);
+            const messageOwn = JSON.parse(JSON.stringify(updateMessageUnableToGetIntegrationInvite));
+            messageOwn.description = updateMessageUnableToGetIntegrationInvite.description.replace("{guildName}", `\`${guild.name}\``);
+            try {
+                const integrations = await guild.fetchIntegrations({ includeApplications: true });
+                const me = integrations.find(integration => integration.application.id == client.user.id);
+                if (me.user === null) {
+                    (await guild.members.fetch(guild.ownerID)).user.send({ embed: messageOwn });
+                    console.log((await guild.members.fetch(guild.ownerID)).user);
+                } else {
+                    me.user.send({ embed: messageInv });
+                    console.log(me.user);
+                }
+
+            } catch(err) {
+                (await guild.members.fetch(guild.ownerID)).user.send({ embed: messageOwn });
+                console.log((await guild.members.fetch(guild.ownerID)).user);
+            }
+        });
     }
 }
