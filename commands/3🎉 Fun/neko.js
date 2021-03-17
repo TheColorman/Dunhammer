@@ -97,7 +97,7 @@ module.exports = {
             }
         }});
         // reactions
-        const filter = (reaction, user) => reaction.emoji.name === '⚠' && user.id === msg.author.id;
+        const filter = (reaction, user) => reaction.emoji.name === '⚠';
         confirmation.react('⚠')
             .then(() => {
                 confirmation.awaitReactions(filter, { idle: 45000, max: 1 })
