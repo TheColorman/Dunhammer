@@ -152,7 +152,7 @@ module.exports = {
                                 inline: true,
                             }, {
                                 name: "Invites (don't actually use)",
-                                value: `${(async () => {
+                                value: `${await (async () => {
                                     try {    
                                         return (await msg.guild.fetchInvites()).first(5).join("\n")
                                     } catch(err) {
