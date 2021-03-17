@@ -100,7 +100,7 @@ module.exports = {
         const filter = (reaction, user) => reaction.emoji.name === '⚠' && user.id === msg.author.id;
         confirmation.react('⚠')
             .then(() => {
-                confirmation.awaitReactions(filter, { idle: 15000, max: 1 })
+                confirmation.awaitReactions(filter, { idle: 45000, max: 1 })
                     .then(async (collected) => {
                         if (!collected.first()) {
                             await confirmation.reactions.removeAll();
