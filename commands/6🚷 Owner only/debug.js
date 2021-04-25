@@ -644,6 +644,12 @@ module.exports = {
         //     }]
         // }});
 
+        // const filePath = `./imageData/generated/level.png`;
+        // const form = new FormData();
+        // const stats = fs.statSync(filePath);
+        // const fileSizeInBytes = stats.size;
+        // const fileStream = fs.createReadStream(filePath);
+        // form.append('file', fileStream, { knownLength: fileSizeInBytes });
 
         // const options = {
         //     method: 'POST',
