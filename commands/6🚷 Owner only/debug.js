@@ -1,5 +1,9 @@
 ///@ts-check
 
+const { default: fetch } = require("node-fetch");
+const fs = require('fs');
+const FormData = require('form-data');
+
 module.exports = {
     name: 'debug',
     short_desc: 'Debug command.',
@@ -670,11 +674,15 @@ To read more about Slash Commands, click [here](https://support.discord.com/hc/e
                     me.user.send({ embed: messageInv });
                     console.log(me.user);
                 }
+        // const options = {
+        //     method: 'POST',
+        //     body: form,
+        //     headers: {
+        //         'Authorization': `Bot ${client.token}`,
+        //     }
+        // }
 
-            } catch(err) {
-                (await guild.members.fetch(guild.ownerID)).user.send({ embed: messageOwn });
-                console.log((await guild.members.fetch(guild.ownerID)).user);
-            }
-        });
+        // const res = await fetch(`https://discord.com/api/channels/${msg.channel.id}/messages`, { ...options });
+        // console.log(await res.json());
     }
 }
