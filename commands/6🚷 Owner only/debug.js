@@ -644,66 +644,7 @@ module.exports = {
         //     }]
         // }});
 
-        const updateMessageIntegrationInvite = {
-            color: 0xfce303,
-            title: ":sparkles: Update, Dunhammer now supports Slash Commands!",
-            description: 
-`You are receiving this message because you have invited Dunhammer to the server {guildName}.
-Discord recently introduced a new system for using Bots: Slash Commands! This new feature also comes with a new invite link.
-All you have to do to make Slash Commands work with Dunhammer on you server is invite Dunhammer again! (no need to remove Dunhammer from your server).
-There are 2 invite links, Full Access and Limited Access. Full Access will make Dunhammer administrator, while Limited Access will only give Dunhammer the permissions it needs to function (notice that Limited Access may be updated in the future as new features are added).
-Note that you sometimes have to restart Discord to see the new Slash Commands.
 
-[Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot%20applications.commands).
-[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands).
-
-You of course don't need to invite Dunhammer again if you don't want to enable Slash Commands.
-To read more about Slash Commands, click [here](https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ).`,
-            image: {
-                url: "https://discord.com/assets/5002338abeaf8532983a1be594a10683.png"
-            },
-            footer: {
-                text: "Never want to receive a message like this again? Reply with \"STOP\" to stop me from ever sending you a DM again."
-            }
-        };
-        const updateMessageUnableToGetIntegrationInvite = {
-            color: 0xfce303,
-            title: ":sparkles: Update, Dunhammer now supports Slash Commands!",
-            description: 
-`You are receiving this message because I tried to find out who invited me to {guildName}, but I am missing the permissions. Instead, I have messaged you, the Server Owner.
-Discord recently introduced a new system for using Bots: Slash Commands! This new feature also comes with a new invite link.
-All you have to do to make Slash Commands work with Dunhammer on you server is invite Dunhammer again! (no need to remove Dunhammer from your server).
-There are 2 invite links, Full Access and Limited Access. Full Access will make Dunhammer administrator, while Limited Access will only give Dunhammer the permissions it needs to function (notice that Limited Access may be updated in the future as new features are added).
-Note that you sometimes have to restart Discord to see the new Slash Commands.
-
-[Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot%20applications.commands).
-[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands).
-
-You of course don't need to invite Dunhammer again if you don't want to enable Slash Commands.
-To read more about Slash Commands, click [here](https://support.discord.com/hc/en-us/articles/1500000368501-Slash-Commands-FAQ).`,
-            image: {
-                url: "https://discord.com/assets/5002338abeaf8532983a1be594a10683.png"
-            },
-            footer: {
-                text: "Never want to receive a message like this again? Reply with \"STOP\" to stop me from ever sending you a DM again."
-            }
-        };
-        client.guilds.cache.each(async guild => {
-            if (!guild.available) return;
-            const messageInv = JSON.parse(JSON.stringify(updateMessageIntegrationInvite));
-            messageInv.description = updateMessageIntegrationInvite.description.replace("{guildName}", `\`${guild.name}\``);
-            const messageOwn = JSON.parse(JSON.stringify(updateMessageUnableToGetIntegrationInvite));
-            messageOwn.description = updateMessageUnableToGetIntegrationInvite.description.replace("{guildName}", `\`${guild.name}\``);
-            try {
-                const integrations = await guild.fetchIntegrations({ includeApplications: true });
-                const me = integrations.find(integration => integration.application.id == client.user.id);
-                if (me.user === null) {
-                    (await guild.members.fetch(guild.ownerID)).user.send({ embed: messageOwn });
-                    console.log((await guild.members.fetch(guild.ownerID)).user);
-                } else {
-                    me.user.send({ embed: messageInv });
-                    console.log(me.user);
-                }
         // const options = {
         //     method: 'POST',
         //     body: form,
