@@ -344,7 +344,7 @@ module.exports = {
         // console.log("level");
         // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'level',
-        //     description: 'Shows a uses level.',
+        //     description: 'Shows a users level.',
         //     options: [{
         //         type: 6,
         //         name: "user",
