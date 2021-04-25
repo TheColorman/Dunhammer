@@ -30,31 +30,61 @@ module.exports = {
         //         description: "The command to get help for",
         //         required: false,
         //         choices: [{
-        //             name: "help",
+        //             name: "Help",
         //             value: "help"
         //         }, {
-        //             name: "ping",
-        //             value: "ping"
-        //         }, {
-        //             name: "invite",
+        //             name: "Invite",
         //             value: "invite"
         //         }, {
-        //             name: "roadmap",
+        //             name: "Ping",
+        //             value: "ping"
+        //         }, {
+        //             name: "Roadmap",
         //             value: "roadmap"
         //         }, {
-        //             name: "suggestion",
+        //             name: "Suggestion",
         //             value: "suggestion"
         //         }, {
-        //             name: "allowbots",
+        //             name: "AllowBots",
         //             value: "allowbots"
         //         }, {
-        //             name: "prefix",
+        //             name: "Prefix",
         //             value: "prefix"
         //         }, {
-        //             name: "neko",
+        //             name: "Neko",
         //             value: "neko"
         //         }, {
-        //             name: "me",
+        //             name: "Speak",
+        //             value: "speak"
+        //         }, {
+        //             name: "Ignore",
+        //             value: "ignore"
+        //         }, {
+        //             name: "Leaderboard",
+        //             value: "leaderboard"
+        //         }, {
+        //             name: "Level",
+        //             value: "level"
+        //         }, {
+        //             name: "LevelsEnabled",
+        //             value: "levelsenabled"
+        //         }, {
+        //             name: "LevelUpChannel",
+        //             value: "levelupchannel"
+        //         }, {
+        //             name: "LevelUpMessage",
+        //             value: "levelupmessage"
+        //         }, {
+        //             name: "Roles",
+        //             value: "roles"
+        //         }, {
+        //             name: "SetLevel",
+        //             value: "setlevel"
+        //         }, {
+        //             name: "Nickname",
+        //             value: "nickname"
+        //         }, {
+        //             name: "Me",
         //             value: "me"
         //         }]
         //     }]
