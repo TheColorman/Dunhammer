@@ -42,13 +42,39 @@ module.exports = {
 
         if (endpoint == "random_hentai_gif") endpoint = "Random_hentai_gif"; // this api is staright shit
 
-        if (["i'm_feeling_lucky", "lucky", "random", "im_feeling_lucky", "sfw"].includes(endpoint)) endpoint = (msg.channel.nsfw ? ["Random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic", "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog", "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero", "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok", "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm", "tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"][Math.round(Math.random()*62)] : ["tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"][Math.round(Math.random()*23)])
-        let nsfw = ["random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic", "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog", "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero", "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok", "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm"];
-        if (["nsfw", "im_feeling_horny", "i'm_feeling_horny", "horny"].includes(endpoint)) endpoint = nsfw[Math.floor(Math.random() * nsfw.length)];
+        const randoms = ["i'm_feeling_lucky", "lucky", "random", "im_feeling_lucky"];
+        const randomsNSFW = ["nsfw", "im_feeling_horny", "i'm_feeling_horny", "horny"];
+        const randomsSFW = ["sfw", "no_horny", "sfw_random"];
+        const sfwEndpoints = [
+            "tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss",
+            "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo",
+            "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"
+        ];
+        const nsfwEndpoints = [
+            "random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic",
+            "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog",
+            "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero",
+            "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok",
+            "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm"
+        ];
+        const allEndpoints = [
+            "Random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic",
+            "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog",
+            "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero",
+            "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok",
+            "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm", "tickle",
+            "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug",
+            "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka",
+            "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"
+        ];
+        if (randoms.includes(endpoint)) endpoint = allEndpoints[Math.floor(Math.random() * allEndpoints.length)];
+        if (randomsNSFW.includes(endpoint)) endpoint = nsfwEndpoints[Math.floor(Math.random() * nsfwEndpoints.length)];
+        if (randomsSFW.includes(endpoint)) endpoint = sfwEndpoints[Math.floor(Math.random() * sfwEndpoints.length)];
+
         let url = `https://nekos.life/api/v2/img/${endpoint}`;
 
 
-        if (nsfw.includes(endpoint) && !msg.channel.nsfw) {
+        if (nsfwEndpoints.includes(endpoint) && !msg.channel.nsfw) {
             const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
