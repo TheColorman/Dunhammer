@@ -107,11 +107,18 @@ module.exports = {
                 }
             });
         });
-        if (returned == "404") return msg.channel.send({ embed: {
-            "color": 0xcf2d2d,
-            "title": ":octagonal_sign: Error!",
-            "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
-        }});
+        if (returned == "404") {
+            const replyEmbed = {
+                "color": 0xcf2d2d,
+                "title": ":octagonal_sign: Error!",
+                "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
+        } 
 
         const replyEmbed = {
             "color": 0xa914ff,
