@@ -37,15 +37,10 @@ module.exports = {
         let index = 1;
         let tag_in_top_ten = false;
         for (const db_user of top_ten) {
-            let ds_user;
-            try {
-                ds_user = db_user.inGuild ? await msg.guild.members.fetch(db_user.user_id) : { id: db_user.user_id }
-            } catch (err) {
-                if (err.message === "Unknown User" || err.message === "Unknown Member") {
-                    db_user.inGuild = false;
-                    user_db.update(db_user);
-                }
-                ds_user = { id: db_user.user_id }
+            let ds_user = await msg.client.users.fetch(db_user.user_id);
+            if (!msg.guild.member(ds_user)) {
+                db_user.inGuild = false;
+                user_db.update(db_user);
             }
             let text_decor = "";
             if (taggedmember.id == ds_user.id) {
