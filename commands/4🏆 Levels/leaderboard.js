@@ -16,9 +16,9 @@ module.exports = {
 
         const replyEmbed = {
             color: 49919,
-            title: "<a:discord_loading:821347252085063680> Getting leaderboard..."
+            title: "<a:discord_loading:821347252085063680> Getting leaderboard...",
         }
-        const reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : msg.channel.send({ embed: { replyEmbed } });
+        const reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed });
 
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
