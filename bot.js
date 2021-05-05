@@ -7,7 +7,6 @@ const { CanvasImage } = require('./helperfunctions.js');
 
 const { presences } = require('./config.json');
 const { token } = require('./token.json');
-const { POINT_CONVERSION_COMPRESSED } = require('constants');
 
 // Create a new Discord client
 const client = new Discord.Client();
