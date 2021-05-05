@@ -1,5 +1,7 @@
 //@ts-check
 
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: "setlevel",
     aliases: ["setxp", "setlvl"],
@@ -22,25 +24,42 @@ module.exports = {
         if (!taggedmember && args.lowercase.length) {
             taggedmember = msg.guild.members.cache.find(member => args.original.join(" ").includes(member.user.tag));
         }        
-        if (!taggedmember) return msg.channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: `:no_pedestrians: No user tagged! Use \`${db_guild.prefix}help setlevel\` for help.`
-        }});
+        if (!taggedmember) {
+            const replyEmbed = {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:no_pedestrians: No user tagged! Use \`${db_guild.prefix}help setlevel\` for help.`
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
+        }
         let db_user = user_db.findOne({user_id: taggedmember.id});
         if (args.lowercase.length < 2) {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": `:question: Not enough argument! Use \`${db_guild.prefix}help setlevel\` for help.`
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
         }
         if (db_user == null) {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": ":no_pedestrians: User not found!"
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
         }
         
         const new_level = parseInt(args.lowercase[tags.members.first() ? 1 : taggedmember.user.tag.split(" ").length], 10); // explanation in ../Moderation/nickname.js
@@ -62,9 +81,14 @@ module.exports = {
         let level = lower;
         db_user.level = level;
         user_db.update(db_user);
-        return msg.channel.send({ embed: {
+        const replyEmbed = {
             "color": 2215713,
             "description": `:sparkles: Updated ${taggedmember}'s XP level to ${args.lowercase[1]}.`
-        }});
+        }
+        if (interaction) {
+            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            return msg.channel.send({ embed: replyEmbed});
+        }
     }
 }

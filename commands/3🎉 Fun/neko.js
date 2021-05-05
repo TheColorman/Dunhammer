@@ -1,5 +1,6 @@
 //@ts-check
 const { get } = require('https');
+const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'neko',
@@ -48,15 +49,20 @@ module.exports = {
 
 
         if (nsfw.includes(endpoint) && !msg.channel.nsfw) {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": `:no_entry: This channel is SFW!`,
                 "footer": {
                     "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
                     "text": "nekos.life"
-                }    
-            }});
+                }
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         } 
 
         let returned = await new Promise((resolve, reject) => {
@@ -81,7 +87,7 @@ module.exports = {
             "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
         }});
 
-        const confirmation = await msg.channel.send({ embed: {
+        const replyEmbed = {
             "color": 0xa914ff,
             "title": ":cat: " + endpoint,
             "image": {
@@ -95,12 +101,13 @@ module.exports = {
             "footer": {
                 "text": "React with ⚠ to remove and report the image."
             }
-        }});
+        }
+        const nekoImage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  { replyEmbed } });
         // reactions
         const filter = (reaction, user) => reaction.emoji.name === '⚠' && user.id === msg.author.id;
         confirmation.react('⚠')
             .then(() => {
-                confirmation.awaitReactions(filter, { idle: 15000, max: 1 })
+                nekoImage.awaitReactions(filter, { idle: 45000, max: 1 })
                     .then(async (collected) => {
                         if (!collected.first()) {
                             await confirmation.reactions.removeAll();

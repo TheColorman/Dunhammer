@@ -1,4 +1,6 @@
 //@ts-check
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: 'roadmap',
     short_desc: 'Sends a link to the roadmap.',
@@ -12,10 +14,15 @@ module.exports = {
                 type: 5,
             }});
         }
-        return msg.channel.send({ embed: {
+        const replyEmbed = {
             title: ":map: Roadmap",
             url: "https://trello.com/b/expgfSZa/dunhammer-roadmap",
             color: 49919
-        }});
+        }
+        if (interaction) {
+            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            return msg.channel.send({ embed: replyEmbed});
+        }
     }
 }

@@ -1,4 +1,4 @@
-const { QuickMessage } = require('../../helperfunctions.js');
+const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'leaderboard',
@@ -14,10 +14,12 @@ module.exports = {
             }});
         }
 
-        const reply = await msg.channel.send({ embed: {
+        const replyEmbed = {
             color: 49919,
             title: "<a:discord_loading:821347252085063680> Getting leaderboard..."
-        }});
+        }
+        const reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : msg.channel.send({ embed: { replyEmbed } });
+
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
             taggedmember = msg.guild.members.cache.find(member => member.user.tag == args.original.join(" "));

@@ -2,7 +2,11 @@
 
 // CanvasImages
 const fs = require('fs');
+const FormData = require('form-data');
 const { createCanvas, loadImage } = require('canvas');
+const { default: fetch} = require('node-fetch');
+
+const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel } = require('discord.js');
 
 const CanvasImagesMeta = {
     //#region roundRect
@@ -476,4 +480,56 @@ const QuickMessage = {
     //#endregion
 }
 
-module.exports = { CanvasImage, QuickMessage }
+const apiFunctions = {
+    /**
+     * Edits a Discord Interaction beacause fuck discord this is the only way to do it. use async. Returns Discord.js Message.
+     * @param {Client} client Discord.js client
+     * @param {Object} interaction Interaction token
+     * @param {TextChannel} channel Any channel
+     * @param {String|object} [message="‏‏‎ ‎"] String or embed
+     * @returns {Promise<Message>} Message object‏‏‎
+     */
+    interactionEdit: async function (client, interaction, channel, message) {
+        message ||= "‏‏‎ ‎";
+        const body = typeof message == "object" ? { embeds: [message] } : { content: message }
+
+        const res = await fetch(`https://discord.com/api/v8/webhooks/${client.user.id}/${interaction.token}/messages/@original`, {
+            method: 'PATCH',
+            body: JSON.stringify(body),
+            headers: {            
+                'Authorization': `Bot ${client.token}`,
+                'Content-Type': 'application/json',
+            },
+        });
+        const json = await res.json();
+        if (res.status == 400) console.error("Discord API error! (is the embed formated properly?)");
+        else {
+            const returnMessage = await channel.messages.fetch(json.id);
+            return returnMessage;
+        }
+    },
+    /**
+     * 
+     * @param {Client} client Discord.js client
+     * @param {object} interaction Interaction object
+     * @param {object} embed Message embed
+     */
+    interactionResponse: async function (client, interaction, embed) {
+        const options = {
+            method: 'POST',
+            body: JSON.stringify({
+                type: 4,
+                data: {
+                    embeds: [embed],
+                },
+            }),
+            headers: {
+                'Authorization': `Bot ${client.token}`,
+                'Content-Type': 'application/json',
+            },
+        }
+        const res = await fetch(`https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`, options);
+    }
+}
+
+module.exports = { CanvasImage, QuickMessage, apiFunctions }
