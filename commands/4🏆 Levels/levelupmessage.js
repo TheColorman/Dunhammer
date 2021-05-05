@@ -28,7 +28,7 @@ module.exports = {
                 description: `${db_guild.levelSystem.levelup_message.description ? db_guild.levelSystem.levelup_message.description : "No description"}`,
                 fields: [{
                     name: "Image",
-                    value: `${db_guild.levelSystem.levelup_message.image ? true : false}`
+                    value: `${db_guild.levelSystem.levelup_image ? "true" : "false"}`
                 }]
             }
             if (interaction) {

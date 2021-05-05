@@ -544,7 +544,7 @@ function get_db_guild(guild) {
                 levelup_message: {
                     color: 2215713,
                     title: "Congratulations {username}, you reached level {level}!",
-                    description: ''
+                    description: '',
                 },
                 newrole_message: {
                     color: 2215713,
