@@ -1,5 +1,7 @@
 //@ts-check
+const { Message } = require('discord.js');
 const { get } = require('https');
+const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'neko',
@@ -48,15 +50,20 @@ module.exports = {
 
 
         if (nsfw.includes(endpoint) && !msg.channel.nsfw) {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": `:no_entry: This channel is SFW!`,
                 "footer": {
                     "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
                     "text": "nekos.life"
-                }    
-            }});
+                }
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         } 
 
         let returned = await new Promise((resolve, reject) => {
@@ -81,7 +88,7 @@ module.exports = {
             "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
         }});
 
-        const confirmation = await msg.channel.send({ embed: {
+        const replyEmbed = {
             "color": 0xa914ff,
             "title": ":cat: " + endpoint,
             "image": {
@@ -95,55 +102,64 @@ module.exports = {
             "footer": {
                 "text": "React with ⚠ to remove and report the image."
             }
-        }});
+        }
+        const nekoImage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  { replyEmbed } });
         // reactions
-        const filter = (reaction, user) => reaction.emoji.name === '⚠';
-        confirmation.react('⚠')
+        const filter = (reaction) => reaction.emoji.name === '⚠';
+        nekoImage.react('⚠')
             .then(() => {
-                confirmation.awaitReactions(filter, { idle: 45000, max: 1 })
+                nekoImage.awaitReactions(filter, { idle: 45000, max: 1 })
                     .then(async (collected) => {
                         if (!collected.first()) {
-                            await confirmation.reactions.removeAll();
-                            return confirmation.edit({ embed: {
+                            try {
+                                await nekoImage.reactions.removeAll();
+                                return nekoImage.edit({ embed: {
+                                    "color": 0xa914ff,
+                                    "title": ":cat: " + endpoint,
+                                    "image": {
+                                        "url": returned
+                                    },
+                                    "author": {
+                                        "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
+                                        "name": "nekos.life",
+                                        "url": "https://nekos.life/"
+                                    },
+                                    "footer": {
+                                        "text": "R̶e̶a̶c̶t̶ ̶w̶i̶t̶h̶ ̶⚠̶ ̶t̶o̶ ̶r̶e̶m̶o̶v̶e̶ ̶a̶n̶d̶ ̶r̶e̶p̶o̶r̶t̶ ̶t̶h̶e̶ ̶i̶m̶a̶g̶e̶.̶\nTimeout! Message an admin to remove the image."
+                                    }
+                                }});
+                            } catch(err) {
+                                return;
+                            }
+                        }
+                        try {
+                            nekoImage.edit({ embed: {
                                 "color": 0xa914ff,
                                 "title": ":cat: " + endpoint,
-                                "image": {
-                                    "url": returned
-                                },
+                                "description": "Image reported.",
                                 "author": {
                                     "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
                                     "name": "nekos.life",
                                     "url": "https://nekos.life/"
                                 },
                                 "footer": {
-                                    "text": "R̶e̶a̶c̶t̶ ̶w̶i̶t̶h̶ ̶⚠̶ ̶t̶o̶ ̶r̶e̶m̶o̶v̶e̶ ̶a̶n̶d̶ ̶r̶e̶p̶o̶r̶t̶ ̶t̶h̶e̶ ̶i̶m̶a̶g̶e̶.̶\nTimeout! Message an admin to remove the image."
+                                    "text": "React with ⚠ to remove and report the image."
                                 }
                             }});
+                        } catch(err) {
+                            return;
                         }
-                        confirmation.edit({ embed: {
-                            "color": 0xa914ff,
-                            "title": ":cat: " + endpoint,
-                            "description": "Image reported.",
-                            "author": {
-                                "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
-                                "name": "nekos.life",
-                                "url": "https://nekos.life/"
-                            },
-                            "footer": {
-                                "text": "React with ⚠ to remove and report the image."
-                            }
-                        }});
-
-                        const reportChannel = await msg.client.channels.fetch('821393392771923978');
-                        reportChannel.send({ embed: {
-                            color: 0xa914ff,
-                            title: "Neko report",
-                            description: `Reported by ${await msg.member.user}`,
-                            fields: [{
-                                name: "Guild",
-                                value: `Name: ${msg.guild.name}\nID: ${msg.guild.id}`
-                            }, {
-                                name: "NSFW channel?",
+                            
+                            const reportChannel = await msg.client.channels.fetch('821393392771923978');
+                            reportChannel.send({ embed: {
+                                color: 0xa914ff,
+                                title: "Neko report",
+                                description: `Reported by ${await msg.member.user}`,
+                                fields: [{
+                                    name: "Guild",
+                                    value: `Name: ${msg.guild.name}\nID: ${msg.guild.id}`
+                                }, {
+                                    name: "NSFW channel?",
                                 value: `${msg.channel.nsfw}`,
                                 inline: true,
                             }, {
@@ -165,6 +181,6 @@ module.exports = {
                             }
                         }});
                     });
-            });
+                });
     }
 }

@@ -1,6 +1,6 @@
 //@ts-check
 
-const { QuickMessage } = require("../../helperfunctions");
+const { QuickMessage, apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "roles",
@@ -17,7 +17,6 @@ module.exports = {
             }});
             args.lowercase[0] = interaction.data.options[0].name == "options" ? interaction.data.options[0].options[0].name : interaction.data.options[0].name;
         }
-        if (interaction) console.log(interaction.data)
 
         const guild_db = databases.guilds;
         const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
@@ -26,7 +25,7 @@ module.exports = {
         let role; 
         if (interaction && ["add", "remove"].includes(interaction.data.options[0].name)) role = await msg.guild.roles.fetch(interaction.data.options[0].options.find(option => option.name == "role").value);
 
-        
+        let replyEmbed = {}
         switch (args.lowercase[0]) {
             case 'add':
                 // Set interaction values to match old code
@@ -50,10 +49,15 @@ module.exports = {
                 }
                 return QuickMessage.remove(msg.channel, `Removed ${role} from level roles.`);
             case 'reload':
-                const message = await msg.channel.send({ embed: {
-                    color: 49919,
+                
+                replyEmbed = {
+                color: 49919,
                     description: "<a:discord_loading:821347252085063680> Reloading all level roles..."
-                }});
+                }
+
+                const message = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  { replyEmbed } });
+
+
                 const userdata = user_db.chain().data();
                 for (let user of userdata) {
                     for (let level = 0; level < user.level; level++) {
@@ -83,10 +87,15 @@ module.exports = {
                     color: 2215713,
                     description: "~~:white_check_mark: Reloading all level roles...~~\n\nDone!"
                 }});
-                return msg.channel.send({ embed: {
+                replyEmbed = {
                     color: 2215713,
                     description: ":white_check_mark: Reloaded all level roles."
-                }});
+                }
+                if (interaction) {
+                    return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                } else {
+                    return msg.channel.send({ embed: replyEmbed});
+                }
             case 'cumulative':
                 switch (args.lowercase[1]) {
                     case 'true':
@@ -104,7 +113,16 @@ module.exports = {
                 for (const [key, value] of Object.entries(db_guild.levelSystem.roles)) {
                     arr.push(`${key == `cumulative` ? `Cumulative: ${value}` : `Level: ${key} - ${await msg.guild.roles.fetch(value)}`}`);
                 }
-                return QuickMessage.info(msg.channel, "Level roles", `${arr.join('\n')}`);
+                replyEmbed = {
+                    color: 49919,
+                    title: `:information_source: Level roles`,
+                    description: `${arr.join('\n')}`
+                }
+                if (interaction) {
+                    return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                } else {
+                    return msg.channel.send({ embed: replyEmbed});
+                }
         }
 
     }

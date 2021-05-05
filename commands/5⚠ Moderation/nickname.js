@@ -1,5 +1,5 @@
 //@ts-check
-const { QuickMessage } = require('../../helperfunctions.js');
+const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'nickname',
@@ -20,10 +20,29 @@ module.exports = {
         if (!taggedMember && args.lowercase.length) {
             taggedMember = msg.guild.members.cache.find(member => args.original.join(" ").includes(member.user.tag));   // could get false positives, but I'm not really sure how to get around it
         }
-        if (!taggedMember) return QuickMessage.invalid_user(msg.channel);
+        if (!taggedMember) {
+            const replyEmbed = {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:no_pedestrians: User not found!`
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
+        }
         const old_nickname = taggedMember.nickname;
         args.original.splice(0, tags.members.first() ? 1 : taggedMember.user.tag.split(" ").length); // if the tag contains a space, remove the first 2 elements from args and so on
         taggedMember.setNickname(args.original.join(" "), `Changed by ${msg.author.tag} using nickname command.`);
-        QuickMessage.update(msg.channel, `Updated ${taggedMember}'s nickname: \`${old_nickname}\` => \`${args.original.join(" ")}\``);
+        const replyEmbed = {
+            color: 2215713,
+            description: `:repeat: Updated ${taggedMember}'s nickname: \`${old_nickname}\` => \`${args.original.join(" ")}\``
+        }
+        if (interaction) {
+            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            return msg.channel.send({ embed: replyEmbed});
+        }
     }
 }

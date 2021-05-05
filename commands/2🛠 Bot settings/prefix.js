@@ -1,4 +1,6 @@
 //@ts-check
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: 'prefix',
     short_desc: 'Sets the bot\'s prefix for this server.',
@@ -23,9 +25,15 @@ module.exports = {
         }
         db_guild.prefix = args.original.join(` `);
         guild_db.update(db_guild);
-        return msg.channel.send({ embed: {
+
+        const replyEmbed = {
             "color": 2215713,
             "description": `:repeat: Updated server prefix to \`${db_guild.prefix}\`.`
-        }});
+        }
+        if (interaction) {
+            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            return msg.channel.send({ embed: replyEmbed});
+        }
     }
 }

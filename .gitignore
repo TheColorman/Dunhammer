@@ -1,8 +1,8 @@
 node_modules/
 token.json
-databases/guild_config.db
 imageData/
 audioData/
 .vscode/
 GCloudKey.json
-databases/client_config.db
+databases.backup/
+databases/

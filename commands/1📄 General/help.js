@@ -1,4 +1,7 @@
 //@ts-check
+const fetch = require('node-fetch');
+const { apiFunctions } = require('../../helperfunctions');
+
 module.exports = {
     name: 'help',
     short_desc: 'Commands and other help.',
@@ -36,7 +39,11 @@ module.exports = {
                     index++;
                 }
             });
-            return msg.channel.send({ embed: reply_embed });
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, reply_embed);
+            } else {
+                return msg.channel.send({ embed: reply_embed});
+            }
         }
 
         
@@ -49,19 +56,29 @@ module.exports = {
             });
         });
         if (name == "me") {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": "<:YAGOO:796872938460282972> You haven't signed up for Dunham+, if you would like to get personalized help, please sign up [here](https://www.paypal.me/dunhammer)."
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         }
 
         if (!command) {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": `:question: \`${name}\` isn't a valid command! Send \`${guild.prefix}help\` for a list of commands.`
-            } });
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         }
 
         reply_embed = {
@@ -92,7 +109,10 @@ module.exports = {
                 reply_embed.fields[4] = {"name": "Notice!", "value": "You don't have permission to use this command!"}
             }
         }
-        return msg.channel.send({ embed: reply_embed });
-
+        if (interaction) {
+            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, reply_embed);
+        } else {
+            return msg.channel.send({ embed: reply_embed});
+        }
     }
 }
