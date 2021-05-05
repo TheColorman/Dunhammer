@@ -22,20 +22,20 @@ fs.readdirSync('./commands').forEach(folder => {
 // Database
 var guild_config = new loki('./databases/guild_config.db', {
     autoload: true,
-    autoloadCallback : configDatabseInitialize,
+    autoloadCallback : configDatabaseInitialize,
     autosave: true,
     autosaveInterval: 4000
 });
 
 var client_config = new loki('./databases/client_config.db', {
     autoload: true,
-    autoloadCallback: client_configDatabseInitialize,
+    autoloadCallback: client_configDatabaseInitialize,
     autosave: true,
     autosaveInterval: 400
 });
 
 // Implement the autoloadback referenced in loki constructor
-function configDatabseInitialize() {
+function configDatabaseInitialize() {
     var guilds = guild_config.getCollection("guilds");
     if (guilds === null) {
         guilds = guild_config.addCollection("guilds", {
@@ -46,7 +46,7 @@ function configDatabseInitialize() {
     // kick off any program logic or start listening to external events
     runProgramLogic();
 }
-function client_configDatabseInitialize() {
+function client_configDatabaseInitialize() {
     var api_db = client_config.getCollection("apis");
     if (api_db === null) {
         api_db = client_config.addCollection("apis", {
