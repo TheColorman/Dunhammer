@@ -30,6 +30,7 @@ module.exports = {
 
         if (args.lowercase[0] == "true") {
             guild.allowbots = true;
+            databases.guilds.update(guild);
             const replyEmbed = {
                 "color": 2215713,
                 "description": ":white_check_mark: Bots will now be treated as normal users."
@@ -41,6 +42,7 @@ module.exports = {
             }
         } else {
             guild.allowbots = false;
+            databases.guilds.update(guild);
 
             const replyEmbed = {
                 "color": 2215713,
