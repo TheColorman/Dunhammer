@@ -135,7 +135,7 @@ module.exports = {
                 "text": "React with ⚠ to remove and report the image."
             }
         }
-        const nekoImage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  { replyEmbed } });
+        const nekoImage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  replyEmbed });
         // reactions
         const filter = (reaction) => reaction.emoji.name === '⚠';
         nekoImage.react('⚠')
