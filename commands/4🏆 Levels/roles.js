@@ -37,6 +37,21 @@ module.exports = {
                 if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
                 if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
                 
+                const highestRolePosition = msg.guild.me.roles.highest.position;
+                const requestedRolePosition = role.position;
+                if (highestRolePosition < requestedRolePosition) {
+                    replyEmbed = {
+                        color: 0xcf2d2d,
+                        title: ":octagonal_sign: Error!",
+                        description: `:no_entry: I don't have permission to give other people ${role}.`            
+                    }
+                    if (interaction) {
+                        return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                    } else {
+                        return msg.channel.send({ embed: replyEmbed});
+                    }                
+                }
+                
                 db_guild.levelSystem.roles[args.lowercase[1]] = role.id;
                 guild_db.update(db_guild);
                 return QuickMessage.add(msg.channel, `Added ${role} to level roles at level ${args.lowercase[1]}.`);
