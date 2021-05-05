@@ -1,6 +1,6 @@
 {
   "name": "dunhammer",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "The Discord bot Dunhammer.",
   "main": "bot.js",
   "scripts": {
@@ -15,7 +15,7 @@
     "canvas": "^2.6.1",
     "cookie-parser": "^1.4.5",
     "crypto": "^1.0.1",
-    "discord.js": "^12.5.1",
+    "discord.js": "^12.5.2",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "ffmpeg-static": "^4.2.7",
