@@ -149,10 +149,10 @@ module.exports = {
         //         options: [{
         //             type: 3,
         //             name: "type",
-        //             description: "test6",
+        //             description: "The type of catgirl to send",
         //             choices: [{
         //                 name: "random",
-        //                 value: "random"
+        //                 value: "sfw"
         //             }, {
         //                 name: "tickle",
         //                 value: "tickle"
@@ -661,5 +661,6 @@ module.exports = {
 
         // const res = await fetch(`https://discord.com/api/channels/${msg.channel.id}/messages`, { ...options });
         // console.log(await res.json());
+
     }
 }
