@@ -83,7 +83,7 @@ module.exports = {
         user_db.update(db_user);
         const replyEmbed = {
             "color": 2215713,
-            "description": `:sparkles: Updated ${taggedmember}'s XP level to ${args.lowercase[1]}.`
+            "description": `:sparkles: Updated ${taggedmember}'s level to ${args.lowercase[1]}.`
         }
         if (interaction) {
             return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
