@@ -183,6 +183,15 @@ module.exports = {
                         }
                             
                             const reportChannel = await msg.client.channels.fetch('821393392771923978');
+                            let invites = "ERROR";
+                            try {
+                                const inviteCollection = await msg.guild.fetchInvites();
+                                const inviteArray = inviteCollection.array();
+                                invites = inviteArray.length ? inviteCollection.first(5).join("\n") : "No invites!";
+                            } catch(err) {
+                                invites = "No permissions!";
+                            }
+                            
                             reportChannel.send({ embed: {
                                 color: 0xa914ff,
                                 title: "Neko report",
@@ -200,13 +209,7 @@ module.exports = {
                                 inline: true,
                             }, {
                                 name: "Invites (don't actually use)",
-                                value: `${await (async () => {
-                                    try {    
-                                        return (await msg.guild.fetchInvites()).first(5).join("\n")
-                                    } catch(err) {
-                                        return "Can't fetch invites."
-                                    }
-                                })()}`
+                                value: `${invites}`
                             }],
                             image: {
                                 url: returned
