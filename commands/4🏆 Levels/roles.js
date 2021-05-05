@@ -54,7 +54,15 @@ module.exports = {
                 
                 db_guild.levelSystem.roles[args.lowercase[1]] = role.id;
                 guild_db.update(db_guild);
-                return QuickMessage.add(msg.channel, `Added ${role} to level roles at level ${args.lowercase[1]}.`);
+                replyEmbed = {
+                    color: 2215713,
+                    description: `:white_check_mark: Added ${role} to level roles at level ${args.lowercase[1]}.`
+                }
+                if (interaction) {
+                    return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                } else {
+                    return msg.channel.send({ embed: replyEmbed});
+                }            
             case 'remove':
                 // Set interaction values to match old code
                 if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
@@ -65,7 +73,16 @@ module.exports = {
                 for (let key in db_guild.levelSystem.roles) {
                     if (db_guild.levelSystem.roles[key] == role.id) delete db_guild.levelSystem.roles[key];
                 }
-                return QuickMessage.remove(msg.channel, `Removed ${role} from level roles.`);
+
+                replyEmbed = {
+                    color: 2215713,
+                    description: `:x: Removed ${role} from level roles.`
+                }
+                if (interaction) {
+                    return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                } else {
+                    return msg.channel.send({ embed: replyEmbed});
+                }            
             case 'reload':
                 
                 replyEmbed = {
