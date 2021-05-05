@@ -256,6 +256,7 @@ client.on("message", async (msg) => {
             guilds: guild_db,
             users: user_db,
             client: client_config,
+            guild_config: guild_config,
         });
     } catch(err) {
         try {
@@ -382,7 +383,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             msg,    // msg
             { lowercase: arguments_lowercase, original: arguments}, // args
             { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
-            { guilds: guild_db, users: user_db, client: client_config },    // databases
+            { guilds: guild_db, users: user_db, client: client_config, guild_config: guild_config },    // databases
             interaction // interaction
         );
     } catch(err) {
