@@ -39,7 +39,7 @@ module.exports = {
                 
                 const highestRolePosition = msg.guild.me.roles.highest.position;
                 const requestedRolePosition = role.position;
-                if (highestRolePosition < requestedRolePosition) {
+                if (highestRolePosition <= requestedRolePosition) {
                     replyEmbed = {
                         color: 0xcf2d2d,
                         title: ":octagonal_sign: Error!",
