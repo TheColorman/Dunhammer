@@ -411,7 +411,7 @@ client.on("message", async (msg) => {
     const user_db = get_user_db(msg.guild)
     const levelSystem = db_guild.levelSystem;
 
-    if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id || (!db_guild.allowbots && msg.author.bot))) return;
+    if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id) || (!db_guild.allowbots && msg.author.bot)) return;
 
     // Check if user cooldown is over
     const now = Date.now();
