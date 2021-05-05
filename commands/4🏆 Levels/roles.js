@@ -29,8 +29,11 @@ module.exports = {
         switch (args.lowercase[0]) {
             case 'add':
                 // Set interaction values to match old code
-                if (interaction) args.lowercase[1] = interaction.data.options[0].options.find(option => option.name == "level").value;
-                if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
+                if (interaction) {
+                    args.lowercase[1] = interaction.data.options[0].options.find(option => option.name == "level").value
+                } else {
+                    role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
+                }
                 if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
                 if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
                 
