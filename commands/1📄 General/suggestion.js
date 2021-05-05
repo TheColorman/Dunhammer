@@ -1,8 +1,9 @@
+//@ts-check
 const https = require('https');
 const querystring = require('querystring');
 const { trelloToken } = require('../../token.json');
 
-const { QuickMessage } = require('../../helperfunctions.js');
+const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'suggestion',
@@ -19,9 +20,33 @@ module.exports = {
         }
         const guild_db = databases.guilds;
         db_guild = guild_db.findOne({ guild_id: msg.guild.id });
-        if (!args.original.length) return QuickMessage.not_enough_arguments(msg.channel, db_guild.prefix, "suggestion");
-
-        const confirmation = await QuickMessage.confirmation(msg.channel, `Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`);
+        if (!args.original.length) {
+            const replyEmbed = {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:question: Not enough arguments! Use \`${db_guild.prefix}help suggestion\` for help.`
+            }
+            if (interaction) {
+                const data = {
+                    embeds: [replyEmbed]
+                }
+                return await fetch(`https://discord.com/api/v8/webhooks/${msg.client.user.id}/${interaction.token}/messages/@original`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(data),
+                    headers: {
+                        'Authorization': `Bot ${msg.client.token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
+        }
+        
+        const confirmation = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, {
+            color: 0xe86b0c,
+            description: `:grey_question: Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`
+        }) : await QuickMessage.confirmation(msg.channel, `Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`);
         const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === msg.author.id;
         confirmation.react('✅')
             .then(() => {

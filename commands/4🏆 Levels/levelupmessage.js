@@ -1,5 +1,7 @@
 //@ts-check
 
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: "levelupmessage",
     aliases: ["lvlupmessage", "levelupmsg", "lvlupmsg", "setlevelupmessage", "setlvlupmessage", "setlevelupmsg", "setlvlupmsg"],
@@ -19,8 +21,8 @@ module.exports = {
         const guild_db = databases.guilds;
         const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
 
-        if(!args.lowercase[0]) {
-            return msg.channel.send({ embed: {
+        if (!args.lowercase[0]) {
+            const replyEmbed = {
                 color: 2215713,
                 title: `${db_guild.levelSystem.levelup_message.title ? db_guild.levelSystem.levelup_message.title : "No title"}`,
                 description: `${db_guild.levelSystem.levelup_message.description ? db_guild.levelSystem.levelup_message.description : "No description"}`,
@@ -28,9 +30,15 @@ module.exports = {
                     name: "Image",
                     value: `${db_guild.levelSystem.levelup_message.image ? true : false}`
                 }]
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         }
         if (interaction) {
+            apiFunctions.interactionEdit(msg.client, interaction, msg.channel);
             interaction.data.options.forEach(option => {
                 switch (option.name) {
                     case "title":
@@ -59,66 +67,77 @@ module.exports = {
     }
 }
 
-function title(msg, guild_db, db_guild, newTitle) {
+async function title(msg, guild_db, db_guild, newTitle) {
     if (!newTitle) {
         db_guild.levelSystem.levelup_message.title = undefined;
         guild_db.update(db_guild);
-        return msg.channel.send({ embed: {
+        const replyEmbed = {
             color: 2215713,
             description: `:x: Removed message title.`
-        }});            
+        }
+        return msg.channel.send({ embed: replyEmbed});
     }
     db_guild.levelSystem.levelup_message.title = newTitle;
     guild_db.update(db_guild);
-    return msg.channel.send({ embed: {
+    const replyEmbed = {
         color: 2215713,
         description: `:repeat: Updated the levelup title to \`${db_guild.levelSystem.levelup_message.title}\`.`
-    }});
+    }
+    return msg.channel.send({ embed: replyEmbed});
 }
 
-function description(msg, guild_db, db_guild, newDescription) {
+async function description(msg, guild_db, db_guild, newDescription) {
     if (!newDescription) {
         db_guild.levelSystem.levelup_message.description = undefined;
         guild_db.update(db_guild);
-        return msg.channel.send({ embed: {
+        const replyEmbed = {
             color: 2215713,
             description: `:x: Removed levelup description.`
-        }});            
+        }
+        return msg.channel.send({ embed: replyEmbed});
     }
     db_guild.levelSystem.levelup_message.description = newDescription;
     guild_db.update(db_guild);
-    return msg.channel.send({ embed: {
+    const replyEmbed = {
         color: 2215713,
         description: `:repeat: Updated the levelup description to \`${db_guild.levelSystem.levelup_message.description}\`.`
-    }});
+    }
+    return msg.channel.send({ embed: replyEmbed});
 }
 
-function image(msg, guild_db, db_guild, bool) {
-    if (!bool) return msg.channel.send({ embed: {
-        color: 2215713,
-        title: ":information_source: Image is currently set to",
-        description: `\`${db_guild.levelSystem.levelup_image}\``
-    }});
+async function image(msg, guild_db, db_guild, bool) {
+    if (!bool) {
+        const replyEmbed = {
+            color: 2215713,
+            title: ":information_source: Image is currently set to",
+            description: `\`${db_guild.levelSystem.levelup_image}\``
+        }
+        return msg.channel.send({ embed: replyEmbed});
+    }
+    let replyEmbed = {}
     switch (bool) {
         case 'true':
             db_guild.levelSystem.levelup_image = true;
             guild_db.update(db_guild);
-            return msg.channel.send({ embed: {
+            replyEmbed = {
                 color: 2215713,
                 description: `:white_check_mark: Added image to the levelup message.`
-            }});        
+            }
+            return msg.channel.send({ embed: replyEmbed});
         case 'false':
             db_guild.levelSystem.levelup_image = false;
             guild_db.update(db_guild);
-            return msg.channel.send({ embed: {
+            replyEmbed = {
                 color: 2215713,
                 description: `:x: Removed image from the levelup message.`
-            }});        
+            }
+            return msg.channel.send({ embed: replyEmbed});
         default:
-            return msg.channel.send({ embed: {
+            replyEmbed = {
                 color: 0xcf2d2d,
                 title: ":octagonal_sign: Error!",
                 description: `:question: Not enough arguments! Use \`${db_guild.prefix}help levelupmessage\` for help.`
-            }});                            
+            }
+            return msg.channel.send({ embed: replyEmbed});
     }
 }

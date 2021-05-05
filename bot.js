@@ -7,7 +7,6 @@ const { CanvasImage } = require('./helperfunctions.js');
 
 const { presences } = require('./config.json');
 const { token } = require('./token.json');
-const { POINT_CONVERSION_COMPRESSED } = require('constants');
 
 // Create a new Discord client
 const client = new Discord.Client();
@@ -23,20 +22,20 @@ fs.readdirSync('./commands').forEach(folder => {
 // Database
 var guild_config = new loki('./databases/guild_config.db', {
     autoload: true,
-    autoloadCallback : configDatabseInitialize,
+    autoloadCallback : configDatabaseInitialize,
     autosave: true,
     autosaveInterval: 4000
 });
 
 var client_config = new loki('./databases/client_config.db', {
     autoload: true,
-    autoloadCallback: client_configDatabseInitialize,
+    autoloadCallback: client_configDatabaseInitialize,
     autosave: true,
     autosaveInterval: 400
 });
 
 // Implement the autoloadback referenced in loki constructor
-function configDatabseInitialize() {
+function configDatabaseInitialize() {
     var guilds = guild_config.getCollection("guilds");
     if (guilds === null) {
         guilds = guild_config.addCollection("guilds", {
@@ -47,7 +46,7 @@ function configDatabseInitialize() {
     // kick off any program logic or start listening to external events
     runProgramLogic();
 }
-function client_configDatabseInitialize() {
+function client_configDatabaseInitialize() {
     var api_db = client_config.getCollection("apis");
     if (api_db === null) {
         api_db = client_config.addCollection("apis", {
@@ -257,6 +256,7 @@ client.on("message", async (msg) => {
             guilds: guild_db,
             users: user_db,
             client: client_config,
+            guild_config: guild_config,
         });
     } catch(err) {
         try {
@@ -383,7 +383,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             msg,    // msg
             { lowercase: arguments_lowercase, original: arguments}, // args
             { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
-            { guilds: guild_db, users: user_db, client: client_config },    // databases
+            { guilds: guild_db, users: user_db, client: client_config, guild_config: guild_config },    // databases
             interaction // interaction
         );
     } catch(err) {
@@ -606,9 +606,6 @@ function get_db_user(guild, user) {
     return user_db.findOne({ user_id: user_id });
     
 }
-
-
-
 
 // login
 client.login(token);

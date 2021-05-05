@@ -1,5 +1,7 @@
 //@ts-check
 
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: "levelsenabled",
     aliases: ["enablelevels", "disablelevels", "enablelevelsystem", "disablelevelsystem"],
@@ -31,10 +33,14 @@ module.exports = {
             }});
         }
         databases.guilds.update(db_guild);
-        return msg.channel.send({ embed: {
+        const replyEmbed = {
             "color": 2215713,
             "description": `${type} the level system.`
-        }});
-
+        }
+        if (interaction) {
+            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            return msg.channel.send({ embed: replyEmbed});
+        }
     }
 }

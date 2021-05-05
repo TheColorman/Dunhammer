@@ -3,6 +3,7 @@
 const textToSpeech = require('@google-cloud/text-to-speech');
 const fs = require('fs');
 const util = require('util');
+const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'speak',
@@ -57,23 +58,44 @@ module.exports = {
         }
 
         if (db_tts.charactersLeft - text.length < 0) {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": ":mute: This command is on cooldown, please try again later or use a shorter message."
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
         }
         db_tts.charactersLeft -= text.length;
         api_db.update(db_tts);
 
         if (!channel || channel.type != "voice") {
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
                 "description": ":mute: Not in a voice channel."
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
         }
         
+        const replyEmbed = {
+            color: 2215713,
+            description: `:loud_sound: Saying \`${text}\` in channel \`${channel.name}\`.`,
+        }
+        if (interaction) {
+            const message = await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            msg.channel.send({ embed: replyEmbed});
+        }
+
+
         const ttsClient = new textToSpeech.TextToSpeechClient({ projectId: "dunhammer", keyFile: "./GCloudKey.json" });
         
         let input = {
