@@ -1,5 +1,7 @@
 //@ts-check
 
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: "levelupchannel",
     aliases: ["setlevelupchannel", "lvlupchannel", "levelupchnl", "lvlupchnl", "setlvlupchannel", "setlevelupchnl", "setlvlupchnl", "levelupmessagechannel", "lvlupmessagechannel", "levelupmsgchannel", "levelupmessagechnl", "lvlupmmsgchannel", "lvlupmessagechnl", "levelupmsgchnl", "lvlupmsgchnl", "setlevelupmessagechannel", "setlvlupmessagechannel", "setlevelupmsgchannel", "setlevelupmessagechnl", "setlvlupmsgchannel", "setlevelupmsgchnl", "setlvlupmessagechnl", "setlvlupmsgchnl"],
@@ -20,22 +22,39 @@ module.exports = {
         if (!args.lowercase[0]) {
             db_guild.levelSystem.update_channel = undefined;
             guild_db.update(db_guild);
-            return msg.channel.send({ embed: {
+            const replyEmbed = {
                 color: 2215713,
                 description: `:x: Removed update channel.`
-            }});    
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         }
         const channel = tags.channels.first() || msg.guild.channels.cache.find(channel_object => channel_object ? channel_object.name === args.lowercase[0] : undefined);
-        if (!channel) return msg.channel.send({ embed: {
-            "color": 0xcf2d2d,
-            "title": ":octagonal_sign: Error!",
-            "description": `:question: Invalid channel!`
-        }});
+        if (!channel) {
+            const replyEmbed = {
+                "color": 0xcf2d2d,
+                "title": ":octagonal_sign: Error!",
+                "description": `:question: Invalid channel!`
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
+        };
         db_guild.levelSystem.update_channel = channel.id;
         guild_db.update(db_guild);
-        return msg.channel.send({ embed: {
+        const replyEmbed = {
             color: 2215713,
             description: `:repeat: Set update channel to ${channel}.`
-        }});
+        }
+        if (interaction) {
+            await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+        } else {
+            msg.channel.send({ embed: replyEmbed});
+        }
     }
 }

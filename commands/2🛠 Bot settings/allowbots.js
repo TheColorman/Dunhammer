@@ -1,4 +1,6 @@
 //@ts-check
+const { apiFunctions } = require("../../helperfunctions");
+
 module.exports = {
     name: 'allowbots',
     short_desc: 'Allows/disallows reaction to other bots.',
@@ -28,16 +30,29 @@ module.exports = {
 
         if (args.lowercase[0] == "true") {
             guild.allowbots = true;
-            return msg.channel.send({ embed: {
+            databases.guilds.update(guild);
+            const replyEmbed = {
                 "color": 2215713,
                 "description": ":white_check_mark: Bots will now be treated as normal users."
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         } else {
             guild.allowbots = false;
-            return msg.channel.send({ embed: {
+            databases.guilds.update(guild);
+
+            const replyEmbed = {
                 "color": 2215713,
                 "description": ":x: Bots will now be ignored."
-            }});
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }
         }
     }
 }

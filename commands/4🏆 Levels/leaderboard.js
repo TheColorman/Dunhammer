@@ -1,4 +1,4 @@
-const { QuickMessage } = require('../../helperfunctions.js');
+const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'leaderboard',
@@ -14,10 +14,12 @@ module.exports = {
             }});
         }
 
-        const reply = await msg.channel.send({ embed: {
+        const replyEmbed = {
             color: 49919,
             title: "<a:discord_loading:821347252085063680> Getting leaderboard..."
-        }});
+        }
+        const reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : msg.channel.send({ embed: { replyEmbed } });
+
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
             const members = await msg.guild.members.fetch({ cache: false });
@@ -37,15 +39,10 @@ module.exports = {
         let index = 1;
         let tag_in_top_ten = false;
         for (const db_user of top_ten) {
-            let ds_user;
-            try {
-                ds_user = db_user.inGuild ? await msg.guild.members.fetch(db_user.user_id) : { id: db_user.user_id }
-            } catch (err) {
-                if (err.message === "Unknown User" || err.message === "Unknown Member") {
-                    db_user.inGuild = false;
-                    user_db.update(db_user);
-                }
-                ds_user = { id: db_user.user_id }
+            let ds_user = await msg.client.users.fetch(db_user.user_id);
+            if (!msg.guild.member(ds_user)) {
+                db_user.inGuild = false;
+                user_db.update(db_user);
             }
             let text_decor = "";
             if (taggedmember.id == ds_user.id) {
@@ -53,7 +50,7 @@ module.exports = {
                 tag_in_top_ten = true;
             }
             
-            top_ten_array.push(`${text_decor}#${index} - <@!${ds_user.id}> - Level ${db_user.level}${text_decor}`);
+            top_ten_array.push(`${text_decor}#${index} - ${ds_user} - Level ${db_user.level}${text_decor}`);
             index++;
         }
         const hasrole = taggedrole ? user_db.findOne({ user_id: taggedmember.id }).roles.includes(taggedrole.id) : true;

@@ -1,5 +1,9 @@
 // @ts-check-
 
+const { default: fetch } = require("node-fetch");
+const fs = require('fs');
+const FormData = require('form-data');
+
 module.exports = {
     name: 'debug',
     short_desc: 'Debug command.',
@@ -26,31 +30,61 @@ module.exports = {
         //         description: "The command to get help for",
         //         required: false,
         //         choices: [{
-        //             name: "help",
+        //             name: "Help",
         //             value: "help"
         //         }, {
-        //             name: "ping",
-        //             value: "ping"
-        //         }, {
-        //             name: "invite",
+        //             name: "Invite",
         //             value: "invite"
         //         }, {
-        //             name: "roadmap",
+        //             name: "Ping",
+        //             value: "ping"
+        //         }, {
+        //             name: "Roadmap",
         //             value: "roadmap"
         //         }, {
-        //             name: "suggestion",
+        //             name: "Suggestion",
         //             value: "suggestion"
         //         }, {
-        //             name: "allowbots",
+        //             name: "AllowBots",
         //             value: "allowbots"
         //         }, {
-        //             name: "prefix",
+        //             name: "Prefix",
         //             value: "prefix"
         //         }, {
-        //             name: "neko",
+        //             name: "Neko",
         //             value: "neko"
         //         }, {
-        //             name: "me",
+        //             name: "Speak",
+        //             value: "speak"
+        //         }, {
+        //             name: "Ignore",
+        //             value: "ignore"
+        //         }, {
+        //             name: "Leaderboard",
+        //             value: "leaderboard"
+        //         }, {
+        //             name: "Level",
+        //             value: "level"
+        //         }, {
+        //             name: "LevelsEnabled",
+        //             value: "levelsenabled"
+        //         }, {
+        //             name: "LevelUpChannel",
+        //             value: "levelupchannel"
+        //         }, {
+        //             name: "LevelUpMessage",
+        //             value: "levelupmessage"
+        //         }, {
+        //             name: "Roles",
+        //             value: "roles"
+        //         }, {
+        //             name: "SetLevel",
+        //             value: "setlevel"
+        //         }, {
+        //             name: "Nickname",
+        //             value: "nickname"
+        //         }, {
+        //             name: "Me",
         //             value: "me"
         //         }]
         //     }]
@@ -310,7 +344,7 @@ module.exports = {
         // console.log("level");
         // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'level',
-        //     description: 'Shows a uses level.',
+        //     description: 'Shows a user\'s level.',
         //     options: [{
         //         type: 6,
         //         name: "user",
@@ -609,5 +643,23 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
+
+        // const filePath = `./imageData/generated/level.png`;
+        // const form = new FormData();
+        // const stats = fs.statSync(filePath);
+        // const fileSizeInBytes = stats.size;
+        // const fileStream = fs.createReadStream(filePath);
+        // form.append('file', fileStream, { knownLength: fileSizeInBytes });
+
+        // const options = {
+        //     method: 'POST',
+        //     body: form,
+        //     headers: {
+        //         'Authorization': `Bot ${client.token}`,
+        //     }
+        // }
+
+        // const res = await fetch(`https://discord.com/api/channels/${msg.channel.id}/messages`, { ...options });
+        // console.log(await res.json());
     }
 }
