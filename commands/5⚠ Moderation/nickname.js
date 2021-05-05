@@ -15,6 +15,19 @@ module.exports = {
                 type: 5,
             }});
         }
+        const changeNickPerms = msg.guild.me.hasPermission('MANAGE_NICKNAMES');
+        if (!changeNickPerms) {
+            const replyEmbed = {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: ":no_entry: I don't have permission to change nicknames on this server!"
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
+        }
         
         let taggedMember = tags.members.first();
         if (!taggedMember && args.lowercase.length) {
