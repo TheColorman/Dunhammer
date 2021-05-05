@@ -347,8 +347,8 @@ const QuickMessage = {
     /**
      * Sends an "Invalid argument" error.
      * @param {TextChannel} channel Channel to send the error in
-     * @param {string} prefix Guild prefix
-     * @param {string} command Failed command
+     * @param {String} prefix Guild prefix
+     * @param {String} command Failed command
      */
     invalid_argument: function (channel, prefix, command) {
         return channel.send({ embed: {
