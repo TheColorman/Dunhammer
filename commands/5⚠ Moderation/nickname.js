@@ -45,6 +45,21 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }    
         }
+
+        const clientHighestRole = msg.guild.me.roles.highest;
+        const memberHighestRole = msg.member.roles.highest;
+        if (clientHighestRole.position < memberHighestRole.position) {
+            const replyEmbed = {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:no_entry: ${taggedMember} has the role ${memberHighestRole}, which is above my role ${clientHighestRole}.`
+            }
+            if (interaction) {
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            } else {
+                return msg.channel.send({ embed: replyEmbed});
+            }    
+        }
         const old_nickname = taggedMember.nickname;
         args.original.splice(0, tags.members.first() ? 1 : taggedMember.user.tag.split(" ").length); // if the tag contains a space, remove the first 2 elements from args and so on
         taggedMember.setNickname(args.original.join(" "), `Changed by ${msg.author.tag} using nickname command.`);
