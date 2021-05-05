@@ -48,7 +48,7 @@ module.exports = {
                 tag_in_top_ten = true;
             }
             
-            top_ten_array.push(`${text_decor}#${index} - <@!${ds_user.id}> - Level ${db_user.level}${text_decor}`);
+            top_ten_array.push(`${text_decor}#${index} - ${ds_user} - Level ${db_user.level}${text_decor}`);
             index++;
         }
         const hasrole = taggedrole ? user_db.findOne({ user_id: taggedmember.id }).roles.includes(taggedrole.id) : true;
