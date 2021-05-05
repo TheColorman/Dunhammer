@@ -17,7 +17,6 @@ module.exports = {
             }});
             args.lowercase[0] = interaction.data.options[0].name == "options" ? interaction.data.options[0].options[0].name : interaction.data.options[0].name;
         }
-        if (interaction) console.log(interaction.data)
 
         const guild_db = databases.guilds;
         const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
