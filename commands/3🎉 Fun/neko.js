@@ -1,4 +1,5 @@
 //@ts-check
+const { Message } = require('discord.js');
 const { get } = require('https');
 const { apiFunctions } = require('../../helperfunctions');
 

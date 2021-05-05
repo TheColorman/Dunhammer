@@ -1,4 +1,5 @@
 //@ts-check
+const fetch = require('node-fetch');
 const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {

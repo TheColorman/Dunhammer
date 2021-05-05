@@ -1,3 +1,4 @@
+const fetch = require('node-fetch');
 const { apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
