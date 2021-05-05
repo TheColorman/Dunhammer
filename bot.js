@@ -7,7 +7,6 @@ const { CanvasImage } = require('./helperfunctions.js');
 
 const { presences } = require('./config.json');
 const { token } = require('./token.json');
-const { POINT_CONVERSION_COMPRESSED } = require('constants');
 
 // Create a new Discord client
 const client = new Discord.Client();
@@ -606,9 +605,6 @@ function get_db_user(guild, user) {
     return user_db.findOne({ user_id: user_id });
     
 }
-
-
-
 
 // login
 client.login(token);
