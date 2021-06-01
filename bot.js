@@ -2,10 +2,13 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const loki = require('lokijs');
+const MySQL = require("./sql/sql");
 const { CanvasImage } = require('./helperfunctions.js');
 
 const { presences } = require('./config.json');
-const { token } = require('./token.json');
+const { token, mysqlPassword } = require('./token.json');
+const sql = new MySQL({ host: "phpmyadmin.head9x.dk", user: "Colorman", password: mysqlPassword, database: "colorman" });
+
 
 // Create a new Discord client
 const client = new Discord.Client();
@@ -19,6 +22,8 @@ fs.readdirSync('./commands').forEach(folder => {
 });
 
 // Database
+
+//#region Deprecated
 var guild_config = new loki('./databases/guild_config.db', {
     autoload: true,
     autoloadCallback : configDatabaseInitialize,
@@ -60,6 +65,7 @@ function runProgramLogic() {
     var guildCount = guild_config.getCollection("guilds").count();
     console.log("Number of guilds in database: " + guildCount);
 }
+//#endregion
 
 for (const folder of Object.keys(commandFilesObj)) {
     client.commandCategories.set(folder, new Discord.Collection());
@@ -78,6 +84,7 @@ process.on('uncaughtException', async (err) => {
 // When client is ready
 let remainingPresences = Array.from(presences);
 client.once('ready', () => {
+
     console.log(`${client.user.tag} is online.`);
     client.user.setStatus('online');
     refreshPresence();
@@ -256,6 +263,7 @@ client.on("message", async (msg) => {
             users: user_db,
             client: client_config,
             guild_config: guild_config,
+            sql: sql,
         });
     } catch(err) {
         try {
@@ -382,7 +390,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             msg,    // msg
             { lowercase: arguments_lowercase, original: arguments}, // args
             { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
-            { guilds: guild_db, users: user_db, client: client_config, guild_config: guild_config },    // databases
+            { guilds: guild_db, users: user_db, client: client_config, guild_config: guild_config, sql: sql },    // databases
             interaction // interaction
         );
     } catch(err) {

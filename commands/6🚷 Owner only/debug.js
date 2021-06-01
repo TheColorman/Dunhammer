@@ -679,5 +679,65 @@ module.exports = {
         // const res = await fetch(`https://discord.com/api/channels/${msg.channel.id}/messages`, { ...options });
         // console.log(await res.json());
         //#endregion
+        
+        const sql = databases.sql;
+        //#region Guild DB update
+        // for (let i = 0; i < databases.guilds.data.length; i++) {
+        //     const guild = databases.guilds.data[i];
+        //     const lvlobj = {
+        //         id: guild.guild_id,
+        //         enabled: guild.levelSystem.enabled,
+        //         ignoredChannels: JSON.stringify(guild.levelSystem.disallowed_channels),
+        //         levelupChannel: guild.levelSystem.update_channel | null,
+        //         levelupMessage: JSON.stringify(guild.levelSystem.levelup_message),
+        //         newroleMessage: JSON.stringify(guild.levelSystem.newrole_message),
+        //         levelupImage: guild.levelSystem.levelup_image,
+        //         rolesCumulative: guild.levelSystem.roles.cumulative | false,
+        //         roles: guild.levelSystem.roles | { "cumulative": false },
+        //     };
+        //     const guildobj = {
+        //         id: guild.guild_id,
+        //         name: guild.name,
+        //         prefix: guild.prefix,
+        //         ignoreBots: !guild.allowbots
+        //     }
+        //     sql.insert("guild-levelsystem", lvlobj);
+        //     sql.insert("guilds", guildobj);
+        // }
+        //#endregion
+        //#region user DB update
+        // for (let i = 0; i < databases.users.data.length; i++) {
+        //     const user = databases.users.data[i];
+        //     const userDS = await client.users.fetch(user.user_id)
+        //     const usrobj = {
+        //         id: user.user_id,
+        //         username: userDS.username,
+        //         tag: userDS.tag.slice(-4)
+        //     }
+        //     sql.insert("users", usrobj);
+        // }
+        //#endregion
+        //#region guild-user DB update
+        const rawdata = fs.readFileSync("./databases/guild_config.db");
+        const json = JSON.parse(rawdata);
+        const collections = json.collections;
+        collections.forEach(collection => {
+            const guildid = collection.name;
+            if (guildid == "guilds" || !guildid) return;
+            const db_guild = databases.guild_config.getCollection(guildid);
+            for (let i = 0; i < db_guild.data.length; i++) {
+                const user = db_guild.data[i];
+                sql.insert("guild-users", {
+                    userid: user.user_id,
+                    guildid: guildid,
+                    xp: user.xp,
+                    level: user.level,
+                    levelRoles: JSON.stringify(user.levelroles),
+                    roles: JSON.stringify(user.roles),
+                    inGuild: user.inGuild,
+                });
+            }
+        });
+        //#endregion
     }
 }
