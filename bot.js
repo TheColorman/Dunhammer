@@ -1,4 +1,3 @@
-// @ts-check
 // Modules & config
 const Discord = require('discord.js');
 const fs = require('fs');
