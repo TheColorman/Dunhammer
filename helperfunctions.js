@@ -20,7 +20,7 @@ const CanvasImagesMeta = {
     * @param {Number} y The top left y coordinate
     * @param {Number} width The width of the rectangle
     * @param {Number} height The height of the rectangle
-    * @param {Number} [radius = 5] The corner radius; It can also be an object 
+    * @param {Number|Object} [radius = 5] The corner radius; It can also be an object 
     *                 to specify different radii for corners
     * @param {Number} [radius.tl = 0] Top left
     * @param {Number} [radius.tr = 0] Top right
@@ -112,9 +112,9 @@ const CanvasImage = {
     /**
      * Draws an image showcasing the members level, their rank and experience bar, and saves it as 'level.png' to 'imageData/'.
      * @param {GuildMember} member The Discord Guild member
-     * @param {LokiJSCollection} user_database The database of saved users
+     * @param {Collection} user_database The database of saved users
      */
-    rank_image: async function (member, user_database) {
+    rank_image: async function (member, user_database) {    
         let database_user = user_database.findOne({ user_id: member.id });
         let xp_total = database_user.xp;
         let current_level = database_user.level;
@@ -205,7 +205,7 @@ const CanvasImage = {
     /**
      * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'imageData/'.
      * @param {GuildMember} member The Discord Guild member
-     * @param {LokiJSCollection} user_database The database of saved users
+     * @param {Collection} user_database The database of saved users
      * @param {Guild} guild The guild of the user
      */
     levelup_image: async function (member, user_database, guild) {

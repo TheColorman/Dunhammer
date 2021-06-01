@@ -1,13 +1,27 @@
+/* eslint-disable no-unused-vars */
 // @ts-check-
 
 const { default: fetch } = require("node-fetch");
 const fs = require('fs');
 const FormData = require('form-data');
+const MySQL = require("../../sql/sql");
+const { mysqlPassword } = require("../../token.json");
+
 
 module.exports = {
     name: 'debug',
     shortDesc: 'Debug command.',
     longDesc: 'Debug command. Can only be used by bot owner, and is a placeholder for random testing.',
+    /**
+     * 
+     * @param {*} msg 
+     * @param {*} args 
+     * @param {*} tags 
+     * @param {Object} databases 
+     * @param {MySQL} databases.sql
+     * @param {Loki} databases.guild_config
+     * @returns 
+     */
     async execute(msg, args, tags, databases) {
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {
@@ -19,7 +33,8 @@ module.exports = {
         }
 
         const client = msg.client;
-
+        
+        //#region Slash commands
         // console.log("help");
         // await client.api.applications(msg.client.user.id).commands.post({data: {
         //     name: 'help',
@@ -643,7 +658,9 @@ module.exports = {
         //         required: true,
         //     }]
         // }});
+        //#endregion
 
+        //#region Direct Discord API file upload
         // const filePath = `./imageData/generated/level.png`;
         // const form = new FormData();
         // const stats = fs.statSync(filePath);
@@ -661,6 +678,6 @@ module.exports = {
 
         // const res = await fetch(`https://discord.com/api/channels/${msg.channel.id}/messages`, { ...options });
         // console.log(await res.json());
-
+        //#endregion
     }
 }
