@@ -1,4 +1,4 @@
-const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
+const { apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'leaderboard',
@@ -39,7 +39,7 @@ module.exports = {
         let index = 1;
         let tag_in_top_ten = false;
         for (const db_user of top_ten) {
-            let ds_user = await msg.client.users.fetch(db_user.user_id);
+            const ds_user = await msg.client.users.fetch(db_user.user_id);
             if (!msg.guild.member(ds_user)) {
                 db_user.inGuild = false;
                 user_db.update(db_user);

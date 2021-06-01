@@ -1,5 +1,3 @@
-//@ts-check
-const fetch = require('node-fetch');
 const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
@@ -31,10 +29,10 @@ module.exports = {
             commandCategories.forEach((categoryCommands, categoryName) => {
                 index++;
                 reply_embed.fields.push({ name: categoryName.substring(1), value: "", inline: true });  // Cut off 1 because each category starts with a number
-                categoryCommands.forEach((commandFile, commandName) => {
+                categoryCommands.forEach((commandFile) => {
                     reply_embed.fields[index].value = `${reply_embed.fields[index].value}\n\`${commandFile.name}\` - ${commandFile.shortDesc}`
                 });
-                if (!((index) % 3)) {   // This works for some reason (makes 2 columns instead of 3)
+                if (!(index % 3)) {   // This works for some reason (makes 2 columns instead of 3)
                     reply_embed.fields.push({ name: "\u200B", value: "\u200B", inline: true });
                     index++;
                 }
@@ -51,7 +49,7 @@ module.exports = {
         let command;
         commandCategories.forEach(category => {
             category.forEach((cmd, cmd_name) => {
-                const com = (cmd_name == name || cmd.aliases && cmd.aliases.includes(name)) ? cmd : undefined;
+                const com = cmd_name == name || cmd.aliases && cmd.aliases.includes(name) ? cmd : undefined;
                 if (com) command = com;
             });
         });

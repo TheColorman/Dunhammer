@@ -1,4 +1,5 @@
 //@ts-check
+const { default: fetch} = require('node-fetch');
 const https = require('https');
 const querystring = require('querystring');
 const { trelloToken } = require('../../token.json');
@@ -18,8 +19,8 @@ module.exports = {
                 type: 5,
             }});
         }
-        const guild_db = databases.guilds;
-        db_guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const guild_db = databases.guilds,
+            db_guild = guild_db.findOne({ guild_id: msg.guild.id });
         if (!args.original.length) {
             const replyEmbed = {
                 color: 0xcf2d2d,

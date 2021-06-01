@@ -25,13 +25,6 @@ module.exports = {
         
         const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
         
-        const replyEmbed = {
-            color: 2215613,
-            image: {
-                url: 'attachment://level.png'
-            }
-        }
-
         if (interaction) await apiFunctions.interactionEdit(msg.client, interaction, msg.channel);
 
         return msg.channel.send({ files: [attachment], embed: {

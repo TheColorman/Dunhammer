@@ -15,10 +15,11 @@
         }],
         /*"camelcase": "warn",*/
         "indent": ["error", 4, {
-            "SwitchCase": 4,
+            "SwitchCase": 1,
             "ignoreComments": true
         }],
         "prefer-const": "error",
-        "no-unused-vars": "error"
+        "no-unused-vars": "error",
+        "operator-assignment": "error"
     }
 }

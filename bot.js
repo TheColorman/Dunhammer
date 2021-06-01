@@ -105,7 +105,7 @@ function refreshPresence() {
     
     remainingPresences.splice(remainingPresences.indexOf(current_presence), 1);
     client.user.setPresence({
-    	activity: {
+        activity: {
             name: `.help | ${rare_presence || current_presence}`
         }
     });
@@ -212,12 +212,12 @@ client.on("message", async (msg) => {
     let command;
     client.commandCategories.forEach(category => {
         category.forEach((cmd, cmd_name) => {
-            const com = (cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName)) ? cmd : undefined;
+            const com = cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName) ? cmd : undefined;
             if (com) command = com;
         });
     });
     
-    if (!command || (!db_guild.allowbots && msg.author.bot)) return;
+    if (!command || !db_guild.allowbots && msg.author.bot) return;
     
     // Check command permissions
     if (command.permissions) {
@@ -305,7 +305,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     let command;
     client.commandCategories.forEach(category => {
         category.forEach((cmd, cmd_name) => {
-            const com = (cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName)) ? cmd : undefined;
+            const com = cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName) ? cmd : undefined;
             if (com) command = com;
         });
     });
@@ -353,20 +353,20 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     timestamps.set(msg.author.id, now);
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
 
-    const arguments = [];
+    const args = [];
     const arguments_lowercase = [];
     if (interaction.data.options) {
         interaction.data.options.forEach(option => {
             if (option.options) {
-                arguments.push(option.name);
+                args.push(option.name);
                 option.options.forEach(nested_option => {
-                    arguments.push(nested_option.value);
+                    args.push(nested_option.value);
                 });
             } else {
-                arguments.push(`${option.value}` || `${option.name}`);
+                args.push(`${option.value}` || `${option.name}`);
             }
         });
-        arguments.forEach(argument => {
+        args.forEach(argument => {
             arguments_lowercase.push(`${argument}`.toLowerCase());
         });
     }
@@ -388,7 +388,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     try {
         command.execute(
             msg,    // msg
-            { lowercase: arguments_lowercase, original: arguments}, // args
+            { lowercase: arguments_lowercase, original: args}, // args
             { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
             { guilds: guild_db, users: user_db, client: client_config, guild_config: guild_config, sql: sql },    // databases
             interaction // interaction
@@ -418,12 +418,12 @@ client.on("message", async (msg) => {
     const user_db = get_user_db(msg.guild)
     const levelSystem = db_guild.levelSystem;
 
-    if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id) || (!db_guild.allowbots && msg.author.bot)) return;
+    if (!levelSystem.enabled || levelSystem.disallowed_channels.includes(msg.channel.id) || !db_guild.allowbots && msg.author.bot) return;
 
     // Check if user cooldown is over
     const now = Date.now();
     const cooldownAmount = 60 * 1000;
-    if (levelSystem.cooldown_timestamps.hasOwnProperty(msg.author.id)) {
+    if (Object.prototype.hasOwnProperty.call(levelSystem.cooldown_timestamps, msg.author.id)) {
         const expirationTime = levelSystem.cooldown_timestamps[msg.author.id] + cooldownAmount;
         if (now < expirationTime) return;
     }
@@ -454,9 +454,9 @@ client.on("message", async (msg) => {
         db_user.level = level;
         const channel = levelSystem.update_channel ? await client.channels.fetch(levelSystem.update_channel) : msg.channel;
         // Roles
-        if (levelSystem.roles.hasOwnProperty(level)) {
+        if (Object.prototype.hasOwnProperty.call(levelSystem.roles, level)) {
             if (!levelSystem.roles.cumulative) {
-                for (let role_id of db_user.levelroles) {
+                for (const role_id of db_user.levelroles) {
                     const role = await msg.guild.roles.fetch(role_id);
                     msg.member.roles.remove(role, "Levelroles.");
                 }
@@ -590,7 +590,6 @@ function get_user_db(guild) {
     return guild_config.getCollection(guild_id);
 }
 function get_db_user(guild, user) {
-    const guild_id = guild.id;
     const user_id = user.id;
     const user_db = get_user_db(guild);
     if (user_db.findOne({ user_id: user_id }) === null) {

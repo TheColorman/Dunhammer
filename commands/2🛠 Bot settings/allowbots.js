@@ -19,7 +19,7 @@ module.exports = {
         if (!args.lowercase.length) {
             return msg.channel.send({ embed: {
                 "color": 2215713,
-                "description": (guild.allowbots ? ":white_check_mark: Bots are treated as users." : ":x: Bots are ignored.")
+                "description": guild.allowbots ? ":white_check_mark: Bots are treated as users." : ":x: Bots are ignored."
             }});
         }
         if (!["true", "false"].includes(args.lowercase[0])) return msg.channel.send({ embed: {

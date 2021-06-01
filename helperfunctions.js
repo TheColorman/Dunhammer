@@ -1,5 +1,4 @@
-//@ts-check
-
+/* eslint-disable no-unused-vars */
 // CanvasImages
 const fs = require('fs');
 const FormData = require('form-data');
@@ -31,18 +30,18 @@ const CanvasImagesMeta = {
     */
     roundRect: function (ctx, x, y, width, height, radius, fill, stroke) {
         if (typeof stroke === 'undefined') {
-        stroke = true;
+            stroke = true;
         }
         if (typeof radius === 'undefined') {
-        radius = 5;
+            radius = 5;
         }
         if (typeof radius === 'number') {
-        radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            radius = {tl: radius, tr: radius, br: radius, bl: radius};
         } else {
-        var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-        for (var side in defaultRadius) {
-            radius[side] = radius[side] || defaultRadius[side];
-        }
+            var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+            for (var side in defaultRadius) {
+                radius[side] = radius[side] || defaultRadius[side];
+            }
         }
         ctx.beginPath();
         ctx.moveTo(x + radius.tl, y);
@@ -56,10 +55,10 @@ const CanvasImagesMeta = {
         ctx.quadraticCurveTo(x, y, x + radius.tl, y);
         ctx.closePath();
         if (fill) {
-        ctx.fill();
+            ctx.fill();
         }
         if (stroke) {
-        ctx.stroke();
+            ctx.stroke();
         }
     },
     //#endregion
@@ -115,13 +114,13 @@ const CanvasImage = {
      * @param {Collection} user_database The database of saved users
      */
     rank_image: async function (member, user_database) {    
-        let database_user = user_database.findOne({ user_id: member.id });
-        let xp_total = database_user.xp;
-        let current_level = database_user.level;
-        let next_level = current_level + 1;
-        let current_xp = xp_total - 5*(118*current_level+2*current_level*current_level*current_level)/6;
-        let xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*current_level+2*current_level*current_level*current_level)/6;
-        let rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1;
+        const database_user = user_database.findOne({ user_id: member.id }),
+            xp_total = database_user.xp,
+            current_level = database_user.level,
+            next_level = current_level + 1,
+            current_xp = xp_total - 5*(118*current_level+2*current_level*current_level*current_level)/6,
+            xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*current_level+2*current_level*current_level*current_level)/6,
+            rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1;
 
         // Creating the image
         const canvas = createCanvas(1000, 300);
@@ -129,9 +128,9 @@ const CanvasImage = {
         const font = 'Arial, sans-serif';
         // set box avatar_size. 320 is whitespace + profile picture length
         ctx.font = `bold 46px ${font}`;
-        let username_text_length = ctx.measureText(member.user.username).width;
+        const username_text_length = ctx.measureText(member.user.username).width;
         ctx.font = `36px${font}`;
-        let tag_text_length = ctx.measureText(member.user.tag.slice(-5)).width;
+        const tag_text_length = ctx.measureText(member.user.tag.slice(-5)).width;
         canvas.width = Math.max(username_text_length + tag_text_length + 400, 1000);
         // background
         ctx.beginPath();
@@ -143,53 +142,53 @@ const CanvasImage = {
         ctx.fillStyle = "#A6A7AA";
         ctx.font = 'bold 60px' + font;
         ctx.fillStyle = "white";
-        let username_text_height = ctx.measureText(member.user.username).emHeightAscent;
-        let username_text_width = ctx.measureText(member.user.username).width;
+        const username_text_height = ctx.measureText(member.user.username).emHeightAscent,
+            username_text_width = ctx.measureText(member.user.username).width;
         ctx.fillText(member.user.username, 300, 50 + username_text_height);
         // tag
         ctx.font = `36px ${font}`;
         ctx.fillStyle = "#A6A7AA";
-        ctx.fillText(member.user.tag.slice(-5), 300 + username_text_width, 50  + username_text_height);
+        ctx.fillText(member.user.tag.slice(-5), 300 + username_text_width, 50 + username_text_height);
         // experience bar
         ctx.fillStyle = "#4a4a4a";
         CanvasImagesMeta.roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
         ctx.fillStyle = "#54b35d";
         if (current_xp/xp_for_next_level > 0.02) {
-            CanvasImagesMeta.roundRect(ctx, 290, 240, (current_xp/xp_for_next_level) * (canvas.width - 320), 30, 16, true, false);
+            CanvasImagesMeta.roundRect(ctx, 290, 240, current_xp/xp_for_next_level * (canvas.width - 320), 30, 16, true, false);
         }    // xp_total filled up
         // xp for next lvl
         ctx.font = `34px ${font}`;
         ctx.fillStyle = '#A6A7AA';
-        let xp_requried_text = ctx.measureText(` / ${xp_for_next_level} xp_total`); //<!-- FIX THIS --!>
-        let description_text_y = 240 - xp_requried_text.emHeightAscent + xp_requried_text.emHeightDescent;
+        const xp_requried_text = ctx.measureText(` / ${xp_for_next_level} xp_total`), //<!-- FIX THIS --!>
+            description_text_y = 240 - xp_requried_text.emHeightAscent + xp_requried_text.emHeightDescent;
         ctx.fillText(` / ${xp_for_next_level} xp`, canvas.width - xp_requried_text.width, description_text_y);
         // current xp_total
         ctx.font = `34px ${font}`;
         ctx.fillStyle = 'white';
-        let xp_current_text = ctx.measureText(`${current_xp}`);
+        const xp_current_text = ctx.measureText(`${current_xp}`);
         ctx.fillText(`${current_xp}`, canvas.width - xp_requried_text.width - xp_current_text.width, description_text_y);
         // level
-        let xp_text_width = xp_requried_text.width + xp_current_text.width;
+        const xp_text_width = xp_requried_text.width + xp_current_text.width;
         ctx.font = `bold 80px ${font}`;
         ctx.fillStyle = "#54b35d";
-        let level_number = ctx.measureText(`${current_level}`);
+        const level_number = ctx.measureText(`${current_level}`);
         ctx.fillText(`${current_level}`, canvas.width - level_number.width - xp_text_width - 30, description_text_y);
         // level text
         ctx.font = `34px ${font}`;
-        let level_text = ctx.measureText(`LEVEL`);
+        const level_text = ctx.measureText(`LEVEL`);
         ctx.fillText(`LEVEL`, canvas.width - level_number.width - xp_text_width - 40 - level_text.width, description_text_y);
         // rank
         ctx.font = `bold 80px ${font}`;
         ctx.fillStyle = "white";
-        let rank_number = ctx.measureText(`${rank}`);
+        const rank_number = ctx.measureText(`${rank}`);
         ctx.fillText(`${rank}`, canvas.width - level_number.width - xp_text_width - 70 - level_text.width - rank_number.width, description_text_y);
         // rank text
         ctx.font = `34px ${font}`;
-        let rank_text = ctx.measureText(`RANK`);
+        const rank_text = ctx.measureText(`RANK`);
         ctx.fillText(`RANK`, canvas.width - level_number.width - xp_text_width - 80 - level_text.width - rank_number.width - rank_text.width, description_text_y);
 
-        let avatar_url = member.user.displayAvatarURL({format: "png", dynamic: true, avatar_size: 256});
-        let image = await loadImage(avatar_url);
+        const avatar_url = member.user.displayAvatarURL({format: "png", dynamic: true, avatar_size: 256}),
+            image = await loadImage(avatar_url);
 
         // clip profile picture
         ctx.beginPath();
@@ -251,8 +250,8 @@ const CanvasImage = {
         ctx.fillStyle = "#4D8C69";
         ctx.fillRect(0, canvas.height/2+20, canvas.width, canvas.height/2-20);
         //add images
-        let backgroundLeft = await loadImage('./imageData/levelupBGLeft.png');
-        let backgroundRight = await loadImage('./imageData/levelupBGRight.png');
+        const backgroundLeft = await loadImage('./imageData/levelupBGLeft.png'),
+            backgroundRight = await loadImage('./imageData/levelupBGRight.png');
         ctx.drawImage(backgroundLeft, 0, 0, 246, 600);
         ctx.drawImage(backgroundRight, canvas.width-246, 0, 246, 600);
         //rank
@@ -298,9 +297,9 @@ const CanvasImage = {
             center.y+avatar_size/2+ctx.measureText(username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
             3
         );
-        let avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 }));
+        const avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 })),
         // crop
-        let vOffset = 0;
+            vOffset = 0;
         ctx.beginPath();
         ctx.arc(canvas.width/2, canvas.height/2+vOffset, avatar_size/2, 0, 6.28, false);
         ctx.clip();

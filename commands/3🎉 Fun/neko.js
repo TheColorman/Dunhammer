@@ -71,7 +71,7 @@ module.exports = {
         if (randomsNSFW.includes(endpoint)) endpoint = nsfwEndpoints[Math.floor(Math.random() * nsfwEndpoints.length)];
         if (randomsSFW.includes(endpoint)) endpoint = sfwEndpoints[Math.floor(Math.random() * sfwEndpoints.length)];
 
-        let url = `https://nekos.life/api/v2/img/${endpoint}`;
+        const url = `https://nekos.life/api/v2/img/${endpoint}`;
 
 
         if (nsfwEndpoints.includes(endpoint) && !msg.channel.nsfw) {
@@ -91,7 +91,7 @@ module.exports = {
             }
         } 
 
-        let returned = await new Promise((resolve, reject) => {
+        const returned = await new Promise((resolve, reject) => {
             get(url, (res) => {
                 if(res.statusCode == 200) {
                     res.setEncoding('utf8');
@@ -216,6 +216,6 @@ module.exports = {
                             }
                         }});
                     });
-                });
+            });
     }
 }

@@ -44,7 +44,7 @@ module.exports = {
             } else {
                 return msg.channel.send({ embed: replyEmbed});
             }
-        };
+        }
         db_guild.levelSystem.update_channel = channel.id;
         guild_db.update(db_guild);
         const replyEmbed = {

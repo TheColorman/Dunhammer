@@ -145,5 +145,5 @@ function getLevel(xp) {
 }
 
 function cutLineBreaks(string, linebreaks) {
-    return string.match(/\n/g).length > linebreaks ? (string.split("\n").slice(-string.match(/\n/g).length)).join("\n") : string;
+    return string.match(/\n/g).length > linebreaks ? string.split("\n").slice(-string.match(/\n/g).length).join("\n") : string;
 }

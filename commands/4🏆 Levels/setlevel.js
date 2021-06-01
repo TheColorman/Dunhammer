@@ -36,7 +36,7 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }
         }
-        let db_user = user_db.findOne({user_id: taggedmember.id});
+        const db_user = user_db.findOne({user_id: taggedmember.id});
         if (args.lowercase.length < 2) {
             const replyEmbed = {
                 "color": 0xcf2d2d,
@@ -64,21 +64,21 @@ module.exports = {
         
         const new_level = parseInt(args.lowercase[tags.members.first() ? 1 : taggedmember.user.tag.split(" ").length], 10); // explanation in ../Moderation/nickname.js
         const new_xp = parseInt(args.lowercase[tags.members.first() ? 2 : taggedmember.user.tag.split(" ").length], 10);
-        db_user.xp = (5*(118*new_level+2*new_level*new_level*new_level)/6) + (new_xp || 0);
+        db_user.xp = 5*(118*new_level+2*new_level*new_level*new_level)/6 + (new_xp || 0);
 
-        let xp = db_user.xp;
+        const xp = db_user.xp;
         let lower = 0;
         let upper = 10000000000;
         while (lower + 1 < upper) {
-            let middle = Math.floor((lower + upper)/2);
-            let level_xp = 5*(118*middle+2*middle*middle*middle)/6;
+            const middle = Math.floor((lower + upper)/2),
+                level_xp = 5*(118*middle+2*middle*middle*middle)/6;
             if (level_xp > xp) {
                 upper = middle;
             } else {
                 lower = middle;
             }
         }
-        let level = lower;
+        const level = lower;
         db_user.level = level;
         user_db.update(db_user);
         const replyEmbed = {

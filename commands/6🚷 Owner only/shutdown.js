@@ -9,7 +9,7 @@ module.exports = {
             msg.channel.send({ embed: {
                 "color": 2215713,
                 "title": ":zzz: Shutting down..."
-            }}).then(m => process.exit(1));
+            }}).then(() => process.exit(1));
         } else {
             msg.channel.send({ embed: {
                 "color": 0xcf2d2d,

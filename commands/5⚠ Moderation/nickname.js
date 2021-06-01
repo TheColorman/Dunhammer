@@ -1,5 +1,5 @@
 //@ts-check
-const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
+const { apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'nickname',

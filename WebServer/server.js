@@ -1,14 +1,14 @@
-const express = require('express');
-const path = require('path');
-const cookieParser = require('cookie-parser');
-const { catchAsync, htmlEncode } = require('./utils');
-const fetch = require('node-fetch');
-const session = require('express-session');
-const { guild_config } = require('./api/loki');
-const { token } = require('../token.json');
+const express = require('express'),
+    path = require('path'),
+    cookieParser = require('cookie-parser'),
+    { catchAsync, htmlEncode } = require('./utils'),
+    fetch = require('node-fetch'),
+//const session = require('express-session');
+    { guild_config } = require('./api/loki'),
+//const { token } = require('../token.json');
 
-const app = express();
-const client_id = "671681661296967680";
+    app = express(),
+    client_id = "671681661296967680";
 
 // Routes
 app.use('/api/discord', require('./api/discord'));
@@ -38,7 +38,7 @@ app.get('/leaderboards', catchAsync(async (req, res) => {
     });
 
     //dark mode check
-    if (!req.cookies.darkmode) res.cookie('darkmode', false, { expires: new Date((7*24*60*60*1000) + Date.now()) });
+    if (!req.cookies.darkmode) res.cookie('darkmode', false, { expires: new Date(7*24*60*60*1000 + Date.now()) });
     const theme = req.cookies.darkmode == "true" ? "class=\"dark-mode\"" : "";
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
@@ -147,17 +147,19 @@ app.listen(8081, () => {
     console.info('Running on port 8081');
 });
 
-app.use((err, req, res, next) => {
+app.use((err, req, res) => {
     switch (err.message) {
-      case 'NoCodeProvided':
-        return res.status(400).send({
-          status: 'ERROR',
-          error: err.message,
-        });
-      default:
-        return res.status(500).send({
-          status: 'ERROR',
-          error: err.message,
-        });
+        case 'NoCodeProvided': {
+            return res.status(400).send({
+                status: 'ERROR',
+                error: err.message,
+            });
+        }
+        default: {
+            return res.status(500).send({
+                status: 'ERROR',
+                error: err.message,
+            });
+        }
     }
 });

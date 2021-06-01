@@ -1,5 +1,3 @@
-//@ts-check
-
 const textToSpeech = require('@google-cloud/text-to-speech');
 const fs = require('fs');
 const util = require('util');
@@ -28,11 +26,11 @@ module.exports = {
         const date = new Date(db_tts.date);
         const now = new Date();
         if (date.getFullYear() == now.getFullYear() && date.getMonth() == now.getMonth()) {
-            const minutes = (Math.floor(Math.abs((now.getTime() - date.getTime()) / 1000) / 60));
+            const minutes = Math.floor(Math.abs((now.getTime() - date.getTime()) / 1000) / 60);
             db_tts.charactersLeft += minutes * 90;
         } else {
             const firstThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const minutes = (Math.floor(Math.abs((now.getTime() - firstThisMonth.getTime()) / 1000) / 60));
+            const minutes = Math.floor(Math.abs((now.getTime() - firstThisMonth.getTime()) / 1000) / 60);
             db_tts.charactersLeft = minutes * 90;
         }
         db_tts.date = new Date();
@@ -90,7 +88,7 @@ module.exports = {
             description: `:loud_sound: Saying \`${text}\` in channel \`${channel.name}\`.`,
         }
         if (interaction) {
-            const message = await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
         } else {
             msg.channel.send({ embed: replyEmbed});
         }
@@ -98,7 +96,7 @@ module.exports = {
 
         const ttsClient = new textToSpeech.TextToSpeechClient({ projectId: "dunhammer", keyFile: "./GCloudKey.json" });
         
-        let input = {
+        const input = {
             text: text
         }
         const request = {

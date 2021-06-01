@@ -27,7 +27,7 @@ module.exports = {
 
         let replyEmbed = {}
         switch (args.lowercase[0]) {
-            case 'add':
+            case 'add': {
                 // Set interaction values to match old code
                 if (interaction) {
                     args.lowercase[1] = interaction.data.options[0].options.find(option => option.name == "level").value
@@ -62,15 +62,16 @@ module.exports = {
                     return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
-                }            
-            case 'remove':
+                }
+            }
+            case 'remove': {
                 // Set interaction values to match old code
                 if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
                 if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
                 // Check if role is in saved in database
                 if (!(Object.values(db_guild.levelSystem.roles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
 
-                for (let key in db_guild.levelSystem.roles) {
+                for (const key in db_guild.levelSystem.roles) {
                     if (db_guild.levelSystem.roles[key] == role.id) delete db_guild.levelSystem.roles[key];
                 }
 
@@ -82,11 +83,12 @@ module.exports = {
                     return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
-                }            
-            case 'reload':
+                }
+            }
+            case 'reload': {
                 
                 replyEmbed = {
-                color: 49919,
+                    color: 49919,
                     description: "<a:discord_loading:821347252085063680> Reloading all level roles..."
                 }
 
@@ -94,15 +96,15 @@ module.exports = {
 
 
                 const userdata = user_db.chain().data();
-                for (let user of userdata) {
+                for (const user of userdata) {
                     for (let level = 0; level < user.level; level++) {
-                        if (db_guild.levelSystem.roles.hasOwnProperty(level)) {
+                        if (Object.prototype.hasOwnProperty.call(db_guild.levelSystem.roles, level)) {
                             try {
-                                let member = await msg.guild.members.fetch(user.user_id);
+                                const member = await msg.guild.members.fetch(user.user_id);
                                 if (!db_guild.levelSystem.roles.cumulative) {
                                     user.levelroles ||= [];
-                                    for (let role_id of user.levelroles) {
-                                        let role = await msg.guild.roles.fetch(role_id);
+                                    for (const role_id of user.levelroles) {
+                                        const role = await msg.guild.roles.fetch(role_id);
                                         member.roles.remove(role);
                                     }
                                 }
@@ -115,7 +117,7 @@ module.exports = {
                                 }
                             }
                             user_db.update(user);
-                            }
+                        }
                     }
                 }
                 message.edit({ embed: {
@@ -131,6 +133,7 @@ module.exports = {
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
                 }
+            }
             case 'cumulative':
                 switch (args.lowercase[1]) {
                     case 'true':
@@ -143,7 +146,7 @@ module.exports = {
                         return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
                 }
             case 'view':
-            default:
+            default: {
                 const arr = [];
                 for (const [key, value] of Object.entries(db_guild.levelSystem.roles)) {
                     arr.push(`${key == `cumulative` ? `Cumulative: ${value}` : `Level: ${key} - ${await msg.guild.roles.fetch(value)}`}`);
@@ -158,6 +161,7 @@ module.exports = {
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
                 }
+            }
         }
 
     }
