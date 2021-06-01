@@ -6,7 +6,7 @@ const FormData = require('form-data');
 const { createCanvas, loadImage } = require('canvas');
 const { default: fetch} = require('node-fetch');
 
-const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel } = require('discord.js');
+const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel, GuildMember, Guild } = require('discord.js');
 
 const CanvasImagesMeta = {
     //#region roundRect
@@ -126,7 +126,7 @@ const CanvasImage = {
         // Creating the image
         const canvas = createCanvas(1000, 300);
         const ctx = canvas.getContext('2d');
-        const font = 'Arial';
+        const font = 'Arial, sans-serif';
         // set box avatar_size. 320 is whitespace + profile picture length
         ctx.font = `bold 46px ${font}`;
         let username_text_length = ctx.measureText(member.user.username).width;
@@ -289,13 +289,13 @@ const CanvasImage = {
         ctx.font = `100px Arial`;
         CanvasImagesMeta.fillStrokeText(
             ctx, level_text, center.x, 
-            center.y+avatar_size/2+ctx.measureText(ctx, level_text).emHeightAscent, // y coordinate
+            center.y+avatar_size/2+ctx.measureText(level_text).emHeightAscent, // y coordinate
             3, "#007820", "#2bd95a"
         );
         //username
         ctx.font = `60px Arial`;
         CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, 
-            center.y+avatar_size/2+ctx.measureText(ctx, username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
+            center.y+avatar_size/2+ctx.measureText(username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
             3
         );
         let avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 }));
