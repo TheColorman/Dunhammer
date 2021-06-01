@@ -182,25 +182,26 @@ module.exports = {
                             return;
                         }
                             
-                            const reportChannel = await msg.client.channels.fetch('821393392771923978');
-                            let invites = "ERROR";
-                            try {
-                                const inviteCollection = await msg.guild.fetchInvites();
-                                const inviteArray = inviteCollection.array();
-                                invites = inviteArray.length ? inviteCollection.first(5).join("\n") : "No invites!";
-                            } catch(err) {
-                                invites = "No permissions!";
-                            }
-                            
-                            reportChannel.send({ embed: {
-                                color: 0xa914ff,
-                                title: "Neko report",
-                                description: `Reported by ${await msg.member.user}`,
-                                fields: [{
-                                    name: "Guild",
-                                    value: `Name: ${msg.guild.name}\nID: ${msg.guild.id}`
-                                }, {
-                                    name: "NSFW channel?",
+                        const reactor = collected.first().users.cache.find(reactUser => reactUser.id != msg.client.user.id);
+                        const reportChannel = await msg.client.channels.fetch('821393392771923978');
+                        let invites = "ERROR";
+                        try {
+                            const inviteCollection = await msg.guild.fetchInvites();
+                            const inviteArray = inviteCollection.array();
+                            invites = inviteArray.length ? inviteCollection.first(5).join("\n") : "No invites!";
+                        } catch(err) {
+                            invites = "No permissions!";
+                        }
+                        
+                        reportChannel.send({ embed: {
+                            color: 0xa914ff,
+                            title: "Neko report",
+                            description: `Reported by ${await reactor}`,
+                            fields: [{
+                                name: "Guild",
+                                value: `Name: ${msg.guild.name}\nID: ${msg.guild.id}`
+                            }, {
+                                name: "NSFW channel?",
                                 value: `${msg.channel.nsfw}`,
                                 inline: true,
                             }, {
