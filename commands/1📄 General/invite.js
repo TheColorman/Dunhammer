@@ -4,8 +4,8 @@ const { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: 'invite',
-    short_desc: 'Sends a Dunhammer invite link.',
-    long_desc: 'Sends an invite link for Dunhammer.',
+    shortDesc: 'Sends a Dunhammer invite link.',
+    longDesc: 'Sends an invite link for Dunhammer.',
     aliases: ['inv'],
     cooldown: 2,
     async execute(msg, args, tags, databases, interaction) {

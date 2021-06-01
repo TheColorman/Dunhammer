@@ -4,8 +4,8 @@ const { CanvasImage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'level',
-    short_desc: 'Displays your/tagged users level.',
-    long_desc: 'See your current level and how much experience is needed to get to the next one for either yourself or someone else.',
+    shortDesc: 'Displays your/tagged users level.',
+    longDesc: 'See your current level and how much experience is needed to get to the next one for either yourself or someone else.',
     usage: '[(tagged user/user tag e.g. example#0000)]',
     aliases: ['rank', 'lvl'],
     cooldown: 2,

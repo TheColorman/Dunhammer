@@ -3,9 +3,9 @@ const { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: 'allowbots',
-    short_desc: 'Allows/disallows reaction to other bots.',
+    shortDesc: 'Allows/disallows reaction to other bots.',
     aliases: ['bots'],
-    long_desc: 'If this is set to true, Dunhammer will treat other bots as regular users.',
+    longDesc: 'If this is set to true, Dunhammer will treat other bots as regular users.',
     usage: '[true/false]',
     permissions: 'BAN_MEMBERS',
     cooldown: 2,

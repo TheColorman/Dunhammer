@@ -5,8 +5,8 @@ const { apiFunctions } = require("../../helperfunctions");
 module.exports = {
     name: "levelsenabled",
     aliases: ["enablelevels", "disablelevels", "enablelevelsystem", "disablelevelsystem"],
-    short_desc: "Enables/disables the level system.",
-    long_desc: "Enables or disables the entire level system. Note that all level data is still saved, and turning the levelsysten off and on again will not reset any scores.",
+    shortDesc: "Enables/disables the level system.",
+    longDesc: "Enables or disables the entire level system. Note that all level data is still saved, and turning the levelsysten off and on again will not reset any scores.",
     usage: "<true/false>",
     permissions: "BAN_MEMBERS",
     cooldown: 5,

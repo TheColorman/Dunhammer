@@ -5,8 +5,8 @@ const { apiFunctions } = require("../../helperfunctions");
 module.exports = {
     name: "levelupmessage",
     aliases: ["lvlupmessage", "levelupmsg", "lvlupmsg", "setlevelupmessage", "setlvlupmessage", "setlevelupmsg", "setlvlupmsg"],
-    short_desc: "Changes the levelup message.",
-    long_desc: "Changes different properties of the levelup message.\n\n`title` and `description` can include the following text ingredients:\n`{username}` - Username of the member (e.g. Dunhammer).\n`{tag}` - Tag of the member (e.g. Dunhammer#2797).\n`{level}` - The newly achieved level.\n`{xp}` - The total amount of xp the member has gotten.\n\n**Settings:**\n`title [text]`\nUpdates the title. Leave blank for no title.\n\n`description [text]`\nUpdates the description. Leave blank for no description.\n\n`image <true/false>`\nEnables or disables the displayed image.\n\n**Default levelup message:**\n`title`: Congratulations {username}, you reached level {level}!\n`description`:\n`image`: true",
+    shortDesc: "Changes the levelup message.",
+    longDesc: "Changes different properties of the levelup message.\n\n`title` and `description` can include the following text ingredients:\n`{username}` - Username of the member (e.g. Dunhammer).\n`{tag}` - Tag of the member (e.g. Dunhammer#2797).\n`{level}` - The newly achieved level.\n`{xp}` - The total amount of xp the member has gotten.\n\n**Settings:**\n`title [text]`\nUpdates the title. Leave blank for no title.\n\n`description [text]`\nUpdates the description. Leave blank for no description.\n\n`image <true/false>`\nEnables or disables the displayed image.\n\n**Default levelup message:**\n`title`: Congratulations {username}, you reached level {level}!\n`description`:\n`image`: true",
     usage: "<setting> [change]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,

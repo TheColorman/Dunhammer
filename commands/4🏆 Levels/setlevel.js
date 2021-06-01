@@ -5,8 +5,8 @@ const { apiFunctions } = require("../../helperfunctions");
 module.exports = {
     name: "setlevel",
     aliases: ["setxp", "setlvl"],
-    short_desc: "Updates a members level.",
-    long_desc: "Changes the level and optionally also the amount of XP a member has. If no XP amount is given, the member will have 0 xp. If XP amount exceeds the threshold for a levelup, the member will level up.\n\n**Arguments:**\n`<member>`, required. A member mention or tag (e.g. <@671681661296967680> or Dunhammer#2797)\n`<level>`, required. The members new level.\n`[xp]`, optional. The members new XP amount.\n\n**Example:** `setlevel Dunhammer#2797 10 500`",
+    shortDesc: "Updates a members level.",
+    longDesc: "Changes the level and optionally also the amount of XP a member has. If no XP amount is given, the member will have 0 xp. If XP amount exceeds the threshold for a levelup, the member will level up.\n\n**Arguments:**\n`<member>`, required. A member mention or tag (e.g. <@671681661296967680> or Dunhammer#2797)\n`<level>`, required. The members new level.\n`[xp]`, optional. The members new XP amount.\n\n**Example:** `setlevel Dunhammer#2797 10 500`",
     usage: "<member> <level> [xp]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,

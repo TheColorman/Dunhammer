@@ -7,8 +7,8 @@ const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'speak',
-    short_desc: 'Speak a message.',
-    long_desc: 'Joins your voice channel and speaks the message.',
+    shortDesc: 'Speak a message.',
+    longDesc: 'Joins your voice channel and speaks the message.',
     usage: '[language (BCP-47)] [gender (female/male)] <message>',
     aliases: ['tts'],
     cooldown: 2,

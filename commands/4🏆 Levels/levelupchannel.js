@@ -5,8 +5,8 @@ const { apiFunctions } = require("../../helperfunctions");
 module.exports = {
     name: "levelupchannel",
     aliases: ["setlevelupchannel", "lvlupchannel", "levelupchnl", "lvlupchnl", "setlvlupchannel", "setlevelupchnl", "setlvlupchnl", "levelupmessagechannel", "lvlupmessagechannel", "levelupmsgchannel", "levelupmessagechnl", "lvlupmmsgchannel", "lvlupmessagechnl", "levelupmsgchnl", "lvlupmsgchnl", "setlevelupmessagechannel", "setlvlupmessagechannel", "setlevelupmsgchannel", "setlevelupmessagechnl", "setlvlupmsgchannel", "setlevelupmsgchnl", "setlvlupmessagechnl", "setlvlupmsgchnl"],
-    short_desc: "Choose which channel levelups are sent in.",
-    long_desc: "Change wich channel to send levelups in. Channels are chosen by either tagging the channel (e.g. #levelups) or by typing out the channel name (e.g. levelups).\nLeave channel blank to send the updates in the channel the member leveled up in.",
+    shortDesc: "Choose which channel levelups are sent in.",
+    longDesc: "Change wich channel to send levelups in. Channels are chosen by either tagging the channel (e.g. #levelups) or by typing out the channel name (e.g. levelups).\nLeave channel blank to send the updates in the channel the member leveled up in.",
     usage: "[channel]",
     permissions: "BAN_MEMBERS",
     cooldown: 5,

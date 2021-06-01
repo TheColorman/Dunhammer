@@ -5,8 +5,8 @@ const { QuickMessage, apiFunctions } = require("../../helperfunctions");
 module.exports = {
     name: "roles",
     aliases: ["levelroles", "leveluproles", "lvlroles", "lvluproles"],
-    short_desc: "Choose which roles are gained at which levels.",
-    long_desc: "Add or remove which roles are awarded when a user reaches a specific level. Roles are chosen by either tagging them (e.g. @Admins) or by typing out their name (e.g. Admins).\n\n**Options**\n`add <level> <role>` - Adds a role at the specified level.\n`remove <role>` - Removes a specified role.\n`cumulative <true/false>` - Specify whether old roles are kept when gaining new ones (true: roles build up over time, false: only newest role is given).\n`reload` - Reloads roles for all members in the server.",
+    shortDesc: "Choose which roles are gained at which levels.",
+    longDesc: "Add or remove which roles are awarded when a user reaches a specific level. Roles are chosen by either tagging them (e.g. @Admins) or by typing out their name (e.g. Admins).\n\n**Options**\n`add <level> <role>` - Adds a role at the specified level.\n`remove <role>` - Removes a specified role.\n`cumulative <true/false>` - Specify whether old roles are kept when gaining new ones (true: roles build up over time, false: only newest role is given).\n`reload` - Reloads roles for all members in the server.",
     usage: "<add/remove/cumulative/reload> [...arguments]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,

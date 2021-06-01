@@ -3,8 +3,8 @@ const { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: 'prefix',
-    short_desc: 'Sets the bot\'s prefix for this server.',
-    long_desc: 'Changes the server prefix. In case of multiple bots with the same prefix, tagging me as replacement for the prefix also works.',
+    shortDesc: 'Sets the bot\'s prefix for this server.',
+    longDesc: 'Changes the server prefix. In case of multiple bots with the same prefix, tagging me as replacement for the prefix also works.',
     usage: '[prefix]',
     permissions: 'BAN_MEMBERS',
     cooldown: 5,

@@ -1,8 +1,8 @@
 //@ts-check
 module.exports = {
     name: 'reloaddatabase',
-    short_desc: 'Reloads the database.',
-    long_desc: 'Reloads the entire database for this guild. This command can only be used by the bot owner.',
+    shortDesc: 'Reloads the database.',
+    longDesc: 'Reloads the entire database for this guild. This command can only be used by the bot owner.',
     async execute(msg, args, tags, databases) {
         const currentGuild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {

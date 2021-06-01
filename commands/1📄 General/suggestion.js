@@ -8,8 +8,8 @@ const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 module.exports = {
     name: 'suggestion',
     aliases: ['suggest', 'idea', 'report', 'bug', 'glitch'],
-    short_desc: 'Suggest a feature or report a bug .',
-    long_desc: 'Submits an anonymous suggestion/bug report to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).',
+    shortDesc: 'Suggest a feature or report a bug .',
+    longDesc: 'Submits an anonymous suggestion/bug report to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).',
     usage: '<message>',
     cooldown: 10,
     async execute(msg, args, tags, databases, interaction) {

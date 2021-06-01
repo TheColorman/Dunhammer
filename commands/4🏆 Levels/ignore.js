@@ -5,8 +5,8 @@ const { apiFunctions } = require("../../helperfunctions");
 module.exports = {
     name: "ignore",
     aliases: ["ignorechannel"],
-    short_desc: "Prevent xp from bein gained in a channel.",
-    long_desc: "Toggles whether or not the levelsystem ignores a channel. Channels are chosen by either tagging the channel (e.g. #levelups) or by typing out the channel name (e.g. levelups).",
+    shortDesc: "Prevent xp from bein gained in a channel.",
+    longDesc: "Toggles whether or not the levelsystem ignores a channel. Channels are chosen by either tagging the channel (e.g. #levelups) or by typing out the channel name (e.g. levelups).",
     usage: "<channel>",
     permissions: "BAN_MEMBERS",
     cooldown: 2,

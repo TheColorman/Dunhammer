@@ -3,8 +3,8 @@ const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 module.exports = {
     name: 'leaderboard',
     aliases: ['scoreboard', 'scores', 'leader'],
-    short_desc: 'Displays the leaderboard.',
-    long_desc: 'Displays a leaderboard of the top 10 members on the server from the LevelSystem if it is enabled. If you/tagged user is not in top 10, it still shows your/tagged users score.',
+    shortDesc: 'Displays the leaderboard.',
+    longDesc: 'Displays a leaderboard of the top 10 members on the server from the LevelSystem if it is enabled. If you/tagged user is not in top 10, it still shows your/tagged users score.',
     usage: '[user]',
     cooldown: 2,
     async execute(msg, args, tags, databases, interaction) {

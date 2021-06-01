@@ -4,8 +4,8 @@ const { apiFunctions } = require('../../helperfunctions.js');
 module.exports = {
     name: 'ping',
     aliases: ['pong'],
-    short_desc: "Measure delay between send-receive.",
-    long_desc: 'Measures the timestamp delay in miliseconds between the ping message and reply message.',
+    shortDesc: "Measure delay between send-receive.",
+    longDesc: 'Measures the timestamp delay in miliseconds between the ping message and reply message.',
     cooldown: 5,
     async execute(msg, args, tags, databases, interaction) {
         if (interaction) {  // Acknowledge slash command if it exists

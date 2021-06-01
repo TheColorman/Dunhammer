@@ -4,8 +4,8 @@ const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 module.exports = {
     name: 'nickname',
     aliases: ['nick', 'name'],
-    short_desc: 'Change someones nickname.',
-    long_desc: 'Updates a users nickname.',
+    shortDesc: 'Change someones nickname.',
+    longDesc: 'Updates a users nickname.',
     usage: '<(tagged user/user tag)> <new nickname>',
     permissions: 'MANAGE_NICKNAMES',
     cooldown: 2,

@@ -4,8 +4,8 @@ const { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'help',
-    short_desc: 'Commands and other help.',
-    long_desc: 'Shows a list of commands if used without arguments, and help for specific commands if used with arguments.',
+    shortDesc: 'Commands and other help.',
+    longDesc: 'Shows a list of commands if used without arguments, and help for specific commands if used with arguments.',
     usage: '[command name]',
     aliases: ['h', 'commands'],
     cooldown: 2,
@@ -32,7 +32,7 @@ module.exports = {
                 index++;
                 reply_embed.fields.push({ name: categoryName.substring(1), value: "", inline: true });  // Cut off 1 because each category starts with a number
                 categoryCommands.forEach((commandFile, commandName) => {
-                    reply_embed.fields[index].value = `${reply_embed.fields[index].value}\n\`${commandFile.name}\` - ${commandFile.short_desc}`
+                    reply_embed.fields[index].value = `${reply_embed.fields[index].value}\n\`${commandFile.name}\` - ${commandFile.shortDesc}`
                 });
                 if (!((index) % 3)) {   // This works for some reason (makes 2 columns instead of 3)
                     reply_embed.fields.push({ name: "\u200B", value: "\u200B", inline: true });
@@ -86,7 +86,7 @@ module.exports = {
             "color": 49919,
             "fields": [{
                 "name": "Desciption",
-                "value": `${command.long_desc}`,
+                "value": `${command.longDesc}`,
                 "inline": true
             }, {
                 "name": "Aliases",
