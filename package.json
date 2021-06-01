@@ -21,6 +21,7 @@
     "ffmpeg-static": "^4.2.7",
     "form-data": "^4.0.0",
     "lokijs": "^1.5.11",
+    "mysql": "^2.18.1",
     "node-fetch": "^2.6.1",
     "stream-buffers": "^3.0.2"
   }
