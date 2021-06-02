@@ -57,11 +57,11 @@ class MySQL {
     /**
      * Update existing data in a table by row.
      * @param {String} table Table name
-     * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @param {Object} object Updated data where `key = collumn` and `value = value`
+     * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    update(table, queryLogic, object) {
+    update(table, object, queryLogic) {
         return new Promise((res) => {
             const query = `UPDATE \`${v+table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
