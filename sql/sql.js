@@ -39,14 +39,14 @@ class MySQL {
         });
     }
     /**
-     * Insert data into a table as a new row.
+     * Insert data into a table as a new row(s).
      * @param {String} table Table name
-     * @param {Object} object Inserted data where `key = collumn` and `value = value`
+     * @param {Object|Array<object>} object Inserted data where `key = collumn` and `value = value`. If an array is passed every object must contain the same keys
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
     insert(table, object) {
         return new Promise((res) => {
-            const query = `INSERT INTO \`${v+table}\` (\`${Object.keys(object).join("`, `")}\`) VALUES (${Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
+            const query = `INSERT INTO \`${v+table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => this.escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
                 console.log(`Inserted ${result.affectedRows} rows.`);
