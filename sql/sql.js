@@ -27,11 +27,12 @@ class MySQL {
      * If this doesnt work in the future, it might be because queryLogic isn't escaped.
      * @param {String} table Table name
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
+     * @param {String} sortLogic Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
      * @returns {Promise<RowDataPacket>} Array of objects (found rows)
      */
-    get(table, queryLogic) {
+    get(table, queryLogic, sortLogic) {
         return new Promise((res) => {
-            const query = `SELECT * FROM \`${v+table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}`;
+            const query = `SELECT * FROM \`${v+table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
                 res(result);
