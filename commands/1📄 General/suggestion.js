@@ -37,13 +37,12 @@ module.exports = {
                 type: 5,
             }});
         }
-        const guild_db = databases.guilds,
-            db_guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const DBGuild = (await sql.get("guilds", `id = ${msg.guild.id}`))[0];
         if (!args.original.length) {
             const replyEmbed = {
                 color: 0xcf2d2d,
                 title: ":octagonal_sign: Error!",
-                description: `:question: Not enough arguments! Use \`${db_guild.prefix}help suggestion\` for help.`
+                description: `:question: Not enough arguments! Use \`${DBGuild.prefix}help suggestion\` for help.`
             }
             if (interaction) {
                 const data = {
