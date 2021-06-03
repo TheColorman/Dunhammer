@@ -718,7 +718,8 @@ module.exports = {
         //     const usrobj = {
         //         id: user.user_id,
         //         username: userDS.username,
-        //         tag: userDS.tag.slice(-4)
+        //         tag: userDS.tag.slice(-4),
+        //         unsubscribed: user.unsubscirbed | false
         //     }
         //     sql.insert("users", usrobj);
         // }
