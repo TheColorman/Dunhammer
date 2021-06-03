@@ -209,38 +209,38 @@ const CanvasImage = {
      * @param {Guild} guild The guild of the user
      * @param {MySQL} sql MySQL isntance
      */
-    levelup_image: async function (member, user_database, guild) {
-        const database_user = user_database.findOne({ user_id: member.id });
-        const avatar_size = 200;
-        const rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1;
-        let next_database_user = undefined;
-        let next_user_xp;
-        let xp_behind_text;
-        let next_discord_member;
+    levelup_image: async function (member, DBGuildUser, guild, sql) {
+        const avatar_size = 200,
+            DBSortedByXP = await sql.get("guild-users", `guildid = ${guild.id}`, "xp DESC"),
+            rank = DBSortedByXP.findIndex(element => element.userid == member.id) + 1;
+        let nextDBUser = undefined,
+            nextUserXP,
+            XPBehindText,
+            nextDiscordMember;
         if (rank != 1) {
-            next_database_user = user_database.chain().simplesort('xp', true).data().find((_element, index) => index == rank-2);
+            nextDBUser = DBSortedByXP.find((_element, index) => index == rank-2);
             try {
-                next_discord_member = await guild.members.fetch(next_database_user.user_id);
+                nextDiscordMember = await guild.members.fetch(nextDBUser.userid);
             } catch (err) {
                 if (err.message === "Unknown User") {
-                    next_database_user.inGuild = false;
-                    user_database.update(next_database_user);
+                    nextDBUser.inGuild = false;
+                    sql.update("guild-users", nextDBUser, `guildid = ${guild.id} AND userid = ${nextDBUser.userid}`)
                 }
-                next_discord_member = { nickname: "DELETED USER" }
+                nextDiscordMember = { nickname: "DELETED USER" }
             }
-            next_user_xp = next_database_user.xp;
-            xp_behind_text = `${next_user_xp - database_user.xp} xp behind`;
+            nextUserXP = nextDBUser.xp;
+            XPBehindText = `${nextUserXP - DBGuildUser.xp} xp behind`;
         }
         
         const canvas = createCanvas(700, 600);
         const ctx = canvas.getContext('2d');
         
-        const level_text = `LEVEL ${database_user.level}`;
+        const level_text = `LEVEL ${DBGuildUser.level}`;
         const username_text = `${member.nickname || member.user.username}`;
         const rank_text = `RANK #${rank}`;
 
         canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 : canvas.width;
-        if (next_discord_member) canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${ next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, `30px Arial`).old.width+500 : canvas.width;
+        if (nextDiscordMember) canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${ nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 : canvas.width;
         const center = {
             x: canvas.width/2,
             y: canvas.height/2
@@ -271,18 +271,18 @@ const CanvasImage = {
             0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
             3
         );
-        if (next_discord_member) {
+        if (nextDiscordMember) {
             //xp behind
             ctx.font = `30px Arial`;
             CanvasImagesMeta.fillStrokeText(
-                ctx, `${xp_behind_text}`, center.x,
-                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+ctx.measureText(`${xp_behind_text}`).emHeightAscent-10,
+                ctx, `${XPBehindText}`, center.x,
+                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+ctx.measureText(`${XPBehindText}`).emHeightAscent-10,
                 2
             );
             //person
             CanvasImagesMeta.fillStrokeText(
-                ctx, `${next_discord_member.nickname || next_discord_member.user.username}`, center.x,
-                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `${xp_behind_text}`).height+20,
+                ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, center.x,
+                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `${XPBehindText}`).height+20,
                 2
             );
         }
