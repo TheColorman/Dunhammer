@@ -34,8 +34,8 @@ module.exports = {
             }});
         }
 
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const DBGuildLevelsystem = (await sql.get("guild-levelsystem", `id = ${msg.guild.id}`))[0];
+        const ignoredChannels = JSON.parse(DBGuildLevelsystem.ignoredChannels);
 
         const channel = tags.channels.first() || msg.guild.channels.cache.find(channel_object => channel_object ? channel_object.name === args.lowercase[0] : undefined);
         if (!channel || ["voice", "category"].includes(channel.type)) {
@@ -51,10 +51,11 @@ module.exports = {
             }    
         }
 
-        if (db_guild.levelSystem.disallowed_channels.includes(channel.id)) {
-            const index = db_guild.levelSystem.disallowed_channels.indexOf(channel.id);
-            db_guild.levelSystem.disallowed_channels.splice(index, 1);
-            guild_db.update(db_guild);
+        if (ignoredChannels.includes(channel.id)) {
+            const index = ignoredChannels.indexOf(channel.id);
+            ignoredChannels.splice(index, 1);
+            DBGuildLevelsystem.ignoredChannels = JSON.stringify(ignoredChannels);
+            await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
             const replyEmbed = {
                 color: 2215713,
                 description: `:repeat: No longer ignoring ${channel}.`
@@ -65,8 +66,9 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }    
         } else {
-            db_guild.levelSystem.disallowed_channels.push(channel.id);
-            guild_db.update(db_guild);
+            ignoredChannels.push(channel.id);
+            DBGuildLevelsystem.ignoredChannels = JSON.stringify(ignoredChannels);
+            await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
             const replyEmbed = {
                 color: 2215713,
                 description: `:repeat: Now ignoring ${channel}.`
