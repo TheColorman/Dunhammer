@@ -61,7 +61,7 @@ module.exports = {
                 description: `:repeat: No longer ignoring ${channel}.`
             }
             if (interaction) {
-                return await apiFunctions.interactionEdit(msg.client, interaction.token, msg.channel, replyEmbed);
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
             } else {
                 return msg.channel.send({ embed: replyEmbed});
             }    
@@ -74,7 +74,7 @@ module.exports = {
                 description: `:repeat: Now ignoring ${channel}.`
             }
             if (interaction) {
-                return await apiFunctions.interactionEdit(msg.client, interaction.token, msg.channel, replyEmbed);
+                return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
             } else {
                 return msg.channel.send({ embed: replyEmbed});
             }    
