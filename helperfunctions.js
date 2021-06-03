@@ -4,6 +4,7 @@ const fs = require('fs');
 const FormData = require('form-data');
 const { createCanvas, loadImage } = require('canvas');
 const { default: fetch} = require('node-fetch');
+const MySQL = require("./sql/sql");
 
 const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel, GuildMember, Guild } = require('discord.js');
 
@@ -204,8 +205,9 @@ const CanvasImage = {
     /**
      * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'imageData/'.
      * @param {GuildMember} member The Discord Guild member
-     * @param {Collection} user_database The database of saved users
+     * @param {RowDataPacket} DBGuildUser The database of saved users
      * @param {Guild} guild The guild of the user
+     * @param {MySQL} sql MySQL isntance
      */
     levelup_image: async function (member, user_database, guild) {
         const database_user = user_database.findOne({ user_id: member.id });

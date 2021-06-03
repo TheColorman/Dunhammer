@@ -1,9 +1,28 @@
 //@ts-check
+// eslint-disable-next-line no-unused-vars
+const MySQL = require("../../sql/sql"),
+    // eslint-disable-next-line no-unused-vars
+    Discord = require("discord.js");
+
 module.exports = {
     name: 'reloaddatabase',
     shortDesc: 'Reloads the database.',
     longDesc: 'Reloads the entire database for this guild. This command can only be used by the bot owner.',
-    async execute(msg, args, tags, databases) {
+    /**
+     * Command execution
+     * @param {Discord.Message} msg Message object
+     * @param {Object} args Argument object
+     * @param {Array<String>} args.lowercase Lowercase arguments
+     * @param {Array<String>} args.original Original arguments
+     * @param {Object} tags Tag object
+     * @param {Discord.Collection<string, Discord.User>} tags.users Collection of user tags
+     * @param {Discord.Collection<string, Discord.GuildMember>} tags.members Collection of member tags
+     * @param {Discord.Collection<string, Discord.TextChannel>} tags.channels Collection of channel tags
+     * @param {Discord.Collection<string, Discord.Role>} tags.roles Collection of role tags
+     * @param {MySQL} sql MySQL object
+     * @param {Object} interaction Interaction object
+     */
+    async execute(msg, args, tags, sql, interaction) {
         const currentGuild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {
             return msg.channel.send({ embed: {

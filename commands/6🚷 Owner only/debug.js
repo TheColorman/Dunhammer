@@ -1,10 +1,13 @@
+//@ts-check
 /* eslint-disable no-unused-vars */
-// @ts-check-
+// eslint-disable-next-line no-unused-vars
+const MySQL = require("../../sql/sql"),
+    // eslint-disable-next-line no-unused-vars
+    Discord = require("discord.js");
 
 const { default: fetch } = require("node-fetch");
 const fs = require('fs');
 const FormData = require('form-data');
-const MySQL = require("../../sql/sql");
 const { mysqlPassword } = require("../../token.json");
 
 
@@ -13,16 +16,20 @@ module.exports = {
     shortDesc: 'Debug command.',
     longDesc: 'Debug command. Can only be used by bot owner, and is a placeholder for random testing.',
     /**
-     * 
-     * @param {*} msg 
-     * @param {*} args 
-     * @param {*} tags 
-     * @param {Object} databases 
-     * @param {MySQL} databases.sql
-     * @param {Loki} databases.guild_config
-     * @returns 
+     * Command execution
+     * @param {Discord.Message} msg Message object
+     * @param {Object} args Argument object
+     * @param {Array<String>} args.lowercase Lowercase arguments
+     * @param {Array<String>} args.original Original arguments
+     * @param {Object} tags Tag object
+     * @param {Discord.Collection<string, Discord.User>} tags.users Collection of user tags
+     * @param {Discord.Collection<string, Discord.GuildMember>} tags.members Collection of member tags
+     * @param {Discord.Collection<string, Discord.TextChannel>} tags.channels Collection of channel tags
+     * @param {Discord.Collection<string, Discord.Role>} tags.roles Collection of role tags
+     * @param {MySQL} sql MySQL object
+     * @param {Object} interaction Interaction object
      */
-    async execute(msg, args, tags, databases) {
+    async execute(msg, args, tags, sql, interaction) {
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {
             return msg.channel.send({ embed: {
@@ -680,7 +687,6 @@ module.exports = {
         // console.log(await res.json());
         //#endregion
         
-        const sql = databases.sql;
         //#region Guild DB update
         // for (let i = 0; i < databases.guilds.data.length; i++) {
         //     const guild = databases.guilds.data[i];
