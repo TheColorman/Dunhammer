@@ -48,10 +48,10 @@ module.exports = {
                     args.lowercase = [interaction.data.options[0].options[0].value];
             }
         }
-        const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
+        const DBGuild = (await sql.get("guilds", `id = ${msg.guild.id}`))[0];
 
         if (args.lowercase[0] == "help") {
-            return msg.client.commands.get("help").execute(msg, args, tags, databases);
+            return msg.client.commands.get("help").execute(msg, args, tags, sql);
         }
 
         let endpoint = args.lowercase.join('_');
@@ -129,7 +129,7 @@ module.exports = {
             const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:question: Invalid argument! Use \`${guild.prefix}help neko\` for help.`
+                "description": `:question: Invalid argument! Use \`${DBGuild.prefix}help neko\` for help.`
             }
             if (interaction) {
                 return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
