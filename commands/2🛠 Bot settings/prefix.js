@@ -32,21 +32,20 @@ module.exports = {
                 type: 5,
             }});
         }
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const DBGuild = (await sql.get("guilds", `id = ${msg.guild.id}`))[0];
         if (!args.lowercase.length) {
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:question: No arguments! Use \`${db_guild.prefix}help prefix\` for help.`
+                "description": `:question: No arguments! Use \`${DBGuild.prefix}help prefix\` for help.`
             }});
         }
-        db_guild.prefix = args.original.join(` `);
-        guild_db.update(db_guild);
+        DBGuild.prefix = args.original.join(` `);
+        sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
 
         const replyEmbed = {
             "color": 2215713,
-            "description": `:repeat: Updated server prefix to \`${db_guild.prefix}\`.`
+            "description": `:repeat: Updated server prefix to \`${DBGuild.prefix}\`.`
         }
         if (interaction) {
             return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
