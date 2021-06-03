@@ -32,28 +32,20 @@ module.exports = {
     async execute(msg, args, tags, sql, interaction) {
         // check if i have enough characters to use the google api
         // I sure fucking hope this code works, because dates are a pain in the ass to work with and im not testing this shit.
-        const api_db = databases.client.getCollection("apis");
-        if (api_db.findOne({ api_name: "tts" }) === null) {
-            api_db.insert({
-                api_name: "tts",
-                charactersLeft: 90,
-                date: new Date(),
-            });
-        }
+        const DBApi = (await sql.get("api", `name = "tts"`))[0];
         // 90 characters a minute
-        const db_tts = api_db.findOne({ api_name: "tts" });
-        const date = new Date(db_tts.date);
+        const date = new Date(DBApi.date);
         const now = new Date();
         if (date.getFullYear() == now.getFullYear() && date.getMonth() == now.getMonth()) {
             const minutes = Math.floor(Math.abs((now.getTime() - date.getTime()) / 1000) / 60);
-            db_tts.charactersLeft += minutes * 90;
+            DBApi.assignInt += minutes * 90;
         } else {
             const firstThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             const minutes = Math.floor(Math.abs((now.getTime() - firstThisMonth.getTime()) / 1000) / 60);
-            db_tts.charactersLeft = minutes * 90;
+            DBApi.assignInt += minutes * 90;
         }
-        db_tts.date = new Date();
-        api_db.update(db_tts);
+        DBApi.date = new Date().getTime();
+        await sql.update("api", DBApi, `name = "tts"`);
 
         // variables
         let languageCode = "en-UK";
@@ -74,7 +66,7 @@ module.exports = {
             text = interaction.data.options.find(option => option.name == "message").value;
         }
 
-        if (db_tts.charactersLeft - text.length < 0) {
+        if (DBApi.assignInt - text.length < 0) {
             const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
@@ -86,8 +78,8 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }    
         }
-        db_tts.charactersLeft -= text.length;
-        api_db.update(db_tts);
+        DBApi.assignInt -= text.length;
+        sql.update("api", DBApi, `name = "tts"`);
 
         if (!channel || channel.type != "voice") {
             const replyEmbed = {
