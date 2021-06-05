@@ -70,6 +70,18 @@ module.exports = {
                         return msg.channel.send({ embed: replyEmbed});
                     }                
                 }
+                if (role.name === "@everyone") {
+                    replyEmbed = {
+                        color: 0xcf2d2d,
+                        title: ":octagonal_sign: Error!",
+                        description: `:no_entry: I can't give people the ${role} role!`
+                    }
+                    if (interaction) {
+                        return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                    } else {
+                        return msg.channel.send({ embed: replyEmbed});
+                    }                
+                }
                 
                 DBGuildLevelsystemRoles[args.lowercase[1]] = role.id;
                 sql.update("guild-levelsystem", { roles: JSON.stringify(DBGuildLevelsystemRoles) }, `id = ${DBGuildLevelsystem.id}`);
