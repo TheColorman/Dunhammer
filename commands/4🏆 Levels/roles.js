@@ -87,7 +87,7 @@ module.exports = {
                 sql.update("guild-levelsystem", { roles: JSON.stringify(DBGuildLevelsystemRoles) }, `id = ${DBGuildLevelsystem.id}`);
                 replyEmbed = {
                     color: 2215713,
-                    description: `:white_check_mark: Added ${role} to level roles at level ${args.lowercase[1]}.`
+                    description: `:white_check_mark: Added ${role} to level roles at level ${args.lowercase[1]}.\n\nUse \`${DBGuild.prefix}roles reload\` for the changes to take effect.`
                 }
                 if (interaction) {
                     return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
