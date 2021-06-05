@@ -121,13 +121,56 @@ module.exports = {
 
                 replyEmbed = {
                     color: 2215713,
-                    description: `:x: Removed ${role} from level roles.`
+                    description: `:x: Removed ${role} from level roles.\n\nReact with ✅ to remove the role from all members.`
                 }
-                if (interaction) {
-                    return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
-                } else {
-                    return msg.channel.send({ embed: replyEmbed});
-                }
+                const replyMessage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed}),
+                    filter = (reaction, user) => reaction.emoji.name === '✅' && user.id == msg.author.id;
+                return replyMessage.react("✅")
+                    .then(() => {
+                        replyMessage.awaitReactions(filter, { idle: 30000, max: 1 })
+                            .then(async (collected) => {
+                                if (!collected.first()) {
+                                    await replyMessage.reactions.removeAll();
+                                    return await replyMessage.edit({ embed: {
+                                        color: 2215713,
+                                        description: `:x: Removed ${role} from level roles.\n\n~~React with ✅ to remove the role from all members.~~\n:x: Timeout!`
+                                    }});
+    
+                                }
+                                await replyMessage.edit({ embed: {
+                                    color: 2215713,
+                                    description: `:x: Removed ${role} from level roles.\n\n<a:discord_loading:821347252085063680> Removing ${role} from all guild members...`
+                                }});
+                                try {
+                                    await replyMessage.reactions.removeAll();
+                                    let awaiter = 0;
+                                    for (const user of DBGuildUsers) {
+                                        try {
+                                            const DSMember = await msg.guild.members.fetch(user.userid),
+                                                userLevelRoles = JSON.parse(user.levelRoles);
+                                            userLevelRoles.filter(levelRole => levelRole != role.id);
+                                            user.levelRoles = JSON.stringify(userLevelRoles);
+                                            DSMember.roles.remove(role);
+                                        } catch(err) {
+                                            console.error(err);
+                                            if (err.message === "Unknown member") user.inGuild = false;
+                                        }
+                                        awaiter = sql.update("guild-users", user, `guildid = ${user.guildid} AND userid = ${user.userid}`);
+                                    }                    
+                                    return await replyMessage.edit({ embed: {
+                                        color: 2215713,
+                                        description: `:x: Removed ${role} from level roles.\n\n✅ Removed ${role} from all guild members.${JSON.stringify(awaiter)}`.slice(0, -JSON.stringify(awaiter).length)
+                                    }});
+                                } catch(err) {
+                                    console.error(err);
+                                    return await replyMessage.edit({ embed: {
+                                        color: 2215713,
+                                        description: `:x: Removed ${role} from level roles.\n\n:exclamation: Something went wrong!`
+                                    }});
+    
+                                }
+                            });
+                    });
             }
             case 'reload': {
                 
