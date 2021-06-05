@@ -40,7 +40,7 @@ module.exports = {
             await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
             const replyEmbed = {
                 color: 2215713,
-                description: `:x: Removed update channel.`
+                description: `:x: Removed levelup channel.`
             }
             if (interaction) {
                 return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
@@ -65,7 +65,7 @@ module.exports = {
         await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
         const replyEmbed = {
             color: 2215713,
-            description: `:repeat: Set update channel to ${channel}.`
+            description: `:repeat: Set levelup channel to ${channel}.`
         }
         if (interaction) {
             await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
