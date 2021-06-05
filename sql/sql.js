@@ -89,6 +89,137 @@ class MySQL {
             })
         });
     }
+    //  Specified functions
+    /**
+     * @typedef {Object} DBUser
+     * @property {String}   id           - User ID
+     * @property {String}   username     - Username without tag
+     * @property {String}   tag          - User tag
+     * @property {Boolean}  unsubscribed - Whether user is unsubscribed from DMs
+     */
+    /**
+     * @typedef {Object} DBGuild
+     * @property {String}   id         - Guild ID
+     * @property {String}   name       - Guild name
+     * @property {String}   prefix     - Guild prefix
+     * @property {Boolean}  ignoreBots - Whether guild ignores bots
+     */
+    /**
+     * @typedef {Object} DBGuildLevelsystem
+     * @property {String}               id              - Guild id
+     * @property {Boolean}              enabled         - Whether levelsystem is enabled
+     * @property {Array<String>}        ignoredChannels - Stringified array of ignord channel IDs
+     * @property {String|Null}          levelupChannel  - Channel ID where levelup messages are sent
+     * @property {Discord.MessageEmbed} levelupMessage  - Stringified embed object for levelup
+     * @property {Discord.MessageEmbed} newroleMessage  - Stringified embed object for newrole
+     * @property {Boolean}              levelupImage    - Whether levelup messages contain an image
+     * @property {Boolean}              rolesCumulative - Whether levelup roles are cumulative
+     * @property {{Level: String}}      roles           - Stringified object of roles where `key = level` and `value = role ID`
+     */
+    /**
+     * @typedef {Object} DBGuildUser
+     * @property {String}         userid     - User ID
+     * @property {String}         guildid    - Guild ID
+     * @property {Number}         xp         - Total XP
+     * @property {Number}         level      - Current level
+     * @property {Array<String>}  levelRoles - Stringified array of role IDs of users level roles
+     * @property {Array<String>}  roles      - Stringified array of role IDs of user roles
+     * @property {Boolean}        inGuild    - Whether or not the user is present in the guild
+     */
+
+    /**
+     * Adds user to database if they don't exist and returns the database entry
+     * @param {Discord.User}  user - DiscordJS user
+     * @returns {DBUser} DBUser object
+     */
+    async getUserInDB(user) {
+        const DBUserArr = await this.get("users", `id = ${user.id}`);
+        if (!DBUserArr.length) {
+            await this.insert("users", {
+                id: user.id,
+                username: user.username,
+                tag: user.tag.slice(-4),
+                unsubscribed: false
+            });
+            return (await this.get("users", `id = ${user.id}`))[0];
+        }
+        return DBUserArr[0];
+    }
+    /**
+     * Adds guild to database if it doesn't exist and returns the database entry
+     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @returns {DBGuild} DBGuild object
+     */
+    async getGuildInDB(guild) {
+        const DBGuildArr = await this.get("guilds", `id = ${guild.id}`);
+        if (!DBGuildArr.length) {
+            await this.insert("guilds", {
+                id: guild.id,
+                name: guild.name,
+                prefix: ".",
+                ignoreBots: true
+            });
+            return (await this.get("guilds", `id = ${guild.id}`))[0];
+        }
+        return DBGuildArr[0];
+    }
+    /**
+     * Adds guild levelsystem to database if it doesn't exist and returns the database entry
+     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @returns {DBGuildLevelsystem} DBGuild object
+     */
+    async getGuildLevelsystemInDB(guild) {
+        const DBGuildLevelsystemArr = await this.get("guild-levelsystem", `id = ${guild.id}`);
+        if (!DBGuildLevelsystemArr.length) {
+            await this.insert("guild-levelsystem", {
+                id: guild.id,
+                enabled: false,
+                ignoredChannels: JSON.stringify([]),
+                levelupChannel: null,
+                levelupMessage: JSON.stringify({
+                    "color": 2215713,
+                    "title": "Congratulations {username}, you reached level {level}!",
+                    "description": ""
+                }),
+                newroleMessage: JSON.stringify({
+                    "color": 2215713,
+                    "description": "Congratulations {username}, you reached level {level} and gained the role {role}!"
+                }),
+                levelupImage: true,
+                rolesCumulative: false,
+                roles: JSON.stringify({})
+            });
+            return (await this.get("guild-levelsystem", `id = ${guild.id}`))[0];
+        }
+        return DBGuildLevelsystemArr[0];
+    }
+    /**
+     * Adds guild user to database if they don't exist and returns the database entry
+     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @param {Discord.User}   user  - DiscordJS user
+     * @returns {DBGuildUser} DBGuildUser object
+     */
+    async getGuildUserInDB(guild, user) {
+        const DBGuildUserArr = await this.get("guild-users", `guildid = ${guild.id} AND userid = ${user.id}`);
+        if (!DBGuildUserArr.length) {
+            const DBGuildLevelsystem = await this.getGuildLevelsystemInDB(guild),
+                levelSystemRoles = DBGuildLevelsystem.roles,
+                userRoles = (await guild.members.fetch(user.id)).roles.cache.map(item => item.id),
+                levelRoles = userRoles.filter(role => levelSystemRoles.includes(role));
+            await this.insert("guild-users", {
+                userid: user.id,
+                guildid: guild.id,
+                xp: 0,
+                level: 0,
+                levelRoles: JSON.stringify(levelRoles),
+                roles: JSON.stringify(userRoles),
+                inGuild: true
+            });
+            return (await this.get("guild-users", `guildid = ${guild.id} AND userid = ${user.id}`))[0];
+        }
+        return DBGuildUserArr[0];
+    }
+
 }
 
 module.exports = MySQL;
