@@ -451,6 +451,17 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     }
 });
 
+client.on("userUpdate", async (oldUser, newUser) => {
+    const DBUser = await sql.getUserInDB(oldUser),
+        newDBUser = {
+            id: newUser.id,
+            username: newUser.username,
+            tag: newUser.tag.slice(-4),
+            unsubscribed: DBUser.unsubscribed
+        }
+    if (JSON.stringify(DBUser) != JSON.stringify(newDBUser)) {
+        await sql.update("users", newDBUser, `id = ${newDBUser.id}`);
+    }
 });
 
 // Add new guilds to database
