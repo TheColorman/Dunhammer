@@ -34,11 +34,10 @@ module.exports = {
             }});
         }
 
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const DBGuildLevelsystem = await sql.getGuildLevelsystemInDB(msg.guild);
         if (!args.lowercase[0]) {
-            db_guild.levelSystem.update_channel = undefined;
-            guild_db.update(db_guild);
+            DBGuildLevelsystem.levelupChannel = null;
+            await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
             const replyEmbed = {
                 color: 2215713,
                 description: `:x: Removed update channel.`
@@ -62,8 +61,8 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }
         }
-        db_guild.levelSystem.update_channel = channel.id;
-        guild_db.update(db_guild);
+        DBGuildLevelsystem.levelupChannel = channel.id;
+        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
         const replyEmbed = {
             color: 2215713,
             description: `:repeat: Set update channel to ${channel}.`

@@ -38,7 +38,8 @@ module.exports = {
             const members = await msg.guild.members.fetch({ cache: false });
             taggedmember = await members.find(member => member.user.tag == args.original.join(" "));
         }
-        await CanvasImage.rank_image(taggedmember || msg.member, databases.users);
+        if (taggedmember) await sql.getGuildUserInDB(msg.guild, taggedmember);
+        await CanvasImage.rank_image(taggedmember || msg.member, sql);
         
         const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
         

@@ -23,9 +23,9 @@ module.exports = {
      * @param {MySQL} sql MySQL object
      * @param {Object} interaction Interaction object
      */
-    async execute(msg, args, tags, sql, interaction) {
-        const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (['298842558610800650', '411240035841474590'].includes(msg.author.id.toString())) {
+    async execute(msg, args, tags, sql) {
+        const DBGuild = (await sql.getGuildInDB(msg.guild))[0];
             msg.channel.send({ embed: {
                 "color": 2215713,
                 "title": ":zzz: Shutting down..."
@@ -34,7 +34,7 @@ module.exports = {
             msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:no_entry: You don't have access to \`${guild.prefix}shutdown\`!`
+                "description": `:no_entry: You don't have access to \`${DBGuild.prefix}shutdown\`!`
             }});
         }
     }

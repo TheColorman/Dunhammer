@@ -50,19 +50,18 @@ module.exports = {
             taggedrole = await roles.cache.find(role => role.name.toLowerCase() == args.lowercase.join(" "));
         }
 
-        const user_db = databases.users;
-        
-        for (const db_user of top_ten) {
-            const ds_user = await msg.client.users.fetch(db_user.user_id);
-            if (!msg.guild.member(ds_user)) {
-                db_user.inGuild = false;
-                user_db.update(db_user);
         taggedMember ||= msg.member;
+        const userDB = await sql.get("guild-users", `guildid = ${msg.guild.id}`, `xp DESC`),
             topTen = taggedrole ? userDB.filter(user => JSON.parse(user.roles).includes(taggedrole.id)) : await sql.get("guild-users", `guildid = ${msg.guild.id}`, `xp DESC`, 10),
             
             topTenArr = [];
         let index = 1,
             tagInTopTen = false;
+        for (const DBUser of topTen) {
+            const DSUser = await msg.client.users.fetch(DBUser.userid);
+            if (!msg.guild.member(DSUser)) {
+                DBUser.inGuild = false;
+                await sql.update("guild-users", DBUser, `guildid = ${DBUser.guildid} AND userid = ${DBUser.userid}`);
             }
             let textDecor = "";
             if (taggedMember.id == DSUser.id) {

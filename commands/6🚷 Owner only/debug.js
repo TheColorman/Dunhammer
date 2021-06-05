@@ -31,10 +31,11 @@ module.exports = {
     async execute(msg, args, tags, sql, interaction) {
         const guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {
+        const DBGuild = await sql.getGuildInDB(msg.guild);
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:no_entry: You don't have access to \`${guild.prefix}debug\`!`
+                "description": `:no_entry: You don't have access to \`${DBGuild.prefix}debug\`!`
             }});
         }
 

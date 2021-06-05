@@ -52,8 +52,8 @@ module.exports = {
                 } else {
                     role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
                 }
-                if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
-                if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, DBGuild.prefix, "levelsettings");
+                if (!role) return QuickMessage.invalid_role(msg.channel, DBGuild.prefix, "levelsettings");
                 
                 if (highestRolePosition <= requestedRolePosition) {
                 const highestRolePosition = msg.guild.me.roles.highest.position,
@@ -70,8 +70,8 @@ module.exports = {
                     }                
                 }
                 
-                db_guild.levelSystem.roles[args.lowercase[1]] = role.id;
-                guild_db.update(db_guild);
+                DBGuildLevelsystemRoles[args.lowercase[1]] = role.id;
+                sql.update("guild-levelsystem", { roles: JSON.stringify(DBGuildLevelsystemRoles) }, `id = ${DBGuildLevelsystem.id}`);
                 replyEmbed = {
                     color: 2215713,
                     description: `:white_check_mark: Added ${role} to level roles at level ${args.lowercase[1]}.`
@@ -85,13 +85,16 @@ module.exports = {
             case 'remove': {
                 // Set interaction values to match old code
                 if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
-                if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                if (!role) return QuickMessage.invalid_role(msg.channel, DBGuild.prefix, "levelsettings");
                 // Check if role is in saved in database
-                if (!(Object.values(db_guild.levelSystem.roles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
+                if (!(Object.values(DBGuildLevelsystemRoles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
 
-                for (const key in db_guild.levelSystem.roles) {
-                    if (db_guild.levelSystem.roles[key] == role.id) delete db_guild.levelSystem.roles[key];
+                for (const key in DBGuildLevelsystemRoles) {
+                    if (DBGuildLevelsystemRoles[key] == role.id) {
+                        delete DBGuildLevelsystemRoles[key];
+                    }
                 }
+                await sql.update("guild-levelsystem", { roles: JSON.stringify(DBGuildLevelsystemRoles) }, `id = ${DBGuildLevelsystem.id}`);
 
                 replyEmbed = {
                     color: 2215713,
@@ -110,33 +113,44 @@ module.exports = {
                     description: "<a:discord_loading:821347252085063680> Reloading all level roles..."
                 }
 
-                const message = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  { replyEmbed } });
+                const message = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed }),
+                                    
+                    DBGuildLevelsystemRolesSorted = Object.keys(DBGuildLevelsystemRoles).sort().reduce(
+                        (obj, key) => { 
+                            obj[key] = DBGuildLevelsystemRoles[key]; 
+                            return obj;
+                        }, 
+                        {}
+                    );                  
 
-
-                const userdata = user_db.chain().data();
-                for (const user of userdata) {
-                    for (let level = 0; level < user.level; level++) {
-                        if (Object.prototype.hasOwnProperty.call(db_guild.levelSystem.roles, level)) {
-                            try {
-                                const member = await msg.guild.members.fetch(user.user_id);
-                                if (!db_guild.levelSystem.roles.cumulative) {
-                                    user.levelroles ||= [];
-                                    for (const role_id of user.levelroles) {
-                                        const role = await msg.guild.roles.fetch(role_id);
-                                        member.roles.remove(role);
-                                    }
-                                }
-                                const role = await msg.guild.roles.fetch(db_guild.levelSystem.roles[level]);
-                                member.roles.add(role);
-                                user.levelroles.push(db_guild.levelSystem.roles[level]);
-                            } catch (err) {
-                                if (err.message === "Unknown member") {
-                                    user.inGuild = false;
+                for (const user of DBGuildUsers) {
+                    try {
+                        const highestRoleKey = Object.keys(DBGuildLevelsystemRolesSorted).reduce((a, b) => Math.max(a, b)),
+                            member = await msg.guild.members.fetch(user.userid);
+                        let userLevelRoles = [];
+                        for (const roleID of Object.values(DBGuildLevelsystemRoles)) {
+                            const role = await msg.guild.roles.fetch(roleID);
+                            await member.roles.remove(role);
+                        }
+                        if (!DBGuildLevelsystem.rolesCumulative && user.level >= highestRoleKey) {
+                            const highestRole = await msg.guild.roles.fetch(DBGuildLevelsystemRoles[highestRoleKey]);
+                            await member.roles.add(highestRole);
+                            userLevelRoles = [DBGuildLevelsystemRoles[highestRoleKey]];
+                        } else {
+                            for (const levelRoleKey of Object.keys(DBGuildLevelsystemRolesSorted)) {
+                                if (user.level >= levelRoleKey) {
+                                    const role = await msg.guild.roles.fetch(DBGuildLevelsystemRoles[levelRoleKey]);
+                                    await member.roles.add(role);
+                                    userLevelRoles.push(DBGuildLevelsystemRoles[levelRoleKey]);
                                 }
                             }
-                            user_db.update(user);
                         }
+                        user.levelRoles = JSON.stringify(userLevelRoles);
+                    } catch(err) {
+                        console.error(err);
+                        if (err.message === "Unknown member") user.inGuild = false;
                     }
+                    sql.update("guild-users", user, `guildid = ${user.guildid} AND userid = ${user.userid}`);
                 }
 
                 message.edit({ embed: {
@@ -156,19 +170,21 @@ module.exports = {
             case 'cumulative':
                 switch (args.lowercase[1]) {
                     case 'true':
-                        db_guild.levelSystem.roles.cumulative = true;
                         return QuickMessage.add(msg.channel, "Set cumulative roles to `true`.")
                     case 'false':
-                        db_guild.levelSystem.roles.cumulative = false;
                         return QuickMessage.remove(msg.channel, "Set cumulative roles to `false`.")
                     default:
-                        return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
+                        DBGuildLevelsystem.rolesCumulative = true;
+                        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`)
+                        DBGuildLevelsystem.rolesCumulative = false;
+                        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
                 }
             case 'view':
             default: {
                 const arr = [];
-                for (const [key, value] of Object.entries(db_guild.levelSystem.roles)) {
-                    arr.push(`${key == `cumulative` ? `Cumulative: ${value}` : `Level: ${key} - ${await msg.guild.roles.fetch(value)}`}`);
+                arr.push(`Cumulatove roles: ${!!DBGuildLevelsystem.rolesCumulative}`); // alright this is fucking stupid, because DBGuildLevelsystem.rolesCumulative is a number (either 0 or 1) and not a boolean, I just invert it twice with ! to make it a boolean. This is why I love JavaScript.
+                for (const [key, value] of Object.entries(DBGuildLevelsystemRoles)) {
+                    arr.push(`Level: ${key} - ${await msg.guild.roles.fetch(value)}`);
                 }
                 replyEmbed = {
                     color: 49919,

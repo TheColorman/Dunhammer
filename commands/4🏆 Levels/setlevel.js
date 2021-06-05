@@ -34,8 +34,7 @@ module.exports = {
             }});
         }
         
-        const db_guild = databases.guilds.findOne({ guild_id: msg.guild.id });
-        const user_db = databases.users;
+        const DBGuild = await sql.getGuildInDB(msg.guild);
 
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
@@ -45,7 +44,7 @@ module.exports = {
             const replyEmbed = {
                 color: 0xcf2d2d,
                 title: ":octagonal_sign: Error!",
-                description: `:no_pedestrians: No user tagged! Use \`${db_guild.prefix}help setlevel\` for help.`
+                description: `:no_pedestrians: No user tagged! Use \`${DBGuild.prefix}help setlevel\` for help.`
             }
             if (interaction) {
                 return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
@@ -53,12 +52,12 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }
         }
-        const db_user = user_db.findOne({user_id: taggedmember.id});
+        const DBGuildUser = (await sql.get("guild-users", `guildid = ${msg.guild.id} AND userid = ${taggedmember.id}`))[0];
         if (args.lowercase.length < 2) {
             const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
-                "description": `:question: Not enough argument! Use \`${db_guild.prefix}help setlevel\` for help.`
+                "description": `:question: Not enough argument! Use \`${DBGuild.prefix}help setlevel\` for help.`
             }
             if (interaction) {
                 return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
@@ -66,7 +65,7 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }    
         }
-        if (db_user == null) {
+        if (!DBGuildUser) {
             const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
@@ -83,7 +82,7 @@ module.exports = {
             new_xp = parseInt(args.lowercase[tags.members.first() ? 2 : taggedmember.user.tag.split(" ").length], 10);
         DBGuildUser.xp = 5*(118*new_level+2*new_level*new_level*new_level)/6 + (new_xp || 0);
 
-        const xp = db_user.xp;
+        const xp = DBGuildUser.xp;
         let lower = 0,
             upper = 10000000000;
         while (lower + 1 < upper) {
@@ -96,8 +95,8 @@ module.exports = {
             }
         }
         const level = lower;
-        db_user.level = level;
-        user_db.update(db_user);
+        DBGuildUser.level = level;
+        await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
         const replyEmbed = {
             "color": 2215713,
             "description": `:sparkles: Updated ${taggedmember}'s level to ${args.lowercase[1]}.`

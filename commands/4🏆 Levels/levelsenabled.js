@@ -34,7 +34,7 @@ module.exports = {
             }});
         }
 
-        const db_guild = databases.guilds.findOne({ guild_id: msg.guild.id });
+        const DBGuildLevelsystem = await sql.getGuildLevelsystemInDB(msg.guild);
         let type;
         if (args.lowercase[0] == 'false') {
             DBGuildLevelsystem.enabled = false;
@@ -49,7 +49,7 @@ module.exports = {
                 description: ":question: Expected either `true` or `false`."
             }});
         }
-        databases.guilds.update(db_guild);
+        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
         const replyEmbed = {
             "color": 2215713,
             "description": `${type} the level system.`

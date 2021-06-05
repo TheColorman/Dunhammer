@@ -107,211 +107,212 @@ const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel, 
     //#endregion
     }
 const CanvasImage = {
-    //#region rank_image
-    /**
-     * Draws an image showcasing the members level, their rank and experience bar, and saves it as 'level.png' to 'imageData/'.
-     * @param {GuildMember} member The Discord Guild member
-     * @param {Collection} user_database The database of saved users
-     */
-    rank_image: async function (member, user_database) {    
-        const database_user = user_database.findOne({ user_id: member.id }),
-            xp_total = database_user.xp,
-            current_level = database_user.level,
-            next_level = current_level + 1,
-            current_xp = xp_total - 5*(118*current_level+2*current_level*current_level*current_level)/6,
-            xp_for_next_level = 5*(118*next_level+2*next_level*next_level*next_level)/6 - 5*(118*current_level+2*current_level*current_level*current_level)/6,
-            rank = user_database.chain().simplesort('xp', true).data().findIndex(element => element.user_id == member.id) + 1;
+        //#region rank_image
+        /**
+         * Draws an image showcasing the members level, their rank and experience bar, and saves it as 'level.png' to 'imageData/'.
+         * @param {GuildMember} member The Discord Guild member
+         * @param {MySQL} sql MySQL object
+         */
+        rank_image: async function (member, sql) {
+            const userDB = await sql.get("guild-users", `guildid = ${member.guild.id}`, "xp DESC"),
+                DBUser = userDB.find(user => user.userid == member.id),
+                xpTotal = DBUser.xp,
+                currentLevel = DBUser.level,
+                nextLevel = currentLevel + 1,
+                currentXP = xpTotal - 5*(118*currentLevel+2*currentLevel*currentLevel*currentLevel)/6,
+                xpForNextLevel = 5*(118*nextLevel+2*nextLevel*nextLevel*nextLevel)/6 - 5*(118*currentLevel+2*currentLevel*currentLevel*currentLevel)/6,
+                rank = userDB.findIndex(user => user.userid == member.id)+1,
 
-        // Creating the image
-        const canvas = createCanvas(1000, 300);
-        const ctx = canvas.getContext('2d');
-        const font = 'Arial, sans-serif';
-        // set box avatar_size. 320 is whitespace + profile picture length
-        ctx.font = `bold 46px ${font}`;
-        const username_text_length = ctx.measureText(member.user.username).width;
-        ctx.font = `36px${font}`;
-        const tag_text_length = ctx.measureText(member.user.tag.slice(-5)).width;
-        canvas.width = Math.max(username_text_length + tag_text_length + 400, 1000);
-        // background
-        ctx.beginPath();
-        ctx.rect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "black";
-        ctx.fill();
-        // username
-        ctx.font = `36px ${font}`;
-        ctx.fillStyle = "#A6A7AA";
-        ctx.font = 'bold 60px' + font;
-        ctx.fillStyle = "white";
-        const username_text_height = ctx.measureText(member.user.username).emHeightAscent,
-            username_text_width = ctx.measureText(member.user.username).width;
-        ctx.fillText(member.user.username, 300, 50 + username_text_height);
-        // tag
-        ctx.font = `36px ${font}`;
-        ctx.fillStyle = "#A6A7AA";
-        ctx.fillText(member.user.tag.slice(-5), 300 + username_text_width, 50 + username_text_height);
-        // experience bar
-        ctx.fillStyle = "#4a4a4a";
-        CanvasImagesMeta.roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
-        ctx.fillStyle = "#54b35d";
-        if (current_xp/xp_for_next_level > 0.02) {
-            CanvasImagesMeta.roundRect(ctx, 290, 240, current_xp/xp_for_next_level * (canvas.width - 320), 30, 16, true, false);
-        }    // xp_total filled up
-        // xp for next lvl
-        ctx.font = `34px ${font}`;
-        ctx.fillStyle = '#A6A7AA';
-        const xp_requried_text = ctx.measureText(` / ${xp_for_next_level} xp_total`), //<!-- FIX THIS --!>
-            description_text_y = 240 - xp_requried_text.emHeightAscent + xp_requried_text.emHeightDescent;
-        ctx.fillText(` / ${xp_for_next_level} xp`, canvas.width - xp_requried_text.width, description_text_y);
-        // current xp_total
-        ctx.font = `34px ${font}`;
-        ctx.fillStyle = 'white';
-        const xp_current_text = ctx.measureText(`${current_xp}`);
-        ctx.fillText(`${current_xp}`, canvas.width - xp_requried_text.width - xp_current_text.width, description_text_y);
-        // level
-        const xp_text_width = xp_requried_text.width + xp_current_text.width;
-        ctx.font = `bold 80px ${font}`;
-        ctx.fillStyle = "#54b35d";
-        const level_number = ctx.measureText(`${current_level}`);
-        ctx.fillText(`${current_level}`, canvas.width - level_number.width - xp_text_width - 30, description_text_y);
-        // level text
-        ctx.font = `34px ${font}`;
-        const level_text = ctx.measureText(`LEVEL`);
-        ctx.fillText(`LEVEL`, canvas.width - level_number.width - xp_text_width - 40 - level_text.width, description_text_y);
-        // rank
-        ctx.font = `bold 80px ${font}`;
-        ctx.fillStyle = "white";
-        const rank_number = ctx.measureText(`${rank}`);
-        ctx.fillText(`${rank}`, canvas.width - level_number.width - xp_text_width - 70 - level_text.width - rank_number.width, description_text_y);
-        // rank text
-        ctx.font = `34px ${font}`;
-        const rank_text = ctx.measureText(`RANK`);
-        ctx.fillText(`RANK`, canvas.width - level_number.width - xp_text_width - 80 - level_text.width - rank_number.width - rank_text.width, description_text_y);
+            // Creating the image
+                canvas = createCanvas(1000, 300),
+                ctx = canvas.getContext('2d'),
+                font = 'Arial, sans-serif';
+            // set box avatar_size. 320 is whitespace + profile picture length
+            ctx.font = `bold 46px ${font}`;
+            const username_text_length = ctx.measureText(member.user.username).width;
+            ctx.font = `36px${font}`;
+            const tag_text_length = ctx.measureText(member.user.tag.slice(-5)).width;
+            canvas.width = Math.max(username_text_length + tag_text_length + 400, 1000);
+            // background
+            ctx.beginPath();
+            ctx.rect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "black";
+            ctx.fill();
+            // username
+            ctx.font = `36px ${font}`;
+            ctx.fillStyle = "#A6A7AA";
+            ctx.font = 'bold 60px' + font;
+            ctx.fillStyle = "white";
+            const username_text_height = ctx.measureText(member.user.username).emHeightAscent,
+                username_text_width = ctx.measureText(member.user.username).width;
+            ctx.fillText(member.user.username, 300, 50 + username_text_height);
+            // tag
+            ctx.font = `36px ${font}`;
+            ctx.fillStyle = "#A6A7AA";
+            ctx.fillText(member.user.tag.slice(-5), 300 + username_text_width, 50 + username_text_height);
+            // experience bar
+            ctx.fillStyle = "#4a4a4a";
+            CanvasImagesMeta.roundRect(ctx, 290, 240, canvas.width - 320, 30, 16, true, false);  // background
+            ctx.fillStyle = "#54b35d";
+            if (currentXP/xpForNextLevel > 0.02) {
+                CanvasImagesMeta.roundRect(ctx, 290, 240, currentXP/xpForNextLevel * (canvas.width - 320), 30, 16, true, false);
+            }    // xp_total filled up
+            // xp for next lvl
+            ctx.font = `34px ${font}`;
+            ctx.fillStyle = '#A6A7AA';
+            const xp_requried_text = ctx.measureText(` / ${xpForNextLevel} xp_total`), //<!-- FIX THIS --!>
+                description_text_y = 240 - xp_requried_text.emHeightAscent + xp_requried_text.emHeightDescent;
+            ctx.fillText(` / ${xpForNextLevel} xp`, canvas.width - xp_requried_text.width, description_text_y);
+            // current xp_total
+            ctx.font = `34px ${font}`;
+            ctx.fillStyle = 'white';
+            const xp_current_text = ctx.measureText(`${currentXP}`);
+            ctx.fillText(`${currentXP}`, canvas.width - xp_requried_text.width - xp_current_text.width, description_text_y);
+            // level
+            const xp_text_width = xp_requried_text.width + xp_current_text.width;
+            ctx.font = `bold 80px ${font}`;
+            ctx.fillStyle = "#54b35d";
+            const level_number = ctx.measureText(`${currentLevel}`);
+            ctx.fillText(`${currentLevel}`, canvas.width - level_number.width - xp_text_width - 30, description_text_y);
+            // level text
+            ctx.font = `34px ${font}`;
+            const level_text = ctx.measureText(`LEVEL`);
+            ctx.fillText(`LEVEL`, canvas.width - level_number.width - xp_text_width - 40 - level_text.width, description_text_y);
+            // rank
+            ctx.font = `bold 80px ${font}`;
+            ctx.fillStyle = "white";
+            const rank_number = ctx.measureText(`${rank}`);
+            ctx.fillText(`${rank}`, canvas.width - level_number.width - xp_text_width - 70 - level_text.width - rank_number.width, description_text_y);
+            // rank text
+            ctx.font = `34px ${font}`;
+            const rank_text = ctx.measureText(`RANK`);
+            ctx.fillText(`RANK`, canvas.width - level_number.width - xp_text_width - 80 - level_text.width - rank_number.width - rank_text.width, description_text_y);
 
-        const avatar_url = member.user.displayAvatarURL({format: "png", dynamic: true, avatar_size: 256}),
-            image = await loadImage(avatar_url);
+            const avatar_url = member.user.displayAvatarURL({format: "png", dynamic: true, avatar_size: 256}),
+                image = await loadImage(avatar_url);
 
-        // clip profile picture
-        ctx.beginPath();
-        ctx.arc(150, 150, 120, 0, 6.28, false);
-        ctx.clip();
+            // clip profile picture
+            ctx.beginPath();
+            ctx.arc(150, 150, 120, 0, 6.28, false);
+            ctx.clip();
 
-        ctx.drawImage(image, 30, 30, 240, 240);
-        const buffer = canvas.toBuffer('image/png');
-        fs.writeFileSync('./imageData/generated/level.png', buffer);
-    },
-    //#endregion
-    //#region levelup_image
-    /**
-     * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'imageData/'.
-     * @param {GuildMember} member The Discord Guild member
-     * @param {RowDataPacket} DBGuildUser The database of saved users
-     * @param {Guild} guild The guild of the user
-     * @param {MySQL} sql MySQL isntance
-     */
-    levelup_image: async function (member, DBGuildUser, guild, sql) {
-        const avatar_size = 200,
-            DBSortedByXP = await sql.get("guild-users", `guildid = ${guild.id}`, "xp DESC"),
-            rank = DBSortedByXP.findIndex(element => element.userid == member.id) + 1;
-        let nextDBUser = undefined,
-            nextUserXP,
-            XPBehindText,
-            nextDiscordMember;
-        if (rank != 1) {
-            nextDBUser = DBSortedByXP.find((_element, index) => index == rank-2);
-            try {
-                nextDiscordMember = await guild.members.fetch(nextDBUser.userid);
-            } catch (err) {
-                if (err.message === "Unknown User") {
-                    nextDBUser.inGuild = false;
-                    sql.update("guild-users", nextDBUser, `guildid = ${guild.id} AND userid = ${nextDBUser.userid}`)
+            ctx.drawImage(image, 30, 30, 240, 240);
+            const buffer = canvas.toBuffer('image/png');
+            fs.writeFileSync('./imageData/generated/level.png', buffer);
+        },
+        //#endregion
+        //#region levelup_image
+        /**
+         * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'imageData/'.
+         * @param {GuildMember} member The Discord Guild member
+         * @param {RowDataPacket} DBGuildUser The database of saved users
+         * @param {Guild} guild The guild of the user
+         * @param {MySQL} sql MySQL isntance
+         */
+        levelup_image: async function (member, DBGuildUser, guild, sql) {
+            const avatar_size = 200,
+                DBSortedByXP = await sql.get("guild-users", `guildid = ${guild.id}`, "xp DESC"),
+                rank = DBSortedByXP.findIndex(element => element.userid == member.id) + 1;
+            let nextDBUser = undefined,
+                nextUserXP,
+                XPBehindText,
+                nextDiscordMember;
+            if (rank != 1) {
+                nextDBUser = DBSortedByXP.find((_element, index) => index == rank-2);
+                try {
+                    nextDiscordMember = await guild.members.fetch(nextDBUser.userid);
+                } catch (err) {
+                    if (err.message === "Unknown User") {
+                        nextDBUser.inGuild = false;
+                        await sql.update("guild-users", nextDBUser, `guildid = ${nextDBUser.guildid} AND userid = ${nextDBUser.userid}`)
+                    }
+                    nextDiscordMember = { nickname: "DELETED USER" }
                 }
-                nextDiscordMember = { nickname: "DELETED USER" }
+                nextUserXP = nextDBUser.xp;
+                XPBehindText = `${nextUserXP - DBGuildUser.xp} xp behind`;
             }
-            nextUserXP = nextDBUser.xp;
-            XPBehindText = `${nextUserXP - DBGuildUser.xp} xp behind`;
-        }
-        
-        const canvas = createCanvas(700, 600);
-        const ctx = canvas.getContext('2d');
-        
-        const level_text = `LEVEL ${DBGuildUser.level}`;
-        const username_text = `${member.nickname || member.user.username}`;
-        const rank_text = `RANK #${rank}`;
+            
+            const canvas = createCanvas(700, 600),
+                ctx = canvas.getContext('2d'),
+            
+                level_text = `LEVEL ${DBGuildUser.level}`,
+                username_text = `${member.nickname || member.user.username}`,
+                rank_text = `RANK #${rank}`;
 
-        canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 : canvas.width;
-        if (nextDiscordMember) canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${ nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 : canvas.width;
-        const center = {
-            x: canvas.width/2,
-            y: canvas.height/2
-        }
-        
-        //background
-        ctx.fillStyle = "#9ED3FF";
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = "#4D8C69";
-        ctx.fillRect(0, canvas.height/2+20, canvas.width, canvas.height/2-20);
-        //add images
-        const backgroundLeft = await loadImage('./imageData/levelupBGLeft.png'),
-            backgroundRight = await loadImage('./imageData/levelupBGRight.png');
-        ctx.drawImage(backgroundLeft, 0, 0, 246, 600);
-        ctx.drawImage(backgroundRight, canvas.width-246, 0, 246, 600);
-        //rank
-        ctx.textAlign = "center";
-        ctx.font = `40px Arial`;
-        CanvasImagesMeta.fillStrokeText(
-            ctx, rank_text, center.x, 
-            0+ctx.measureText(rank_text).emHeightAscent, // y coordinate
-            3
-        );
-        //levelup
-        ctx.font = `70px Arial`;
-        CanvasImagesMeta.fillStrokeText(
-            ctx, `LEVEL UP!`, center.x, 
-            0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
-            3
-        );
-        if (nextDiscordMember) {
-            //xp behind
-            ctx.font = `30px Arial`;
+            canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 : canvas.width;
+            if (nextDiscordMember) canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${ nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 : canvas.width;
+            const center = {
+                x: canvas.width/2,
+                y: canvas.height/2
+            }
+            
+            //background
+            ctx.fillStyle = "#9ED3FF";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = "#4D8C69";
+            ctx.fillRect(0, canvas.height/2+20, canvas.width, canvas.height/2-20);
+            //add images
+            const backgroundLeft = await loadImage('./imageData/levelupBGLeft.png'),
+                backgroundRight = await loadImage('./imageData/levelupBGRight.png');
+            ctx.drawImage(backgroundLeft, 0, 0, 246, 600);
+            ctx.drawImage(backgroundRight, canvas.width-246, 0, 246, 600);
+            //rank
+            ctx.textAlign = "center";
+            ctx.font = `40px Arial`;
             CanvasImagesMeta.fillStrokeText(
-                ctx, `${XPBehindText}`, center.x,
-                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+ctx.measureText(`${XPBehindText}`).emHeightAscent-10,
-                2
+                ctx, rank_text, center.x, 
+                0+ctx.measureText(rank_text).emHeightAscent, // y coordinate
+                3
             );
-            //person
+            //levelup
+            ctx.font = `70px Arial`;
             CanvasImagesMeta.fillStrokeText(
-                ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, center.x,
-                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `${XPBehindText}`).height+20,
-                2
+                ctx, `LEVEL UP!`, center.x, 
+                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
+                3
             );
-        }
-        //level
-        ctx.font = `100px Arial`;
-        CanvasImagesMeta.fillStrokeText(
-            ctx, level_text, center.x, 
-            center.y+avatar_size/2+ctx.measureText(level_text).emHeightAscent, // y coordinate
-            3, "#007820", "#2bd95a"
-        );
-        //username
-        ctx.font = `60px Arial`;
-        CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, 
-            center.y+avatar_size/2+ctx.measureText(username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
-            3
-        );
-        const avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 })),
-        // crop
-            vOffset = 0;
-        ctx.beginPath();
-        ctx.arc(canvas.width/2, canvas.height/2+vOffset, avatar_size/2, 0, 6.28, false);
-        ctx.clip();
-        // center image
-        ctx.drawImage(avatar, canvas.width/2-avatar_size/2, canvas.height/2-avatar_size/2+vOffset, avatar_size, avatar_size);
+            if (nextDiscordMember) {
+                //xp behind
+                ctx.font = `30px Arial`;
+                CanvasImagesMeta.fillStrokeText(
+                    ctx, `${XPBehindText}`, center.x,
+                    0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+ctx.measureText(`${XPBehindText}`).emHeightAscent-10,
+                    2
+                );
+                //person
+                CanvasImagesMeta.fillStrokeText(
+                    ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, center.x,
+                    0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `${XPBehindText}`).height+20,
+                    2
+                );
+            }
+            //level
+            ctx.font = `100px Arial`;
+            CanvasImagesMeta.fillStrokeText(
+                ctx, level_text, center.x, 
+                center.y+avatar_size/2+ctx.measureText(level_text).emHeightAscent, // y coordinate
+                3, "#007820", "#2bd95a"
+            );
+            //username
+            ctx.font = `60px Arial`;
+            CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, 
+                center.y+avatar_size/2+ctx.measureText(username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
+                3
+            );
+            const avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 })),
+            // crop
+                vOffset = 0;
+            ctx.beginPath();
+            ctx.arc(canvas.width/2, canvas.height/2+vOffset, avatar_size/2, 0, 6.28, false);
+            ctx.clip();
+            // center image
+            ctx.drawImage(avatar, canvas.width/2-avatar_size/2, canvas.height/2-avatar_size/2+vOffset, avatar_size, avatar_size);
 
-        const buffer = canvas.toBuffer('image/png');
-        fs.writeFileSync('./imageData/generated/level.png', buffer);
+            const buffer = canvas.toBuffer('image/png');
+            fs.writeFileSync('./imageData/generated/level.png', buffer);
+        },
+        //#endregion
     },
-    //#endregion
-}
 
     QuickMessage = {
         //#region error
