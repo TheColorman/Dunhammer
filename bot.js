@@ -74,7 +74,7 @@ client.on("message", async (msg) => {
     if (msg.channel.type === "dm") {
         if (msg.author == client.user) return;
         if (msg.content.toLowerCase() == 'stop') {
-            await getUserInDB(msg.author);
+            await sql.getUserInDB(msg.author);
             await sql.update("users", { unsubscribed: true }, `id = ${msg.author.id}`);
             return msg.channel.send({ embed: {
                 color: 2215713,
@@ -85,10 +85,8 @@ client.on("message", async (msg) => {
             }});
         }
         if (msg.content.toLowerCase() == 'start') {
-            await getUserInDB(msg.author);
-            await sql.update("users", {
-                unsubscribed: false
-            }, `id = ${msg.author.id}`);
+            await sql.getUserInDB(msg.author);
+            await sql.update("users", { unsubscribed: false }, `id = ${msg.author.id}`);
             return msg.channel.send({ embed: {
                 color: 2215713,
                 description: "You will now receive direct messages from Dunhamer.",
@@ -102,7 +100,7 @@ client.on("message", async (msg) => {
     if (msg.webhookID) return;
 
     // Makes sure database entries exist
-    const DBGuild = await getGuildInDB(msg.guild);
+    const DBGuild = await sql.getGuildInDB(msg.guild);
 
     // Message variables
     const msgContentOriginal = msg.content;
@@ -339,13 +337,12 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 client.on("message", async (msg) => {
     // DM check
     if (msg.channel.type === "dm" || msg.webhookID) return;
-    const DBGuild = await getGuildInDB(msg.guild);
     
     if (DBGuild.ignoreBots && msg.author.bot) return;
-    const levelSystem = await getGuildLevelsystemInDB(msg.guild);
+    const levelSystem = await sql.getGuildLevelsystemInDB(msg.guild);
 
     if (!levelSystem.enabled || JSON.parse(levelSystem.ignoredChannels).includes(msg.channel.id)) return;
-    const DBGuildUser = await getGuildUserInDB(msg.guild, msg.author);
+    const DBGuildUser = await sql.getGuildUserInDB(msg.guild, msg.author),
     
     // Check if user cooldown is over
         now = Date.now(),
@@ -435,99 +432,30 @@ function replaceIngredients(string, member, DBGuildUser, role) {
 
 // Make sure we mark removed users so they don't break the program.
 client.on("guildMemberRemove", async member => {
-    const DBGuildUser = await getGuildUserInDB(member.guild, member.user);
+    const DBGuildUser = await sql.getGuildUserInDB(member.guild, member.user);
     DBGuildUser.inGuild = false;
     await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`)
 });
 client.on("guildMemberAdd", async member => {
-    await getUserInDB(member.user);
-    await getGuildUserInDB(member.guild, member.user);
+    await sql.getUserInDB(member.user);
+    await sql.getGuildUserInDB(member.guild, member.user);
 });
 
 // Get user roles - possibly more data in the future.
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    const DBGuildUser = await getGuildUserInDB(newMember.guild, newMember.user);
     DBGuildUser.roles = newMember.roles.cache.map(role => role);
     await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
+    const DBGuildUser = await sql.getGuildUserInDB(newMember.guild, newMember.user);
 });
 
 // Add new guilds to database
 client.on("guildCreate", async guild => {
-    await getGuildInDB(guild);
 });
 
-// Functions for checking databases, so the program doesn't try to run code on non-existent entries.
-async function getUserInDB(user) {
-    const DBUserArr = await sql.get("users", `id = ${user.id}`);
-    if (!DBUserArr.length) {
-        await sql.insert("users", {
-            id: user.id,
-            username: user.username,
-            tag: user.tag.slice(-4),
-            unsubscribed: false
-        });
-        return (await sql.get("users", `id = ${user.id}`))[0];
-    }
-    return DBUserArr[0];
-}
-async function getGuildInDB(guild) {
-    const DBGuildArr = await sql.get("guilds", `id = ${guild.id}`);
-    if (!DBGuildArr.length) {
-        await sql.insert("guilds", {
-            id: guild.id,
-            name: guild.name,
-            prefix: ".",
-            ignoreBots: true
-        });
-        return (await sql.get("guilds", `id = ${guild.id}`))[0];
-    }
-    return DBGuildArr[0];
-}
-async function getGuildLevelsystemInDB(guild) {
-    const DBGuildLevelsystemArr = await sql.get("guild-levelsystem", `id = ${guild.id}`);
-    if (!DBGuildLevelsystemArr.length) {
-        await sql.insert("guild-levelsystem", {
-            id: guild.id,
-            enabled: false,
-            ignoredChannels: JSON.stringify([]),
-            levelupChannel: null,
-            levelupMessage: JSON.stringify({
-                "color": 2215713,
-                "title": "Congratulations {username}, you reached level {level}!",
-                "description": ""
-            }),
-            newroleMessage: JSON.stringify({
-                "color": 2215713,
-                "description": "Congratulations {username}, you reached level {level} and gained the role {role}!"
-            }),
-            levelupImage: true,
-            rolesCumulative: false,
-            roles: null
-        });
-        return (await sql.get("guild-levelsystem", `id = ${guild.id}`))[0];
-    }
-    return DBGuildLevelsystemArr[0];
-}
-async function getGuildUserInDB(guild, user) {
-    const DBGuildUserArr = await sql.get("guild-users", `guildid = ${guild.id} AND userid = ${user.id}`);
-    if (!DBGuildUserArr.length) {
-        const DBGuildLevelsystem = await getGuildLevelsystemInDB(guild);
-        const levelSystemRoles = DBGuildLevelsystem.roles;
-        const userRoles = (await guild.members.fetch(user.id)).roles.cache.map(item => item);
-        const levelRoles = userRoles.filter(role => levelSystemRoles.includes(role));
-        await sql.insert("guild-users", {
-            userid: user.id,
-            guildid: guild.id,
-            xp: 0,
-            level: 0,
-            levelRoles: JSON.stringify(levelRoles),
-            roles: JSON.stringify(userRoles),
-            inGuild: true
-        });
-        return await sql.get("guild-users", `guildid = ${guild.id} AND userid = ${user.id}`)[0];
     }
     return DBGuildUserArr[0];
 }
+    await sql.getGuildInDB(guild);
 
 // login
 client.login(token);

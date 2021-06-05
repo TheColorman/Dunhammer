@@ -41,7 +41,7 @@ module.exports = {
             }});
         }
         DBGuild.prefix = args.original.join(` `);
-        sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
+        await sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
 
         const replyEmbed = {
             "color": 2215713,

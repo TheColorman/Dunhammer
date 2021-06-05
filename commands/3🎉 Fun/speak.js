@@ -79,7 +79,7 @@ module.exports = {
             }    
         }
         DBApi.assignInt -= text.length;
-        sql.update("api", DBApi, `name = "tts"`);
+        await sql.update("api", DBApi, `name = "tts"`);
 
         if (!channel || channel.type != "voice") {
             const replyEmbed = {
