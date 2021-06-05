@@ -39,10 +39,10 @@ module.exports = {
             },
             reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed });
 
-        let taggedmember = tags.members.first();
-        if (!taggedmember && args.lowercase.length) {
+        let taggedMember = tags.members.first();
+        if (!taggedMember && args.lowercase.length) {
             const members = await msg.guild.members.fetch({ cache: false });
-            taggedmember = await members.find(member => member.user.tag == args.original.join(" "));
+            taggedMember = await members.find(member => member.user.tag == args.original.join(" "));
         }
         let taggedrole = tags.roles.first();
         if (!taggedrole && args.lowercase.length) {
@@ -59,6 +59,7 @@ module.exports = {
                 user_db.update(db_user);
         taggedMember ||= msg.member;
             topTen = taggedrole ? userDB.filter(user => JSON.parse(user.roles).includes(taggedrole.id)) : await sql.get("guild-users", `guildid = ${msg.guild.id}`, `xp DESC`, 10),
+            
             topTenArr = [];
         let index = 1,
             tagInTopTen = false;
