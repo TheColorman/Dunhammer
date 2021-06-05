@@ -170,15 +170,44 @@ module.exports = {
             }
             case 'cumulative':
                 switch (args.lowercase[1]) {
-                    case 'true':
-                        return QuickMessage.add(msg.channel, "Set cumulative roles to `true`.")
-                    case 'false':
-                        return QuickMessage.remove(msg.channel, "Set cumulative roles to `false`.")
-                    default:
+                    case 'true': {
                         DBGuildLevelsystem.rolesCumulative = true;
                         await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`)
+                        replyEmbed = {
+                            color: 2215713,
+                            description: `:white_check_mark: Set cumulative roles to \`true\`.`
+                        }
+                        if (interaction) {
+                            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed)
+                        } else {
+                            return msg.channel.send({ embed: replyEmbed });
+                        }
+                    }
+                    case 'false': {
                         DBGuildLevelsystem.rolesCumulative = false;
                         await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
+                        replyEmbed = {
+                            color: 2215713,
+                            description: `:x: Set cumulative roles to \`false\`.`
+                        }
+                        if (interaction) {
+                            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                        } else {
+                            return msg.channel.send({ embed: replyEmbed });
+                        }
+                    }
+                    default: {
+                        replyEmbed = {
+                            color: 0xcf2d2d,
+                            title: ":octagonal_sign: Error!",
+                            description: `:question: Invalid argument! Use \`${DBGuild.prefix}help roles\` for help.`
+                        }
+                        if (interaction) {
+                            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                        } else {
+                            return msg.channel.send({ embed: replyEmbed });
+                        }
+                    }
                 }
             case 'view':
             default: {
