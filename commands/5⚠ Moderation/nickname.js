@@ -65,7 +65,7 @@ module.exports = {
         }
 
         const clientHighestRole = msg.guild.me.roles.highest,
-            memberHighestRole = msg.member.roles.highest;
+            memberHighestRole = taggedMember.roles.highest;
         if (clientHighestRole.position < memberHighestRole.position) {
             const replyEmbed = {
                 color: 0xcf2d2d,
