@@ -33,7 +33,7 @@ class MySQL {
      */
     async get(table, queryLogic, sortLogic, limit) {
         return new Promise((res) => {
-            const query = `SELECT * FROM \`${v+table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}`;
+            const query = `SELECT * FROM \`${v+table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}${limit ? ` LIMIT ${limit}` : ``}`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
                 res(result);
