@@ -33,7 +33,7 @@ module.exports = {
         }
         const replyEmbed = {
             color: 49919,
-            description: ":robot: To invite me to a server, please choose one of the following:\n[Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot%20applications.commands).\n[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands).\n\n",
+            description: `:robot: To invite me to a server, please choose one of the following:\n[Full access](https://discord.com/api/oauth2/authorize?client_id=${msg.client.user.id}&permissions=2088234238&scope=bot%20applications.commands).\n[Limited access](https://discord.com/api/oauth2/authorize?client_id=${msg.client.user.id}&permissions=1812327488&scope=bot%20applications.commands).\n\n`,
             fields: [{
                 name: "Note:",
                 value: "Limited access invite may be changed as the bot is updated, since new commands can require different permissions."
