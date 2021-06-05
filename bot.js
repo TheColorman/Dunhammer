@@ -369,29 +369,31 @@ async function levelsystem(msg, DBGuild) {
         }
     }
     const level = lower;
-    await sql.update("guild-users", DBGuildUser, `id = ${DBGuildUser.id}`);
+    await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
     
     // Congratulate if new level
     if (level > DBGuildUser.level) {
         DBGuildUser.level = level;
         const channel = levelSystem.levelupChannel ? await client.channels.fetch(levelSystem.levelupChannel) : msg.channel,
         // Roles
-        if (typeof levelSystem.roles === 'object' && levelSystem.roles !== null && Object.prototype.hasOwnProperty.call(levelSystem.roles, level)) {
+            levelSystemRoles = JSON.parse(levelSystem.roles);
+        if (Object.prototype.hasOwnProperty.call(levelSystemRoles, level)) {
+            const userLevelRoles = JSON.parse(DBGuildUser.levelRoles);
             if (!levelSystem.rolesCumulative) {
-                for (const roleID of DBGuildUser.levelRoles) {
+                for (const roleID of userLevelRoles) {
                     const role = await msg.guild.roles.fetch(roleID);
                     msg.member.roles.remove(role, "Levelroles.");
                 }
             }
-            const role = await msg.guild.roles.fetch(levelSystem.roles[level]);
+            const role = await msg.guild.roles.fetch(levelSystemRoles[level]);
             msg.member.roles.add(role, "Levelroles");
             channel.send({ embed: {
                 color: JSON.parse(levelSystem.newroleMessage).color,
                 description: replaceIngredients(JSON.parse(levelSystem.newroleMessage).description, msg.member, DBGuildUser, role)
             }});
-            DBGuildUser.levelroles.push(levelSystem.roles[level]);
+            userLevelRoles.push(levelSystemRoles[level]);
         }
-        await sql.update("guild-users", DBGuildUser, `id = ${DBGuildUser.id}`);
+        await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
 
         const levelup_message = {
             color: JSON.parse(levelSystem.levelupMessage).color,
@@ -399,7 +401,7 @@ async function levelsystem(msg, DBGuild) {
             description: JSON.parse(levelSystem.levelupMessage).description ? replaceIngredients(JSON.parse(levelSystem.levelupMessage).description, msg.member, DBGuildUser, "{role}") : ""
         }
         if (levelSystem.levelupImage) {
-            await CanvasImage.levelup_image(msg.member, DBGuildUser, msg.guild);
+            await CanvasImage.levelup_image(msg.member, DBGuildUser, msg.guild, sql);
             const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
             levelup_message.image = {
                 url: 'attachment://level.png'
@@ -442,9 +444,11 @@ client.on("guildMemberAdd", async member => {
 
 // Get user roles - possibly more data in the future.
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    DBGuildUser.roles = newMember.roles.cache.map(role => role);
-    await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
     const DBGuildUser = await sql.getGuildUserInDB(newMember.guild, newMember.user);
+    if (DBGuildUser.roles != JSON.stringify(newMember.roles.cache.map(role => role.id))) {
+        DBGuildUser.roles = JSON.stringify(newMember.roles.cache.map(role => role.id));
+        await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
+    }
 });
 
 // Add new guilds to database
