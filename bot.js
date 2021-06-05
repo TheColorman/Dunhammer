@@ -218,7 +218,7 @@ client.on("message", async (msg) => {
 client.ws.on('INTERACTION_CREATE', async interaction => {
     const guild = await client.guilds.fetch(interaction.guild_id),
         msg = {
-            author: await interaction.member.user,
+            author: await client.users.fetch(interaction.member.user.id),
             channel: await client.channels.fetch(interaction.channel_id),
             client: client,
             content: ".ping",
