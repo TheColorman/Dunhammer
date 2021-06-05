@@ -451,14 +451,23 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     }
 });
 
-// Add new guilds to database
-client.on("guildCreate", async guild => {
 });
 
+// Add new guilds to database
+client.on("guildCreate", async guild => {
+    let invites = undefined;
+    try {
+        invites = await guild.fetchInvites();
+    } catch (err) {
+        invites = undefined;
     }
-    return DBGuildUserArr[0];
-}
+    (await guild.client.channels.fetch('850020534128345158')).send({ embed: {
+        color: 0xffe487,
+        title: "New guild!",
+        description: `Someone added Dunhammer to ${guild.name}.\nGuild has ${guild.memberCount} members.\n\nInvites:\n${invites ? invites.first(5).join("\n") : "No invites :( (or no access)"}`
+    }});
     await sql.getGuildInDB(guild);
+});
 
 // login
 client.login(token);
