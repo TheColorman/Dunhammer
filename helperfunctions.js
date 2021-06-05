@@ -251,10 +251,10 @@ const CanvasImage = {
             canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 ? CanvasImagesMeta.measureTextPlus(ctx, username_text, `60px Arial`).old.width+200 : canvas.width;
             if (nextDiscordMember) canvas.width = canvas.width < CanvasImagesMeta.measureTextPlus(ctx, `${ nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 ? CanvasImagesMeta.measureTextPlus(ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, `30px Arial`).old.width+500 : canvas.width;
             const center = {
-                x: canvas.width/2,
-                y: canvas.height/2
-            }
-            
+                    x: canvas.width/2,
+                    y: canvas.height/2
+                },
+                font = 'Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif, Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace, Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif';
             //background
             ctx.fillStyle = "#9ED3FF";
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -267,43 +267,43 @@ const CanvasImage = {
             ctx.drawImage(backgroundRight, canvas.width-246, 0, 246, 600);
             //rank
             ctx.textAlign = "center";
-            ctx.font = `40px Arial`;
+            ctx.font = `40px ${font}`;
             CanvasImagesMeta.fillStrokeText(
                 ctx, rank_text, center.x, 
                 0+ctx.measureText(rank_text).emHeightAscent, // y coordinate
                 3
             );
             //levelup
-            ctx.font = `70px Arial`;
+            ctx.font = `70px ${font}`;
             CanvasImagesMeta.fillStrokeText(
                 ctx, `LEVEL UP!`, center.x, 
-                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
+                0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px ${font}`).height+ctx.measureText(`LEVEL UP!`).emHeightAscent,
                 3
             );
             if (nextDiscordMember) {
                 //xp behind
-                ctx.font = `30px Arial`;
+                ctx.font = `30px ${font}`;
                 CanvasImagesMeta.fillStrokeText(
                     ctx, `${XPBehindText}`, center.x,
-                    0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+ctx.measureText(`${XPBehindText}`).emHeightAscent-10,
+                    0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px ${font}`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px ${font}`).height+ctx.measureText(`${XPBehindText}`).emHeightAscent-10,
                     2
                 );
                 //person
                 CanvasImagesMeta.fillStrokeText(
                     ctx, `${nextDiscordMember.nickname || nextDiscordMember.user.username}`, center.x,
-                    0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px Arial`).height+CanvasImagesMeta.measureTextPlus(ctx, `${XPBehindText}`).height+20,
+                    0+CanvasImagesMeta.measureTextPlus(ctx, rank_text, `40px ${font}`).height+CanvasImagesMeta.measureTextPlus(ctx, `LEVEL UP!`, `70px ${font}`).height+CanvasImagesMeta.measureTextPlus(ctx, `${XPBehindText}`).height+20,
                     2
                 );
             }
             //level
-            ctx.font = `100px Arial`;
+            ctx.font = `100px ${font}`;
             CanvasImagesMeta.fillStrokeText(
                 ctx, level_text, center.x, 
                 center.y+avatar_size/2+ctx.measureText(level_text).emHeightAscent, // y coordinate
                 3, "#007820", "#2bd95a"
             );
             //username
-            ctx.font = `60px Arial`;
+            ctx.font = `60px ${font}`;
             CanvasImagesMeta.fillStrokeText(ctx, username_text, center.x, 
                 center.y+avatar_size/2+ctx.measureText(username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
                 3
