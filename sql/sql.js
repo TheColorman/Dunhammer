@@ -68,7 +68,7 @@ class MySQL {
             const query = `UPDATE \`${v+table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Updated ${result.affectedRows} rows`);
+                console.log(`Updated ${result.affectedRows} rows.`);
                 res(result);
             });
         });
