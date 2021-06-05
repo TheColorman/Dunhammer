@@ -79,7 +79,7 @@ class MySQL {
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    delete(table, queryLogic) {
+    async delete(table, queryLogic) {
         return new Promise((res) => {
             const query = `DELETE FROM ${v+table} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
