@@ -3,6 +3,7 @@
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
     Discord = require("discord.js"),
+    { administrators } = require("../../config.json");
 
 module.exports = {
     name: 'reloaddatabase',
@@ -22,9 +23,9 @@ module.exports = {
      * @param {MySQL} sql MySQL object
      * @param {Object} interaction Interaction object
      */
-        if (!['298842558610800650', '411240035841474590'].includes(msg.author.id)) {
     async execute(msg, args, tags, sql) {
         const DBGuild = await sql.getGuildInDB(msg.guild);
+        if (!administrators.includes(msg.author.id)) {
             return msg.channel.send({ embed: {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",

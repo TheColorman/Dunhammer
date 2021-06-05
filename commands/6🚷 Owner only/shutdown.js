@@ -23,9 +23,9 @@ module.exports = {
      * @param {MySQL} sql MySQL object
      * @param {Object} interaction Interaction object
      */
-        if (['298842558610800650', '411240035841474590'].includes(msg.author.id.toString())) {
     async execute(msg, args, tags, sql) {
         const DBGuild = (await sql.getGuildInDB(msg.guild))[0];
+        if (administrators.includes(msg.author.id.toString())) {
             msg.channel.send({ embed: {
                 "color": 2215713,
                 "title": ":zzz: Shutting down..."
