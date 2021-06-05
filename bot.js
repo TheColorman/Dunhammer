@@ -101,6 +101,7 @@ client.on("message", async (msg) => {
 
     // Makes sure database entries exist
     const DBGuild = await sql.getGuildInDB(msg.guild);
+    await levelsystem(msg, DBGuild);
 
     // Message variables
     const msgContentOriginal = msg.content;
@@ -334,10 +335,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
 });
 
 // Levelsystem
-client.on("message", async (msg) => {
-    // DM check
-    if (msg.channel.type === "dm" || msg.webhookID) return;
-    
+async function levelsystem(msg, DBGuild) {   
     if (DBGuild.ignoreBots && msg.author.bot) return;
     const levelSystem = await sql.getGuildLevelsystemInDB(msg.guild);
 
@@ -409,7 +407,7 @@ client.on("message", async (msg) => {
         }
         return channel.send({ embed: levelup_message });
     }
-});
+}
 
 /**
  * Extracts text ingredients from strings and returns the updated string. Current ingredients are
