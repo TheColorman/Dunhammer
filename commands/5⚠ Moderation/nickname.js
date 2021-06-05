@@ -80,7 +80,7 @@ module.exports = {
         }
         const old_nickname = taggedMember.nickname;
         args.original.splice(0, tags.members.first() ? 1 : taggedMember.user.tag.split(" ").length); // if the tag contains a space, remove the first 2 elements from args and so on
-        taggedMember.setNickname(args.original.join(" "), `Changed by ${msg.author.tag} using nickname command.`);
+        taggedMember.setNickname(args.original.join(" "), `Changed by "${msg.author.tag}" using nickname command.`);
         const replyEmbed = {
             color: 2215713,
             description: `:repeat: Updated ${taggedMember}'s nickname: \`${old_nickname}\` => \`${args.original.join(" ")}\``
