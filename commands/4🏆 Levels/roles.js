@@ -55,13 +55,14 @@ module.exports = {
                 if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, DBGuild.prefix, "levelsettings");
                 if (!role) return QuickMessage.invalid_role(msg.channel, DBGuild.prefix, "levelsettings");
                 
-                if (highestRolePosition <= requestedRolePosition) {
                 const highestRolePosition = msg.guild.me.roles.highest.position,
+                    highestUserRolePosition = msg.member.roles.highest.position,
                     requestedRolePosition = role.position;
+                if (highestRolePosition <= requestedRolePosition || highestUserRolePosition <= requestedRolePosition) {
                     replyEmbed = {
                         color: 0xcf2d2d,
                         title: ":octagonal_sign: Error!",
-                        description: `:no_entry: I don't have permission to give other people ${role}.`            
+                        description: `:no_entry: ${highestRolePosition <= requestedRolePosition ? "I" : "You"} don't have permission to give other people ${role} (Check the role hierarchy).`
                     }
                     if (interaction) {
                         return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
