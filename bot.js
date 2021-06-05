@@ -129,6 +129,13 @@ client.on("message", async (msg) => {
             }
             argsOriginal.shift();
             const newPrefix = msgContentOriginal.split(" ").splice(2).join(" ");
+            if (newPrefix.length > 50) {
+                return msg.channel.send({ embed: {
+                    "color": 0xcf2d2d,
+                    "title": ":octagonal_sign: Error!",
+                    "description": ":exclamation: Max prefix length is 50 characters!"
+                }});
+            }
             DBGuild.prefix = newPrefix;
             await sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
             return msg.channel.send({ embed: {

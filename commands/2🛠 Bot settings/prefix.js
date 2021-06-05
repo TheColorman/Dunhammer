@@ -40,7 +40,15 @@ module.exports = {
                 "description": `:question: No arguments! Use \`${DBGuild.prefix}help prefix\` for help.`
             }});
         }
-        DBGuild.prefix = args.original.join(` `);
+        const newPrefix = args.original.join(` `);
+        if (newPrefix.length > 50) {
+            return msg.channel.send({ embed: {
+                "color": 0xcf2d2d,
+                "title": ":octagonal_sign: Error!",
+                "description": ":exclamation: Max prefix length is 50 characters!"
+            }});
+        }
+        DBGuild.prefix = newPrefix;
         await sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
 
         const replyEmbed = {
