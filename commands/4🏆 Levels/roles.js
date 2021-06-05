@@ -100,7 +100,17 @@ module.exports = {
                 if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
                 if (!role) return QuickMessage.invalid_role(msg.channel, DBGuild.prefix, "levelsettings");
                 // Check if role is in saved in database
-                if (!(Object.values(DBGuildLevelsystemRoles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
+                if (!(Object.values(DBGuildLevelsystemRoles).indexOf(role.id) > -1)) {
+                    if (interaction) {
+                        return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, {
+                            color: 0xcf2f2f,
+                            title: ":octagonal_sign: Error!",
+                            description: ":question: That role is not a level role!"
+                        });
+                    } else {
+                        return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
+                    }
+                }
 
                 for (const key in DBGuildLevelsystemRoles) {
                     if (DBGuildLevelsystemRoles[key] == role.id) {
