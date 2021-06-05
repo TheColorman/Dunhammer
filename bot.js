@@ -118,7 +118,7 @@ client.on("message", async (msg) => {
     
     // Emergency change prefix
     if (taggedUsers.first() == client.user && msg.content.includes("prefix")) {
-        if (argsLowercase[0] == "prefix") {
+        if (msg.content.split(" ")[1] == "prefix") {
             const authorPerms = msg.channel.permissionsFor(msg.member);
             if (!authorPerms || !authorPerms.has("BAN_MEMBERS")) {
                 return msg.channel.send({ embed: {
@@ -128,8 +128,9 @@ client.on("message", async (msg) => {
                 }});
             }
             argsOriginal.shift();
-            await sql.update("guilds", { prefix: argsOriginal.join(" ") }, `id = ${DBGuild.id}`);
-            DBGuild.prefix = argsOriginal.join(" ");
+            const newPrefix = msgContentOriginal.split(" ").splice(2).join(" ");
+            DBGuild.prefix = newPrefix;
+            await sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
             return msg.channel.send({ embed: {
                 "color": 2215713,
                 "description": `:repeat: Updated server prefix to \`${DBGuild.prefix}\`.`
