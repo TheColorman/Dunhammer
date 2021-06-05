@@ -2,7 +2,7 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
 module.exports = {
     name: 'reloaddatabase',
@@ -163,6 +163,12 @@ function getLevel(xp) {
     return lower;
 }
 
+/**
+ * Limits the amount of linebreaks in a string (used for a console-like effect when editing an embed, to make sure the message doesnt just get taller and taller)
+ * @param {String} string Message string
+ * @param {Number} linebreaks Amount of allowed linebreaks
+ * @returns {String} String with cut linebreaks
+ */
 function cutLineBreaks(string, linebreaks) {
     return string.match(/\n/g).length > linebreaks ? string.split("\n").slice(-string.match(/\n/g).length).join("\n") : string;
 }

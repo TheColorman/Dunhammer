@@ -2,7 +2,8 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
+    { administrators } = require("../../config.json");
 
 module.exports = {
     name: 'shutdown',

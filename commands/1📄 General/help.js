@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
-const { apiFunctions } = require('../../helperfunctions');
+    Discord = require("discord.js"),
+    { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'help',
@@ -31,8 +31,8 @@ module.exports = {
                 type: 5,
             }});
         }
-        const DBGuild = (await sql.get("guilds", `id = ${msg.guild.id}`))[0];
-        const { commandCategories } = msg.client;
+        const DBGuild = (await sql.get("guilds", `id = ${msg.guild.id}`))[0],
+            { commandCategories } = msg.client;
         let reply_embed = {"title": "Error!", "color": 49919}
 
         if (args.lowercase.length == 0) {

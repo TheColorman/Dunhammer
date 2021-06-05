@@ -1,14 +1,14 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { default: fetch} = require('node-fetch');
-const https = require('https');
-const querystring = require('querystring');
-const { trelloToken } = require('../../token.json');
+    { default: fetch} = require('node-fetch'),
+    https = require('https'),
+    querystring = require('querystring'),
+    { trelloToken } = require('../../token.json'),
 
-const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
+    { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'suggestion',
@@ -62,10 +62,10 @@ module.exports = {
         }
         
         const confirmation = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, {
-            color: 0xe86b0c,
-            description: `:grey_question: Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`
-        }) : await QuickMessage.confirmation(msg.channel, `Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`);
-        const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === msg.author.id;
+                color: 0xe86b0c,
+                description: `:grey_question: Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`
+            }) : await QuickMessage.confirmation(msg.channel, `Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`),
+            filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === msg.author.id;
         confirmation.react('✅')
             .then(() => {
                 confirmation.awaitReactions(filter, { idle: 15000, max: 1 })
@@ -74,31 +74,31 @@ module.exports = {
                             await confirmation.reactions.removeAll();
                             return confirmation.edit({embed: QuickMessage.confirmation_timeout(`Are you sure you want to add \`${args.original.join(" ")}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap)? React with :white_check_mark: to continue.`)});
                         }
-                        const trello_key = "bc34d08189a136ae7ebe4fd978e7980b";
-                        const list_id = "60082643ec4279863610f11f";
-                        const host = 'api.trello.com';
-                        const path = `/1/cards?key=${trello_key}&token=${trelloToken}&idList=${list_id}`;
+                        const trello_key = "bc34d08189a136ae7ebe4fd978e7980b",
+                            list_id = "60082643ec4279863610f11f",
+                            host = 'api.trello.com',
+                            path = `/1/cards?key=${trello_key}&token=${trelloToken}&idList=${list_id}`,
                 
-                        const data = querystring.stringify({
-                            "name": args.original.join(" ")
-                        });
-                        const options = {
-                            hostname: host,
-                            path: path,
-                            method: 'POST',
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded"
-                            }
-                        }
+                            data = querystring.stringify({
+                                "name": args.original.join(" ")
+                            }),
+                            options = {
+                                hostname: host,
+                                path: path,
+                                method: 'POST',
+                                headers: {
+                                    "Content-Type": "application/x-www-form-urlencoded"
+                                }
+                            },
                 
-                        const req = https.request(options, (res) => {
+                            req = https.request(options, (res) => {
                             
-                            res.on('data', (d) =>{
-                                if (res.statusCode != 200) return QuickMessage.error(msg.channel, `${d}`);
-                                return QuickMessage.add(msg.channel, `Added \`${args.original.join(' ')}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).`);
-                                
+                                res.on('data', (d) =>{
+                                    if (res.statusCode != 200) return QuickMessage.error(msg.channel, `${d}`);
+                                    return QuickMessage.add(msg.channel, `Added \`${args.original.join(' ')}\` to the [roadmap](https://trello.com/b/expgfSZa/dunhammer-roadmap).`);
+                                    
+                                });
                             });
-                        });
                         
                         req.on('error', (err) => {
                             console.log(err);

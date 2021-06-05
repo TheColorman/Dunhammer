@@ -1,10 +1,9 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require("../../helperfunctions");
+    { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "levelupmessage",
@@ -86,6 +85,16 @@ module.exports = {
 }
 
 async function title(msg, guild_db, db_guild, newTitle) {
+/**
+ * 
+ * @param {Discord.Message} msg DiscordJS message
+ * @param {String} newTitle New title
+ * @param {DBGuildLevelsystem} levelSystem LevelSystem object
+ * @param {Object} levelupMessage LevelupMessage embed object
+ * @param {MySQL} sql MySQL object
+ * @returns 
+ */
+async function title(msg, newTitle, levelSystem, levelupMessage, sql) {
     if (!newTitle) {
         db_guild.levelSystem.levelup_message.title = undefined;
         guild_db.update(db_guild);

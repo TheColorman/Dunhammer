@@ -1,112 +1,111 @@
 /* eslint-disable no-unused-vars */
 // CanvasImages
-const fs = require('fs');
-const FormData = require('form-data');
-const { createCanvas, loadImage } = require('canvas');
-const { default: fetch} = require('node-fetch');
-const MySQL = require("./sql/sql");
+const fs = require('fs'),
+    FormData = require('form-data'),
+    { createCanvas, loadImage } = require('canvas'),
+    { default: fetch} = require('node-fetch'),
+    MySQL = require("./sql/sql");
 
-const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel, GuildMember, Guild } = require('discord.js');
+const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel, GuildMember, Guild, DiscordAPIError } = require('discord.js'),
 
-const CanvasImagesMeta = {
-    //#region roundRect
-    // Credits for this function to Juan Mendes on StackOverflow (https://stackoverflow.com/users/227299/juan-mendes)
-    /**
-    * Draws a rounded rectangle using the current state of the canvas.
-    * If you omit the last three params, it will draw a rectangle
-    * outline with a 5 pixel border radius
-    * @param {CanvasRenderingContext2D} ctx
-    * @param {Number} x The top left x coordinate
-    * @param {Number} y The top left y coordinate
-    * @param {Number} width The width of the rectangle
-    * @param {Number} height The height of the rectangle
-    * @param {Number|Object} [radius = 5] The corner radius; It can also be an object 
-    *                 to specify different radii for corners
-    * @param {Number} [radius.tl = 0] Top left
-    * @param {Number} [radius.tr = 0] Top right
-    * @param {Number} [radius.br = 0] Bottom right
-    * @param {Number} [radius.bl = 0] Bottom left
-    * @param {Boolean} [fill = false] Whether to fill the rectangle.
-    * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
-    */
-    roundRect: function (ctx, x, y, width, height, radius, fill, stroke) {
-        if (typeof stroke === 'undefined') {
-            stroke = true;
-        }
-        if (typeof radius === 'undefined') {
-            radius = 5;
-        }
-        if (typeof radius === 'number') {
-            radius = {tl: radius, tr: radius, br: radius, bl: radius};
-        } else {
-            var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
-            for (var side in defaultRadius) {
-                radius[side] = radius[side] || defaultRadius[side];
+    CanvasImagesMeta = {
+        //#region roundRect
+        // Credits for this function to Juan Mendes on StackOverflow (https://stackoverflow.com/users/227299/juan-mendes)
+        /**
+        * Draws a rounded rectangle using the current state of the canvas.
+        * If you omit the last three params, it will draw a rectangle
+        * outline with a 5 pixel border radius
+        * @param {CanvasRenderingContext2D} ctx
+        * @param {Number} x The top left x coordinate
+        * @param {Number} y The top left y coordinate
+        * @param {Number} width The width of the rectangle
+        * @param {Number} height The height of the rectangle
+        * @param {Number|Object} [radius = 5] The corner radius; It can also be an object 
+        *                 to specify different radii for corners
+        * @param {Number} [radius.tl = 0] Top left
+        * @param {Number} [radius.tr = 0] Top right
+        * @param {Number} [radius.br = 0] Bottom right
+        * @param {Number} [radius.bl = 0] Bottom left
+        * @param {Boolean} [fill = false] Whether to fill the rectangle.
+        * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+        */
+        roundRect: function (ctx, x, y, width, height, radius, fill, stroke) {
+            if (typeof stroke === 'undefined') {
+                stroke = true;
             }
-        }
-        ctx.beginPath();
-        ctx.moveTo(x + radius.tl, y);
-        ctx.lineTo(x + width - radius.tr, y);
-        ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
-        ctx.lineTo(x + width, y + height - radius.br);
-        ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
-        ctx.lineTo(x + radius.bl, y + height);
-        ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
-        ctx.lineTo(x, y + radius.tl);
-        ctx.quadraticCurveTo(x, y, x + radius.tl, y);
-        ctx.closePath();
-        if (fill) {
-            ctx.fill();
-        }
-        if (stroke) {
-            ctx.stroke();
-        }
-    },
+            if (typeof radius === 'undefined') {
+                radius = 5;
+            }
+            if (typeof radius === 'number') {
+                radius = {tl: radius, tr: radius, br: radius, bl: radius};
+            } else {
+                var defaultRadius = {tl: 0, tr: 0, br: 0, bl: 0};
+                for (var side in defaultRadius) {
+                    radius[side] = radius[side] || defaultRadius[side];
+                }
+            }
+            ctx.beginPath();
+            ctx.moveTo(x + radius.tl, y);
+            ctx.lineTo(x + width - radius.tr, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+            ctx.lineTo(x + width, y + height - radius.br);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+            ctx.lineTo(x + radius.bl, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+            ctx.lineTo(x, y + radius.tl);
+            ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+            ctx.closePath();
+            if (fill) {
+                ctx.fill();
+            }
+            if (stroke) {
+                ctx.stroke();
+            }
+        },
+        //#endregion
+        //#region fillStrokeText
+        /**
+         * Draws text with an outer stroke.
+         * @param {CanvasRenderingContext2D} ctx
+         * @param {string} text
+         * @param {Number} x
+         * @param {Number} y
+         * @param {Number} [strokeWidth = 5]
+         * @param {string} [strokeColor = black]
+         * @param {string} [textColor = white]
+         */
+        fillStrokeText: function (ctx, text, x, y, strokeWidth, strokeColor, textColor) {
+            strokeWidth = strokeWidth ? strokeWidth : 5;
+            strokeColor = strokeColor ? strokeColor : "black";
+            textColor = textColor ? textColor : "white";
+            ctx.strokeStyle = strokeColor;
+            ctx.lineWidth = strokeWidth*2;
+            ctx.lineJoin = 'round';
+            ctx.strokeText(text, x, y);
+            ctx.fillStyle = textColor;
+            ctx.fillText(text, x, y);
+        },
+        //#endregion
+        //#region measureTextPlus
+        /**
+         * Measures text in a given font. Font uses regular Canvas font designation.
+         * @param {CanvasRenderingContext2D} ctx
+         * @param {string} text Text to measure
+         * @param {string} [font = ctx.font] Font to measure in
+         */
+        measureTextPlus: function (ctx, text, font) {
+            const old_font = ctx.font
+            ctx.font = font ? font : ctx.font;
+            const old = ctx.measureText(text),
+                measured = {
+                    old: old,
+                    height: old.emHeightAscent + old.emHeightDescent,
+                }
+            ctx.font = old_font;
+            return measured;
+        },
     //#endregion
-    //#region fillStrokeText
-    /**
-     * Draws text with an outer stroke.
-     * @param {CanvasRenderingContext2D} ctx
-     * @param {string} text
-     * @param {Number} x
-     * @param {Number} y
-     * @param {Number} [strokeWidth = 5]
-     * @param {string} [strokeColor = black]
-     * @param {string} [textColor = white]
-     */
-    fillStrokeText: function (ctx, text, x, y, strokeWidth, strokeColor, textColor) {
-        strokeWidth = strokeWidth ? strokeWidth : 5;
-        strokeColor = strokeColor ? strokeColor : "black";
-        textColor = textColor ? textColor : "white";
-        ctx.strokeStyle = strokeColor;
-        ctx.lineWidth = strokeWidth*2;
-        ctx.lineJoin = 'round';
-        ctx.strokeText(text, x, y);
-        ctx.fillStyle = textColor;
-        ctx.fillText(text, x, y);
-    },
-    //#endregion
-    //#region measureTextPlus
-    /**
-     * Measures text in a given font. Font uses regular Canvas font designation.
-     * @param {CanvasRenderingContext2D} ctx
-     * @param {string} text Text to measure
-     * @param {string} [font = ctx.font] Font to measure in
-     */
-    measureTextPlus: function (ctx, text, font) {
-        const old_font = ctx.font
-        ctx.font = font ? font : ctx.font;
-        const old = ctx.measureText(text);
-        const measured = {
-            old: old,
-            height: old.emHeightAscent + old.emHeightDescent,
-        }
-        ctx.font = old_font;
-        return measured;
-    },
-    //#endregion
-}
-
+    }
 const CanvasImage = {
     //#region rank_image
     /**
@@ -314,223 +313,225 @@ const CanvasImage = {
     //#endregion
 }
 
-const QuickMessage = {
-    //#region error
-    /**
-     * Sends an embed with an error message.
-     * @param {TextChannel} channel The channel to send the message
-     * @param {string} error The message to send
-     */
-    error: function (channel, error) {
-        return channel.send({ embed: {
-            color: 0xcf2f2f,
-            title: ":octagonal_sign: Error!",
-            description: error
-        }});
+    QuickMessage = {
+        //#region error
+        /**
+         * Sends an embed with an error message.
+         * @param {TextChannel} channel The channel to send the message
+         * @param {string} error The message to send
+         */
+        error: function (channel, error) {
+            return channel.send({ embed: {
+                color: 0xcf2f2f,
+                title: ":octagonal_sign: Error!",
+                description: error
+            }});
+        },
+        //#endregion
+        //#region invalid_channel
+        /**
+         * Sends an "Invalid channel" error.
+         * @param {TextChannel} channel Channel to send the error in
+         * @param {string} prefix Guild prefix
+         * @param {string} command Failed command
+         */
+        invalid_channel: function (channel, prefix, command) {
+            return channel.send({ embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:question: Invalid channel! Use ${prefix}help ${command} for help.`
+            }});
+        },
+        //#endregion
+        //#region invalid_argument
+        /**
+         * Sends an "Invalid argument" error.
+         * @param {TextChannel} channel Channel to send the error in
+         * @param {String} prefix Guild prefix
+         * @param {String} command Failed command
+         */
+        invalid_argument: function (channel, prefix, command) {
+            return channel.send({ embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:question: Invalid argument! Use \`${prefix}help ${command}\` for help.`
+            }});
+        },
+        //#endregion
+        //#region invalid_role
+        /**
+         * Sends an "Invalid role" error.
+         * @param {TextChannel} channel Channel to send the error in
+         * @param {string} prefix Guild prefix
+         * @param {string} command Failed command
+         */
+        invalid_role: function (channel, prefix, command) {
+            return channel.send({ embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:question: Invalid role! Use \`${prefix}help ${command}\` for help.`
+            }});
+        },
+        //#endregion
+        //#region invalid_user
+        invalid_user: function (channel) {
+            return channel.send({ embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:no_pedestrians: User not found!`
+            }});
+        },
+        //#region not_enough_arguments
+        /**
+         * Sends a "Not enough arguments" error.
+         * @param {TextChannel} channel Channel to send the error in
+         * @param {string} prefix Guild prefix
+         * @param {string} command Failed command
+         */
+        not_enough_arguments: function (channel, prefix, command) {
+            return channel.send({ embed: {
+                color: 0xcf2d2d,
+                title: ":octagonal_sign: Error!",
+                description: `:question: Not enough arguments! Use \`${prefix}help ${command}\` for help.`
+            }});
+        },
+        //#endregion
+        //#region add
+        /**
+         * Sends an "Add" message.
+         * @param {TextChannel} channel Channel to send the message in
+         * @param {string} message Message
+         */
+        add: function (channel, message) {
+            return channel.send({ embed: {
+                color: 2215713,
+                description: `:white_check_mark: ${message}`
+            }});
+        },
+        //#endregion
+        //#region remove
+        /**
+         * Sends a "Remove" message.
+         * @param {TextChannel} channel Channel to send the message in
+         * @param {string} message Message
+         */
+        remove: function (channel, message) {
+            return channel.send({ embed: {
+                color: 2215713,
+                description: `:x: ${message}`
+            }});
+        },
+        //#endregion
+        //#region info
+        /**
+         * Sends an "Info" message.
+         * @param {TextChannel} channel Channel to send the message in
+         * @param {string} title Title of the message
+         * @param {string} message Message
+         */
+        info: function (channel, title, message) {
+            return channel.send({ embed: {
+                color: 49919,
+                title: `:information_source: ${title}`,
+                description: `${message}`
+            }});
+        },
+        //#endregion
+        //#region success
+        /**
+         * Sends a "Success" message.
+         * @param {TextChannel} channel Channel to send the message in
+         * @param {string} message Message
+         */
+        success: function (channel, message) {
+            return channel.send({ embed: {
+                color: 2215713,
+                description: `${message}`
+            }});
+        },
+        //#endregion
+        //#region confirmation
+        /**
+         * Sends a "Confirmation" message.
+         * @param {TextChannel} channel Channel to send the message in
+         * @param {string} message Message
+         */
+        confirmation: function (channel, message) {
+            return channel.send({ embed: {
+                color: 0xe86b0c,    // Orange, awaiting user input
+                description: `:grey_question: ${message}`
+            }});
+        },
+        //#endregion
+        //#region confirmation_timeout
+        confirmation_timeout: function (message) {
+            return {
+                color: 0x96430f,    // Darker/redder version of awaiting user input, user input timeout/fail
+                description: `~~:grey_question: ${message}~~\n\n**:x: Timeout!**`
+            }
+        },
+        //#region update
+        update: function (channel, message) {
+            return channel.send({ embed: {
+                color: 2215713,
+                description: `:repeat: ${message}`
+            }});
+        },
+        //#endregion
     },
-    //#endregion
-    //#region invalid_channel
-    /**
-     * Sends an "Invalid channel" error.
-     * @param {TextChannel} channel Channel to send the error in
-     * @param {string} prefix Guild prefix
-     * @param {string} command Failed command
-     */
-    invalid_channel: function (channel, prefix, command) {
-        return channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: `:question: Invalid channel! Use ${prefix}help ${command} for help.`
-        }});
-    },
-    //#endregion
-    //#region invalid_argument
-    /**
-     * Sends an "Invalid argument" error.
-     * @param {TextChannel} channel Channel to send the error in
-     * @param {String} prefix Guild prefix
-     * @param {String} command Failed command
-     */
-    invalid_argument: function (channel, prefix, command) {
-        return channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: `:question: Invalid argument! Use \`${prefix}help ${command}\` for help.`
-        }});
-    },
-    //#endregion
-    //#region invalid_role
-    /**
-     * Sends an "Invalid role" error.
-     * @param {TextChannel} channel Channel to send the error in
-     * @param {string} prefix Guild prefix
-     * @param {string} command Failed command
-     */
-    invalid_role: function (channel, prefix, command) {
-        return channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: `:question: Invalid role! Use \`${prefix}help ${command}\` for help.`
-        }});
-    },
-    //#endregion
-    //#region invalid_user
-    invalid_user: function (channel) {
-        return channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: `:no_pedestrians: User not found!`
-        }});
-    },
-    //#region not_enough_arguments
-    /**
-     * Sends a "Not enough arguments" error.
-     * @param {TextChannel} channel Channel to send the error in
-     * @param {string} prefix Guild prefix
-     * @param {string} command Failed command
-     */
-    not_enough_arguments: function (channel, prefix, command) {
-        return channel.send({ embed: {
-            color: 0xcf2d2d,
-            title: ":octagonal_sign: Error!",
-            description: `:question: Not enough arguments! Use \`${prefix}help ${command}\` for help.`
-        }});
-    },
-    //#endregion
-    //#region add
-    /**
-     * Sends an "Add" message.
-     * @param {TextChannel} channel Channel to send the message in
-     * @param {string} message Message
-     */
-    add: function (channel, message) {
-        return channel.send({ embed: {
-            color: 2215713,
-            description: `:white_check_mark: ${message}`
-        }});
-    },
-    //#endregion
-    //#region remove
-    /**
-     * Sends a "Remove" message.
-     * @param {TextChannel} channel Channel to send the message in
-     * @param {string} message Message
-     */
-    remove: function (channel, message) {
-        return channel.send({ embed: {
-            color: 2215713,
-            description: `:x: ${message}`
-        }});
-    },
-    //#endregion
-    //#region info
-    /**
-     * Sends an "Info" message.
-     * @param {TextChannel} channel Channel to send the message in
-     * @param {string} title Title of the message
-     * @param {string} message Message
-     */
-    info: function (channel, title, message) {
-        return channel.send({ embed: {
-            color: 49919,
-            title: `:information_source: ${title}`,
-            description: `${message}`
-        }});
-    },
-    //#endregion
-    //#region success
-    /**
-     * Sends a "Success" message.
-     * @param {TextChannel} channel Channel to send the message in
-     * @param {string} message Message
-     */
-    success: function (channel, message) {
-        return channel.send({ embed: {
-            color: 2215713,
-            description: `${message}`
-        }});
-    },
-    //#endregion
-    //#region confirmation
-    /**
-     * Sends a "Confirmation" message.
-     * @param {TextChannel} channel Channel to send the message in
-     * @param {string} message Message
-     */
-    confirmation: function (channel, message) {
-        return channel.send({ embed: {
-            color: 0xe86b0c,    // Orange, awaiting user input
-            description: `:grey_question: ${message}`
-        }});
-    },
-    //#endregion
-    //#region confirmation_timeout
-    confirmation_timeout: function (message) {
-        return {
-            color: 0x96430f,    // Darker/redder version of awaiting user input, user input timeout/fail
-            description: `~~:grey_question: ${message}~~\n\n**:x: Timeout!**`
-        }
-    },
-    //#region update
-    update: function (channel, message) {
-        return channel.send({ embed: {
-            color: 2215713,
-            description: `:repeat: ${message}`
-        }});
-    },
-    //#endregion
-}
 
-const apiFunctions = {
-    /**
-     * Edits a Discord Interaction beacause fuck discord this is the only way to do it. use async. Returns Discord.js Message.
-     * @param {Client} client Discord.js client
-     * @param {Object} interaction Interaction token
-     * @param {TextChannel} channel Any channel
-     * @param {String|object} [message="‏‏‎ ‎"] String or embed
-     * @returns {Promise<Message>} Message object‏‏‎
-     */
-    interactionEdit: async function (client, interaction, channel, message) {
-        message ||= "‏‏‎ ‎";
-        const body = typeof message == "object" ? { embeds: [message] } : { content: message }
+    apiFunctions = {
+        /**
+         * Edits a Discord Interaction beacause fuck discord this is the only way to do it. use async. Returns Discord.js Message.
+         * @param {Client} client Discord.js client
+         * @param {Object} interaction Interaction token
+         * @param {TextChannel} channel Any channel
+         * @param {String|object} [message="‏‏‎ ‎"] String or embed
+         * @returns {Promise<Discord.Message>} Message object‏‏‎
+         */
+        interactionEdit: async function (client, interaction, channel, message) {
+            message ||= "‏‏‎ ‎";
+            const body = typeof message == "object" ? { embeds: [message] } : { content: message },
 
-        const res = await fetch(`https://discord.com/api/v8/webhooks/${client.user.id}/${interaction.token}/messages/@original`, {
-            method: 'PATCH',
-            body: JSON.stringify(body),
-            headers: {            
-                'Authorization': `Bot ${client.token}`,
-                'Content-Type': 'application/json',
-            },
-        });
-        const json = await res.json();
-        if (res.status == 400) console.error("Discord API error! (is the embed formated properly?)");
-        else {
-            const returnMessage = await channel.messages.fetch(json.id);
-            return returnMessage;
-        }
-    },
-    /**
-     * 
-     * @param {Client} client Discord.js client
-     * @param {object} interaction Interaction object
-     * @param {object} embed Message embed
-     */
-    interactionResponse: async function (client, interaction, embed) {
-        const options = {
-            method: 'POST',
-            body: JSON.stringify({
-                type: 4,
-                data: {
-                    embeds: [embed],
+                res = await fetch(`https://discord.com/api/v8/webhooks/${client.user.id}/${interaction.token}/messages/@original`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(body),
+                    headers: {            
+                        'Authorization': `Bot ${client.token}`,
+                        'Content-Type': 'application/json',
+                    },
+                }),
+                json = await res.json();
+            if (res.status == 400) {
+                console.error("Discord API error! (is the embed formated properly?)");
+                console.error(res);
+            } else {
+                const returnMessage = await channel.messages.fetch(json.id);
+                return returnMessage;
+            }
+        },
+        /**
+         * I dont know what this functio does
+         * @param {Client} client Discord.js client
+         * @param {object} interaction Interaction object
+         * @param {object} embed Message embed
+         */
+        interactionResponse: async function (client, interaction, embed) {
+            const options = {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        type: 4,
+                        data: {
+                            embeds: [embed],
+                        },
+                    }),
+                    headers: {
+                        'Authorization': `Bot ${client.token}`,
+                        'Content-Type': 'application/json',
+                    },
                 },
-            }),
-            headers: {
-                'Authorization': `Bot ${client.token}`,
-                'Content-Type': 'application/json',
-            },
+                res = await fetch(`https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`, options);
         }
-        const res = await fetch(`https://discord.com/api/v8/interactions/${interaction.id}/${interaction.token}/callback`, options);
     }
-}
 
 module.exports = { CanvasImage, QuickMessage, apiFunctions }

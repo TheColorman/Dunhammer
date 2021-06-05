@@ -1,10 +1,9 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require("../../helperfunctions");
+    { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "setlevel",
@@ -80,13 +79,13 @@ module.exports = {
             }    
         }
         
-        const new_level = parseInt(args.lowercase[tags.members.first() ? 1 : taggedmember.user.tag.split(" ").length], 10); // explanation in ../Moderation/nickname.js
-        const new_xp = parseInt(args.lowercase[tags.members.first() ? 2 : taggedmember.user.tag.split(" ").length], 10);
-        db_user.xp = 5*(118*new_level+2*new_level*new_level*new_level)/6 + (new_xp || 0);
+        const new_level = parseInt(args.lowercase[tags.members.first() ? 1 : taggedmember.user.tag.split(" ").length], 10), // explanation in ../Moderation/nickname.js
+            new_xp = parseInt(args.lowercase[tags.members.first() ? 2 : taggedmember.user.tag.split(" ").length], 10);
+        DBGuildUser.xp = 5*(118*new_level+2*new_level*new_level*new_level)/6 + (new_xp || 0);
 
         const xp = db_user.xp;
-        let lower = 0;
-        let upper = 10000000000;
+        let lower = 0,
+            upper = 10000000000;
         while (lower + 1 < upper) {
             const middle = Math.floor((lower + upper)/2),
                 level_xp = 5*(118*middle+2*middle*middle*middle)/6;

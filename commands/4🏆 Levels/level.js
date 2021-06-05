@@ -1,10 +1,9 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { CanvasImage, apiFunctions } = require('../../helperfunctions.js');
+    { CanvasImage, apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'level',

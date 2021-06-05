@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require("../../helperfunctions");
+    { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: 'prefix',

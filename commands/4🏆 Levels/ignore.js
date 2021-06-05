@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require("../../helperfunctions");
+    { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "ignore",
@@ -34,10 +34,10 @@ module.exports = {
             }});
         }
 
-        const DBGuildLevelsystem = (await sql.get("guild-levelsystem", `id = ${msg.guild.id}`))[0];
-        const ignoredChannels = JSON.parse(DBGuildLevelsystem.ignoredChannels);
+        const DBGuildLevelsystem = (await sql.get("guild-levelsystem", `id = ${msg.guild.id}`))[0],
+            ignoredChannels = JSON.parse(DBGuildLevelsystem.ignoredChannels),
 
-        const channel = tags.channels.first() || msg.guild.channels.cache.find(channel_object => channel_object ? channel_object.name === args.lowercase[0] : undefined);
+            channel = tags.channels.first() || msg.guild.channels.cache.find(channel_object => channel_object ? channel_object.name === args.lowercase[0] : undefined);
         if (!channel || ["voice", "category"].includes(channel.type)) {
             const replyEmbed = {
                 "color": 0xcf2d2d,

@@ -1,10 +1,9 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require("../../helperfunctions");
+    { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "levelsenabled",
@@ -38,10 +37,10 @@ module.exports = {
         const db_guild = databases.guilds.findOne({ guild_id: msg.guild.id });
         let type;
         if (args.lowercase[0] == 'false') {
-            db_guild.levelSystem.enabled = false;
+            DBGuildLevelsystem.enabled = false;
             type = ':x: Disabled';
         } else if (args.lowercase[0] == 'true') {
-            db_guild.levelSystem.enabled = true;
+            DBGuildLevelsystem.enabled = true;
             type = ':white_check_mark: Enabled';
         } else {
             return msg.channel.send({ embed: {

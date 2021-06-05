@@ -1,10 +1,9 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require('../../helperfunctions.js');
+    { apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'nickname',
@@ -65,8 +64,8 @@ module.exports = {
             }    
         }
 
-        const clientHighestRole = msg.guild.me.roles.highest;
-        const memberHighestRole = msg.member.roles.highest;
+        const clientHighestRole = msg.guild.me.roles.highest,
+            memberHighestRole = msg.member.roles.highest;
         if (clientHighestRole.position < memberHighestRole.position) {
             const replyEmbed = {
                 color: 0xcf2d2d,

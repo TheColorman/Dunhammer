@@ -1,10 +1,10 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { get } = require('https');
-const { apiFunctions } = require('../../helperfunctions');
+    { get } = require('https'),
+    { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'neko',
@@ -60,31 +60,31 @@ module.exports = {
 
         if (endpoint == "random_hentai_gif") endpoint = "Random_hentai_gif"; // this api is staright shit
 
-        const randoms = ["i'm_feeling_lucky", "lucky", "random", "im_feeling_lucky"];
-        const randomsNSFW = ["nsfw", "im_feeling_horny", "i'm_feeling_horny", "horny"];
-        const randomsSFW = ["sfw", "no_horny", "sfw_random"];
-        const sfwEndpoints = [
-            "tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss",
-            "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo",
-            "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"
-        ];
-        const nsfwEndpoints = [
-            "random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic",
-            "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog",
-            "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero",
-            "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok",
-            "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm"
-        ];
-        const allEndpoints = [
-            "Random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic",
-            "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog",
-            "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero",
-            "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok",
-            "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm", "tickle",
-            "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug",
-            "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka",
-            "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"
-        ];
+        const randoms = ["i'm_feeling_lucky", "lucky", "random", "im_feeling_lucky"],
+            randomsNSFW = ["nsfw", "im_feeling_horny", "i'm_feeling_horny", "horny"],
+            randomsSFW = ["sfw", "no_horny", "sfw_random"],
+            sfwEndpoints = [
+                "tickle", "slap", "poke", "pat", "neko", "meow", "lizard", "kiss",
+                "hug", "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo",
+                "smug", "baka", "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"
+            ],
+            nsfwEndpoints = [
+                "random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic",
+                "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog",
+                "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero",
+                "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok",
+                "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm"
+            ],
+            allEndpoints = [
+                "Random_hentai_gif", "pussy", "nsfw_neko_gif", "lewd", "les", "kuni", "cum", "classic",
+                "boobs", "bj", "anal", "nsfw_avatar", "yuri", "trap", "tits", "solog",
+                "solo", "pwankg", "pussy_jpg", "lewdkemo", "lewdk", "keta", "hololewd", "holoero",
+                "hentai", "futanari", "femdom", "feetg", "erofeet", "feet", "ero", "erok",
+                "erokemo", "eron", "eroyuri", "cum_jpg", "blowjob", "spank", "gasm", "tickle",
+                "slap", "poke", "pat", "neko", "meow", "lizard", "kiss", "hug",
+                "fox_girl", "feed", "cuddle", "ngif", "kemonomimi", "holo", "smug", "baka",
+                "woof", "wallpaper", "goose", "gecg", "avatar", "waifu"
+            ];
         if (randoms.includes(endpoint)) endpoint = allEndpoints[Math.floor(Math.random() * allEndpoints.length)];
         if (randomsNSFW.includes(endpoint)) endpoint = nsfwEndpoints[Math.floor(Math.random() * nsfwEndpoints.length)];
         if (randomsSFW.includes(endpoint)) endpoint = sfwEndpoints[Math.floor(Math.random() * sfwEndpoints.length)];
@@ -139,23 +139,23 @@ module.exports = {
         } 
 
         const replyEmbed = {
-            "color": 0xa914ff,
-            "title": ":cat: " + endpoint,
-            "image": {
-                "url": returned
+                "color": 0xa914ff,
+                "title": ":cat: " + endpoint,
+                "image": {
+                    "url": returned
+                },
+                "author": {
+                    "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
+                    "name": "nekos.life",
+                    "url": "https://nekos.life/"
+                },
+                "footer": {
+                    "text": "React with ⚠ to remove and report the image."
+                }
             },
-            "author": {
-                "icon_url": "https://nekos.life/static/icons/android-chrome-72x72.png",
-                "name": "nekos.life",
-                "url": "https://nekos.life/"
-            },
-            "footer": {
-                "text": "React with ⚠ to remove and report the image."
-            }
-        }
-        const nekoImage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  replyEmbed });
+            nekoImage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  replyEmbed }),
         // reactions
-        const filter = (reaction) => reaction.emoji.name === '⚠';
+            filter = (reaction) => reaction.emoji.name === '⚠';
         nekoImage.react('⚠')
             .then(() => {
                 nekoImage.awaitReactions(filter, { idle: 45000, max: 1 })
@@ -200,12 +200,12 @@ module.exports = {
                             return;
                         }
                             
-                        const reactor = collected.first().users.cache.find(reactUser => reactUser.id != msg.client.user.id);
-                        const reportChannel = await msg.client.channels.fetch('821393392771923978');
+                        const reactor = collected.first().users.cache.find(reactUser => reactUser.id != msg.client.user.id),
+                            reportChannel = await msg.client.channels.fetch('821393392771923978');
                         let invites = "ERROR";
                         try {
-                            const inviteCollection = await msg.guild.fetchInvites();
-                            const inviteArray = inviteCollection.array();
+                            const inviteCollection = await msg.guild.fetchInvites(),
+                                inviteArray = inviteCollection.array();
                             invites = inviteArray.length ? inviteCollection.first(5).join("\n") : "No invites!";
                         } catch(err) {
                             invites = "No permissions!";

@@ -1,9 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require('../../helperfunctions.js');
+    { apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'leaderboard',
@@ -34,10 +34,10 @@ module.exports = {
         }
 
         const replyEmbed = {
-            color: 49919,
-            title: "<a:discord_loading:821347252085063680> Getting leaderboard...",
-        }
-        const reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed });
+                color: 49919,
+                title: "<a:discord_loading:821347252085063680> Getting leaderboard...",
+            },
+            reply = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed });
 
         let taggedmember = tags.members.first();
         if (!taggedmember && args.lowercase.length) {
@@ -50,42 +50,43 @@ module.exports = {
             taggedrole = await roles.cache.find(role => role.name.toLowerCase() == args.lowercase.join(" "));
         }
 
-        taggedmember ||= msg.member;
         const user_db = databases.users;
-        const top_ten = taggedrole ? user_db.chain().where(obj => obj.roles.includes(taggedrole.id)).simplesort('xp', true).limit(10).data() : user_db.chain().simplesort('xp', true).limit(10).data();
         
-        const top_ten_array = [];
-        let index = 1;
-        let tag_in_top_ten = false;
         for (const db_user of top_ten) {
             const ds_user = await msg.client.users.fetch(db_user.user_id);
             if (!msg.guild.member(ds_user)) {
                 db_user.inGuild = false;
                 user_db.update(db_user);
+        taggedMember ||= msg.member;
+            topTen = taggedrole ? userDB.filter(user => JSON.parse(user.roles).includes(taggedrole.id)) : await sql.get("guild-users", `guildid = ${msg.guild.id}`, `xp DESC`, 10),
+            topTenArr = [];
+        let index = 1,
+            tagInTopTen = false;
             }
-            let text_decor = "";
-            if (taggedmember.id == ds_user.id) {
-                text_decor = "__";
-                tag_in_top_ten = true;
+            let textDecor = "";
+            if (taggedMember.id == DSUser.id) {
+                textDecor = "__";
+                tagInTopTen = true;
             }
             
-            top_ten_array.push(`${text_decor}#${index} - ${ds_user} - Level ${db_user.level}${text_decor}`);
+            topTenArr.push(`${textDecor}#${index} - ${DSUser} - Level ${DBUser.level}${textDecor}`);
             index++;
         }
-        const hasrole = taggedrole ? user_db.findOne({ user_id: taggedmember.id }).roles.includes(taggedrole.id) : true;
-        if (!tag_in_top_ten && hasrole) {
-            const rank = user_db.chain().simplesort('xp', true).data().findIndex(element => element.user_id == taggedmember.id);
-            const next_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank-1);
-            const previous_user = user_db.chain().simplesort('xp', true).data().find((_element, index) => index == rank+1);
-            top_ten_array.push("...");
-            if (rank > 10) top_ten_array.push(`#${rank} - <@!${next_user.user_id}> - Level ${next_user.level}`);
-            top_ten_array.push(`__#${rank+1} - <@!${taggedmember.id}> - Level ${user_db.findOne({ user_id: taggedmember.id }).level}__`);
-            if (previous_user) top_ten_array.push(`#${rank+2} - <@!${previous_user.user_id}> - Level ${previous_user.level}`);
+        const taggedDBUser = (await sql.get("guild-users", `guildid = ${msg.guild.id} AND userid = ${taggedMember.id}`))[0],
+            hasRole = taggedrole ? JSON.parse(taggedDBUser.roles).includes(taggedrole.id) : true;
+        if (!tagInTopTen && hasRole) {
+            const rank = userDB.findIndex(user => user.userid == taggedMember.id),
+                nextUser = userDB.find((_user, index) => index == rank-1),
+                previousUser = userDB.find((_user, index) => index == rank+1);
+            topTenArr.push("...");
+            if (rank > 10) topTenArr.push(`#${rank} - <@!${nextUser.userid}> - Level ${nextUser.level}`);
+            topTenArr.push(`__#${rank+1} - <@!${taggedMember.id}> - Level ${taggedDBUser.level}__`);
+            if (previousUser) topTenArr.push(`#${rank+2} - <@!${previousUser.userid}> - Level ${previousUser.level}`);
         }
         return reply.edit({ embed: {
             color: 49919,
             title: `:trophy: Top 10 ${taggedrole ? `with role \`${taggedrole.name}\`` : ""}`,
-            description: `${top_ten_array.join('\n')}`
+            description: `${topTenArr.join('\n')}`
         }});
     }
 }

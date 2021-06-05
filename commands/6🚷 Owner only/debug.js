@@ -1,14 +1,13 @@
-//@ts-check
 /* eslint-disable no-unused-vars */
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { default: fetch } = require("node-fetch");
-const fs = require('fs');
-const FormData = require('form-data');
-const { mysqlPassword } = require("../../token.json");
+    { default: fetch } = require("node-fetch"),
+    fs = require('fs'),
+    FormData = require('form-data'),
+    { administrators } = require("../../config.json");
 
 
 module.exports = {
@@ -39,7 +38,7 @@ module.exports = {
             }});
         }
 
-        const client = msg.client;
+        const client = msg.client,
         
         //#region Slash commands
         // console.log("help");

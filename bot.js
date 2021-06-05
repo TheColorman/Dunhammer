@@ -1,23 +1,25 @@
 // Modules & config
-const Discord = require('discord.js');
-const fs = require('fs');
-const MySQL = require("./sql/sql");
-const { CanvasImage } = require('./helperfunctions.js');
+const Discord = require('discord.js'),
+    fs = require('fs'),
+    MySQL = require("./sql/sql"),
+    { CanvasImage } = require('./helperfunctions.js'),
 
-const { presences } = require('./config.json');
-const { token, mysqlPassword } = require('./token.json');
+    { presences } = require('./config.json'),
+    { token, mysqlPassword } = require('./token.json'),
+    // eslint-disable-next-line no-unused-vars
+    { apiFunctions } = require('./helperfunctions');
 // Database
-const sql = new MySQL({ host: "phpmyadmin.head9x.dk", user: "Colorman", password: mysqlPassword, database: "colorman" });
+const sql = new MySQL({ host: "phpmyadmin.head9x.dk", user: "Colorman", password: mysqlPassword, database: "colorman" }),
 
 
 // Create a new Discord client
-const client = new Discord.Client();
+    client = new Discord.Client();
 client.commandCategories = new Discord.Collection();
-const cooldowns = new Discord.Collection();
-const levelTimestamps = new Discord.Collection();
+const cooldowns = new Discord.Collection(),
+    levelTimestamps = new Discord.Collection(),
 
 // Load the commands with their categories 
-const commandFilesObj = {};
+    commandFilesObj = {};
 fs.readdirSync('./commands').forEach(folder => {
     commandFilesObj[folder] ||= fs.readdirSync(`./commands/${folder}`).filter(file => file.endsWith('.js'));
 });
@@ -103,18 +105,18 @@ client.on("message", async (msg) => {
     const DBGuild = await getGuildInDB(msg.guild);
 
     // Message variables
-    const msg_content_original = msg.content;
+    const msgContentOriginal = msg.content;
     msg.content = msg.content.toLowerCase();
-    const taggedUsers = msg.mentions.users;
-    const taggedMembers = msg.mentions.members;
-    const taggedChannels = msg.mentions.channels;
-    const taggedRoles = msg.mentions.roles;
-    const argsLowercase = msg.content.slice(DBGuild.prefix.length).split(/ +/);
-    const argsOriginal = msg_content_original.slice(DBGuild.prefix.length).split(/ +/);
-    const commandName = argsLowercase[0];
+    const taggedUsers = msg.mentions.users,
+        taggedMembers = msg.mentions.members,
+        taggedChannels = msg.mentions.channels,
+        taggedRoles = msg.mentions.roles,
+        argsLowercase = msg.content.slice(DBGuild.prefix.length).split(/ +/),
+        argsOriginal = msgContentOriginal.slice(DBGuild.prefix.length).split(/ +/),
+        commandName = argsLowercase[0];
     argsLowercase.shift();
     argsOriginal.shift();
-
+    
     // Emergency change prefix
     if (taggedUsers.first() == client.user && msg.content.includes("prefix")) {
         if (argsLowercase[0] == "prefix") {
@@ -140,7 +142,7 @@ client.on("message", async (msg) => {
         }});
     }
     // If no command given, terminate
-    if (!msg_content_original.startsWith(DBGuild.prefix)) return;
+    if (!msgContentOriginal.startsWith(DBGuild.prefix)) return;
 
     let command;
     client.commandCategories.forEach(category => {
@@ -167,9 +169,9 @@ client.on("message", async (msg) => {
     if (!cooldowns.has(command.name)) {     // Add a collection to each command, with user IDs and timestamps in them. If the Date.now() has not yet reached the timestamp, terminate.
         cooldowns.set(command.name, new Discord.Collection());
     }
-    const now = Date.now();
-    const timestamps = cooldowns.get(command.name);
-    const cooldownAmount = (command.cooldown || 3) * 1000;
+    const now = Date.now(),
+        timestamps = cooldowns.get(command.name),
+        cooldownAmount = (command.cooldown || 3) * 1000;
     if (timestamps.has(msg.author.id)) {
         const expirationTime = timestamps.get(msg.author.id) + cooldownAmount;
 
@@ -214,19 +216,19 @@ client.on("message", async (msg) => {
 
 // SLASH COMMAND TESTING - most of the code is from the normal message recieve event code, but some parts are replaced to match interaction code
 client.ws.on('INTERACTION_CREATE', async interaction => {
-    const guild = await client.guilds.fetch(interaction.guild_id);
-    const msg = {
-        author: await interaction.member.user,
-        channel: await client.channels.fetch(interaction.channel_id),
-        client: client,
-        content: ".ping",
-        createdTimestamp: Date.now(),
-        guild: guild,
-        id: interaction.id,
-        member: await guild.members.fetch(interaction.member.user.id),
-    }
+    const guild = await client.guilds.fetch(interaction.guild_id),
+        msg = {
+            author: await interaction.member.user,
+            channel: await client.channels.fetch(interaction.channel_id),
+            client: client,
+            content: ".ping",
+            createdTimestamp: Date.now(),
+            guild: guild,
+            id: interaction.id,
+            member: await guild.members.fetch(interaction.member.user.id),
+        },
 
-    const commandName = interaction.data.name;
+        commandName = interaction.data.name;
     let command;
     client.commandCategories.forEach(category => {
         category.forEach((cmd, cmd_name) => {
@@ -255,9 +257,9 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     if (!cooldowns.has(command.name)) {
         cooldowns.set(command.name, new Discord.Collection());
     }
-    const now = Date.now();
-    const timestamps = cooldowns.get(command.name);
-    const cooldownAmount = (command.cooldown || 3) * 1000;
+    const now = Date.now(),
+        timestamps = cooldowns.get(command.name),
+        cooldownAmount = (command.cooldown || 3) * 1000;
     if (timestamps.has(msg.author.id)) {
         const expirationTime = timestamps.get(msg.author.id) + cooldownAmount;
 
@@ -278,8 +280,8 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     timestamps.set(msg.author.id, now);
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
 
-    const args = [];
-    const arguments_lowercase = [];
+    const args = [],
+        arguments_lowercase = [];
     if (interaction.data.options) {
         interaction.data.options.forEach(option => {
             if (option.options) {
@@ -295,10 +297,10 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
             arguments_lowercase.push(`${argument}`.toLowerCase());
         });
     }
-    const userTags = new Discord.Collection();
-    const memberTags = new Discord.Collection();
-    const channelTags = new Discord.Collection();
-    const roleTags = new Discord.Collection();
+    const userTags = new Discord.Collection(),
+        memberTags = new Discord.Collection(),
+        channelTags = new Discord.Collection(),
+        roleTags = new Discord.Collection();
     if (interaction.data.options) {
         interaction.data.options.forEach(async option => {
             if (option.type == 6) {
@@ -346,8 +348,8 @@ client.on("message", async (msg) => {
     const DBGuildUser = await getGuildUserInDB(msg.guild, msg.author);
     
     // Check if user cooldown is over
-    const now = Date.now();
-    const cooldownAmount = 60 * 1000;
+        now = Date.now(),
+        cooldownAmount = 60 * 1000;
     if (levelTimestamps.has(msg.author.id)) {
         const expirationTime = levelTimestamps.get(msg.author.id) + cooldownAmount;
         if (now < expirationTime) return;
@@ -359,11 +361,11 @@ client.on("message", async (msg) => {
     DBGuildUser.xp += Math.floor(Math.random() * (25 - 15 + 1)) + 15;   // between 15 and 25 xp
     const xp = DBGuildUser.xp;
     
-    let lower = 0;
-    let upper = 10000000000;    // max xp. equivalent to sending 500 million messages, which would take 951 years at 1 message/minute.
+    let lower = 0,
+        upper = 10000000000;    // max xp. equivalent to sending 500 million messages, which would take 951 years at 1 message/minute.
     while (lower + 1 < upper) {
-        const middle = Math.floor((lower + upper)/2);
-        const level_xp = 5*(118*middle+2*middle*middle*middle)/6;
+        const middle = Math.floor((lower + upper)/2),
+            level_xp = 5*(118*middle+2*middle*middle*middle)/6;
         if (level_xp > xp) {
             upper = middle;
         } else {
@@ -376,7 +378,7 @@ client.on("message", async (msg) => {
     // Congratulate if new level
     if (level > DBGuildUser.level) {
         DBGuildUser.level = level;
-        const channel = levelSystem.levelupChannel ? await client.channels.fetch(levelSystem.levelupChannel) : msg.channel;
+        const channel = levelSystem.levelupChannel ? await client.channels.fetch(levelSystem.levelupChannel) : msg.channel,
         // Roles
         if (typeof levelSystem.roles === 'object' && levelSystem.roles !== null && Object.prototype.hasOwnProperty.call(levelSystem.roles, level)) {
             if (!levelSystem.rolesCumulative) {

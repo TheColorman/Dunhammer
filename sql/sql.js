@@ -1,5 +1,5 @@
 const { dev } = require("../config.json");
-const v = dev ? "dev_" : "live_"
+const v = dev ? "dev_" : "live_";
 
 class MySQL {
     /**
@@ -28,9 +28,10 @@ class MySQL {
      * @param {String} table Table name
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @param {String} sortLogic Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
-     * @returns {Promise<RowDataPacket>} Array of objects (found rows)
+     * @param {Number} limit Max number of results
+     * @returns {Promise<Array<import("../bot").DBGuildUser>>} Array of objects (found rows)
      */
-    get(table, queryLogic, sortLogic) {
+    async get(table, queryLogic, sortLogic, limit) {
         return new Promise((res) => {
             const query = `SELECT * FROM \`${v+table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}`;
             this.con.query(query, (err, result) => {
@@ -45,7 +46,7 @@ class MySQL {
      * @param {Object|Array<object>} object Inserted data where `key = collumn` and `value = value`. If an array is passed every object must contain the same keys
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    insert(table, object) {
+    async insert(table, object) {
         return new Promise((res) => {
             const query = `INSERT INTO \`${v+table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => this.escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
             this.con.query(query, (err, result) => {
@@ -62,7 +63,7 @@ class MySQL {
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    update(table, object, queryLogic) {
+    async update(table, object, queryLogic) {
         return new Promise((res) => {
             const query = `UPDATE \`${v+table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {

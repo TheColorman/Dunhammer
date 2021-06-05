@@ -1,10 +1,9 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
-    Discord = require("discord.js");
+    Discord = require("discord.js"),
 
-const { QuickMessage, apiFunctions } = require("../../helperfunctions");
+    { QuickMessage, apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "roles",
@@ -36,9 +35,10 @@ module.exports = {
             args.lowercase[0] = interaction.data.options[0].name == "options" ? interaction.data.options[0].options[0].name : interaction.data.options[0].name;
         }
 
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
-        const user_db = databases.users;
+        const DBGuild = await sql.getGuildInDB(msg.guild),
+            DBGuildLevelsystem = await sql.getGuildLevelsystemInDB(msg.guild),
+            DBGuildLevelsystemRoles = JSON.parse(DBGuildLevelsystem.roles),
+            DBGuildUsers = await sql.get("guild-users", `guildid = ${msg.guild.id}`);
         // Get role from interaction
         let role; 
         if (interaction && ["add", "remove"].includes(interaction.data.options[0].name)) role = await msg.guild.roles.fetch(interaction.data.options[0].options.find(option => option.name == "role").value);
@@ -55,9 +55,9 @@ module.exports = {
                 if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
                 if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
                 
-                const highestRolePosition = msg.guild.me.roles.highest.position;
-                const requestedRolePosition = role.position;
                 if (highestRolePosition <= requestedRolePosition) {
+                const highestRolePosition = msg.guild.me.roles.highest.position,
+                    requestedRolePosition = role.position;
                     replyEmbed = {
                         color: 0xcf2d2d,
                         title: ":octagonal_sign: Error!",
@@ -138,6 +138,7 @@ module.exports = {
                         }
                     }
                 }
+
                 message.edit({ embed: {
                     color: 2215713,
                     description: "~~:white_check_mark: Reloading all level roles...~~\n\nDone!"
