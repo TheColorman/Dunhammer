@@ -1,63 +1,72 @@
-//@ts-check
+// eslint-disable-next-line no-unused-vars
+const MySQL = require("../../sql/sql"),
+    // eslint-disable-next-line no-unused-vars
+    Discord = require("discord.js"),
 
-const textToSpeech = require('@google-cloud/text-to-speech');
-const fs = require('fs');
-const util = require('util');
-const { apiFunctions } = require('../../helperfunctions');
+    textToSpeech = require('@google-cloud/text-to-speech'),
+    fs = require('fs'),
+    util = require('util'),
+    { apiFunctions } = require('../../helperfunctions');
 
 module.exports = {
     name: 'speak',
-    short_desc: 'Speak a message.',
-    long_desc: 'Joins your voice channel and speaks the message.',
+    shortDesc: 'Speak a message.',
+    longDesc: 'Joins your voice channel and speaks the message.',
     usage: '[language (BCP-47)] [gender (female/male)] <message>',
     aliases: ['tts'],
     cooldown: 2,
-    async execute(msg, args, tags, databases, interaction) {
+    /**
+     * Command execution
+     * @param {Discord.Message} msg Message object
+     * @param {Object} args Argument object
+     * @param {Array<String>} args.lowercase Lowercase arguments
+     * @param {Array<String>} args.original Original arguments
+     * @param {Object} tags Tag object
+     * @param {Discord.Collection<string, Discord.User>} tags.users Collection of user tags
+     * @param {Discord.Collection<string, Discord.GuildMember>} tags.members Collection of member tags
+     * @param {Discord.Collection<string, Discord.TextChannel>} tags.channels Collection of channel tags
+     * @param {Discord.Collection<string, Discord.Role>} tags.roles Collection of role tags
+     * @param {MySQL} sql MySQL object
+     * @param {Object} interaction Interaction object
+     */
+    async execute(msg, args, tags, sql, interaction) {
         // check if i have enough characters to use the google api
         // I sure fucking hope this code works, because dates are a pain in the ass to work with and im not testing this shit.
-        const api_db = databases.client.getCollection("apis");
-        if (api_db.findOne({ api_name: "tts" }) === null) {
-            api_db.insert({
-                api_name: "tts",
-                charactersLeft: 90,
-                date: new Date(),
-            });
-        }
+        const DBApi = (await sql.get("api", `name = "tts"`))[0],
         // 90 characters a minute
-        const db_tts = api_db.findOne({ api_name: "tts" });
-        const date = new Date(db_tts.date);
-        const now = new Date();
+            date = new Date(DBApi.date),
+            now = new Date();
         if (date.getFullYear() == now.getFullYear() && date.getMonth() == now.getMonth()) {
-            const minutes = (Math.floor(Math.abs((now.getTime() - date.getTime()) / 1000) / 60));
-            db_tts.charactersLeft += minutes * 90;
+            const minutes = Math.floor(Math.abs((now.getTime() - date.getTime()) / 1000) / 60);
+            DBApi.assignInt += minutes * 90;
         } else {
-            const firstThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-            const minutes = (Math.floor(Math.abs((now.getTime() - firstThisMonth.getTime()) / 1000) / 60));
-            db_tts.charactersLeft = minutes * 90;
+            const firstThisMonth = new Date(now.getFullYear(), now.getMonth(), 1),
+                minutes = Math.floor(Math.abs((now.getTime() - firstThisMonth.getTime()) / 1000) / 60);
+            DBApi.assignInt += minutes * 90;
         }
-        db_tts.date = new Date();
-        api_db.update(db_tts);
+        DBApi.date = new Date().getTime();
+        await sql.update("api", DBApi, `name = "tts"`);
 
         // variables
-        let languageCode = "en-UK";
-        let channel = msg.member.voice.channel;
-        let gender;
-        let text = args.original.join(" ");
+        let languageCode = "en-UK",
+            channel = msg.member.voice.channel,
+            gender,
+            text = args.original.join(" ");
         
         if (interaction) {  // interactions have more options
             await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
                 type: 5,
             }});
-            const languageCodeOption = interaction.data.options.find(option => ["language_a-k", "language_l-z"].includes(option.name));
-            const genderOption = interaction.data.options.find(option => option.name == "gender");
-            const channelOption = interaction.data.options.find(option => option.name == "channel");
+            const languageCodeOption = interaction.data.options.find(option => ["language_a-k", "language_l-z"].includes(option.name)),
+                genderOption = interaction.data.options.find(option => option.name == "gender"),
+                channelOption = interaction.data.options.find(option => option.name == "channel");
             gender = genderOption ? genderOption.value : undefined;
             languageCode = languageCodeOption ? languageCodeOption.value : "en-UK";
             channel = channelOption ? msg.guild.channels.resolve(channelOption.value) : msg.member.voice.channel;
             text = interaction.data.options.find(option => option.name == "message").value;
         }
 
-        if (db_tts.charactersLeft - text.length < 0) {
+        if (DBApi.assignInt - text.length < 0) {
             const replyEmbed = {
                 "color": 0xcf2d2d,
                 "title": ":octagonal_sign: Error!",
@@ -69,8 +78,8 @@ module.exports = {
                 return msg.channel.send({ embed: replyEmbed});
             }    
         }
-        db_tts.charactersLeft -= text.length;
-        api_db.update(db_tts);
+        DBApi.assignInt -= text.length;
+        await sql.update("api", DBApi, `name = "tts"`);
 
         if (!channel || channel.type != "voice") {
             const replyEmbed = {
@@ -90,32 +99,32 @@ module.exports = {
             description: `:loud_sound: Saying \`${text}\` in channel \`${channel.name}\`.`,
         }
         if (interaction) {
-            const message = await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+            await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
         } else {
             msg.channel.send({ embed: replyEmbed});
         }
 
 
-        const ttsClient = new textToSpeech.TextToSpeechClient({ projectId: "dunhammer", keyFile: "./GCloudKey.json" });
+        const ttsClient = new textToSpeech.TextToSpeechClient({ projectId: "dunhammer", keyFile: "./GCloudKey.json" }),
         
-        let input = {
-            text: text
-        }
-        const request = {
-            input: input,
-            voice: {
-                languageCode: languageCode,
-                ssmlGender: gender
+            input = {
+                text: text
             },
-            audioConfig: { audioEncoding: "MP3" },
-        }
+            request = {
+                input: input,
+                voice: {
+                    languageCode: languageCode,
+                    ssmlGender: gender
+                },
+                audioConfig: { audioEncoding: "MP3" },
+            },
         
-        const [response] = await ttsClient.synthesizeSpeech(request);
-        const writeFile = util.promisify(fs.writeFile);
+            [response] = await ttsClient.synthesizeSpeech(request),
+            writeFile = util.promisify(fs.writeFile);
         await writeFile('./audioData/output.mp3', response.audioContent, 'binary');
             
-        const connection = await channel.join();
-        const dispatcher = connection.play('./audioData/output.mp3');
+        const connection = await channel.join(),
+            dispatcher = connection.play('./audioData/output.mp3');
     
         dispatcher.on("finish", () => channel.leave());
     }

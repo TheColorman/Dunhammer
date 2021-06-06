@@ -1,30 +1,46 @@
-//@ts-check
+// eslint-disable-next-line no-unused-vars
+const MySQL = require("../../sql/sql"),
+    // eslint-disable-next-line no-unused-vars
+    Discord = require("discord.js"),
 
-const { apiFunctions } = require("../../helperfunctions");
+    { apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "levelupchannel",
     aliases: ["setlevelupchannel", "lvlupchannel", "levelupchnl", "lvlupchnl", "setlvlupchannel", "setlevelupchnl", "setlvlupchnl", "levelupmessagechannel", "lvlupmessagechannel", "levelupmsgchannel", "levelupmessagechnl", "lvlupmmsgchannel", "lvlupmessagechnl", "levelupmsgchnl", "lvlupmsgchnl", "setlevelupmessagechannel", "setlvlupmessagechannel", "setlevelupmsgchannel", "setlevelupmessagechnl", "setlvlupmsgchannel", "setlevelupmsgchnl", "setlvlupmessagechnl", "setlvlupmsgchnl"],
-    short_desc: "Choose which channel levelups are sent in.",
-    long_desc: "Change wich channel to send levelups in. Channels are chosen by either tagging the channel (e.g. #levelups) or by typing out the channel name (e.g. levelups).\nLeave channel blank to send the updates in the channel the member leveled up in.",
+    shortDesc: "Choose which channel levelups are sent in.",
+    longDesc: "Change wich channel to send levelups in. Channels are chosen by either tagging the channel (e.g. #levelups) or by typing out the channel name (e.g. levelups).\nLeave channel blank to send the updates in the channel the member leveled up in.",
     usage: "[channel]",
     permissions: "BAN_MEMBERS",
     cooldown: 5,
-    async execute(msg, args, tags, databases, interaction) {
+    /**
+     * Command execution
+     * @param {Discord.Message} msg Message object
+     * @param {Object} args Argument object
+     * @param {Array<String>} args.lowercase Lowercase arguments
+     * @param {Array<String>} args.original Original arguments
+     * @param {Object} tags Tag object
+     * @param {Discord.Collection<string, Discord.User>} tags.users Collection of user tags
+     * @param {Discord.Collection<string, Discord.GuildMember>} tags.members Collection of member tags
+     * @param {Discord.Collection<string, Discord.TextChannel>} tags.channels Collection of channel tags
+     * @param {Discord.Collection<string, Discord.Role>} tags.roles Collection of role tags
+     * @param {MySQL} sql MySQL object
+     * @param {Object} interaction Interaction object
+     */
+    async execute(msg, args, tags, sql, interaction) {
         if (interaction) {  // Acknowledge slash command if it exists
             await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
                 type: 5,
             }});
         }
 
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
+        const DBGuildLevelsystem = await sql.getGuildLevelsystemInDB(msg.guild);
         if (!args.lowercase[0]) {
-            db_guild.levelSystem.update_channel = undefined;
-            guild_db.update(db_guild);
+            DBGuildLevelsystem.levelupChannel = null;
+            await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
             const replyEmbed = {
                 color: 2215713,
-                description: `:x: Removed update channel.`
+                description: `:x: Removed levelup channel.`
             }
             if (interaction) {
                 return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
@@ -44,12 +60,12 @@ module.exports = {
             } else {
                 return msg.channel.send({ embed: replyEmbed});
             }
-        };
-        db_guild.levelSystem.update_channel = channel.id;
-        guild_db.update(db_guild);
+        }
+        DBGuildLevelsystem.levelupChannel = channel.id;
+        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
         const replyEmbed = {
             color: 2215713,
-            description: `:repeat: Set update channel to ${channel}.`
+            description: `:repeat: Set levelup channel to ${channel}.`
         }
         if (interaction) {
             await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);

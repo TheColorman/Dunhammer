@@ -1,4 +1,5 @@
 {
     "token": "INSERT BOT TOKEN HERE",
-    "trelloToken": "INSERT TRELLO TOKEN HERE"
+    "trelloToken": "INSERT TRELLO TOKEN HERE",
+    "mysqlPassword": "INSERT MYSQL PASSWORD HERE"
 }

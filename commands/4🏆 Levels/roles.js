@@ -1,16 +1,33 @@
-//@ts-check
+// eslint-disable-next-line no-unused-vars
+const MySQL = require("../../sql/sql"),
+    // eslint-disable-next-line no-unused-vars
+    Discord = require("discord.js"),
 
-const { QuickMessage, apiFunctions } = require("../../helperfunctions");
+    { QuickMessage, apiFunctions } = require("../../helperfunctions");
 
 module.exports = {
     name: "roles",
     aliases: ["levelroles", "leveluproles", "lvlroles", "lvluproles"],
-    short_desc: "Choose which roles are gained at which levels.",
-    long_desc: "Add or remove which roles are awarded when a user reaches a specific level. Roles are chosen by either tagging them (e.g. @Admins) or by typing out their name (e.g. Admins).\n\n**Options**\n`add <level> <role>` - Adds a role at the specified level.\n`remove <role>` - Removes a specified role.\n`cumulative <true/false>` - Specify whether old roles are kept when gaining new ones (true: roles build up over time, false: only newest role is given).\n`reload` - Reloads roles for all members in the server.",
+    shortDesc: "Choose which roles are gained at which levels.",
+    longDesc: "Add or remove which roles are awarded when a user reaches a specific level. Roles are chosen by either tagging them (e.g. @Admins) or by typing out their name (e.g. Admins).\n\n**Options**\n`add <level> <role>` - Adds a role at the specified level.\n`remove <role>` - Removes a specified role.\n`cumulative <true/false>` - Specify whether old roles are kept when gaining new ones (true: roles build up over time, false: only newest role is given).\n`reload` - Reloads roles for all members in the server.",
     usage: "<add/remove/cumulative/reload> [...arguments]",
     permissions: "BAN_MEMBERS",
     cooldown: 2,
-    async execute(msg, args, tags, databases, interaction) {
+    /**
+     * Command execution
+     * @param {Discord.Message} msg Message object
+     * @param {Object} args Argument object
+     * @param {Array<String>} args.lowercase Lowercase arguments
+     * @param {Array<String>} args.original Original arguments
+     * @param {Object} tags Tag object
+     * @param {Discord.Collection<string, Discord.User>} tags.users Collection of user tags
+     * @param {Discord.Collection<string, Discord.GuildMember>} tags.members Collection of member tags
+     * @param {Discord.Collection<string, Discord.TextChannel>} tags.channels Collection of channel tags
+     * @param {Discord.Collection<string, Discord.Role>} tags.roles Collection of role tags
+     * @param {MySQL} sql MySQL object
+     * @param {Object} interaction Interaction object
+     */
+    async execute(msg, args, tags, sql, interaction) {
         if (interaction) {  // Acknowledge slash command if it exists
             await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
                 type: 5,
@@ -18,32 +35,46 @@ module.exports = {
             args.lowercase[0] = interaction.data.options[0].name == "options" ? interaction.data.options[0].options[0].name : interaction.data.options[0].name;
         }
 
-        const guild_db = databases.guilds;
-        const db_guild = guild_db.findOne({ guild_id: msg.guild.id });
-        const user_db = databases.users;
+        const DBGuild = await sql.getGuildInDB(msg.guild),
+            DBGuildLevelsystem = await sql.getGuildLevelsystemInDB(msg.guild),
+            DBGuildLevelsystemRoles = JSON.parse(DBGuildLevelsystem.roles),
+            DBGuildUsers = await sql.get("guild-users", `guildid = ${msg.guild.id}`);
         // Get role from interaction
         let role; 
         if (interaction && ["add", "remove"].includes(interaction.data.options[0].name)) role = await msg.guild.roles.fetch(interaction.data.options[0].options.find(option => option.name == "role").value);
 
         let replyEmbed = {}
         switch (args.lowercase[0]) {
-            case 'add':
+            case 'add': {
                 // Set interaction values to match old code
                 if (interaction) {
                     args.lowercase[1] = interaction.data.options[0].options.find(option => option.name == "level").value
                 } else {
                     role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
                 }
-                if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
-                if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                if (isNaN(args.lowercase[1]) && isNaN(parseFloat(args.lowercase[1]))) return QuickMessage.invalid_argument(msg.channel, DBGuild.prefix, "levelsettings");
+                if (!role) return QuickMessage.invalid_role(msg.channel, DBGuild.prefix, "levelsettings");
                 
-                const highestRolePosition = msg.guild.me.roles.highest.position;
-                const requestedRolePosition = role.position;
-                if (highestRolePosition <= requestedRolePosition) {
+                const highestRolePosition = msg.guild.me.roles.highest.position,
+                    highestUserRolePosition = msg.member.roles.highest.position,
+                    requestedRolePosition = role.position;
+                if (highestRolePosition <= requestedRolePosition || highestUserRolePosition <= requestedRolePosition) {
                     replyEmbed = {
                         color: 0xcf2d2d,
                         title: ":octagonal_sign: Error!",
-                        description: `:no_entry: I don't have permission to give other people ${role}.`            
+                        description: `:no_entry: ${highestRolePosition <= requestedRolePosition ? "I" : "You"} don't have permission to give other people ${role} (Check the role hierarchy).`
+                    }
+                    if (interaction) {
+                        return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                    } else {
+                        return msg.channel.send({ embed: replyEmbed});
+                    }                
+                }
+                if (role.name === "@everyone") {
+                    replyEmbed = {
+                        color: 0xcf2d2d,
+                        title: ":octagonal_sign: Error!",
+                        description: `:no_entry: I can't give people the ${role} role!`
                     }
                     if (interaction) {
                         return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
@@ -52,72 +83,142 @@ module.exports = {
                     }                
                 }
                 
-                db_guild.levelSystem.roles[args.lowercase[1]] = role.id;
-                guild_db.update(db_guild);
+                DBGuildLevelsystemRoles[args.lowercase[1]] = role.id;
+                sql.update("guild-levelsystem", { roles: JSON.stringify(DBGuildLevelsystemRoles) }, `id = ${DBGuildLevelsystem.id}`);
                 replyEmbed = {
                     color: 2215713,
-                    description: `:white_check_mark: Added ${role} to level roles at level ${args.lowercase[1]}.`
+                    description: `:white_check_mark: Added ${role} to level roles at level ${args.lowercase[1]}.\n\nUse \`${DBGuild.prefix}roles reload\` for the changes to take effect.`
                 }
                 if (interaction) {
                     return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
-                }            
-            case 'remove':
+                }
+            }
+            case 'remove': {
                 // Set interaction values to match old code
                 if (!interaction) role = tags.roles.first() || msg.guild.roles.cache.find(role_object => args.lowercase.join(" ").includes(role_object.name.toLowerCase()));
-                if (!role) return QuickMessage.invalid_role(msg.channel, db_guild.prefix, "levelsettings");
+                if (!role) return QuickMessage.invalid_role(msg.channel, DBGuild.prefix, "levelsettings");
                 // Check if role is in saved in database
-                if (!(Object.values(db_guild.levelSystem.roles).indexOf(role.id) > -1)) return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
-
-                for (let key in db_guild.levelSystem.roles) {
-                    if (db_guild.levelSystem.roles[key] == role.id) delete db_guild.levelSystem.roles[key];
+                if (!(Object.values(DBGuildLevelsystemRoles).indexOf(role.id) > -1)) {
+                    if (interaction) {
+                        return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, {
+                            color: 0xcf2f2f,
+                            title: ":octagonal_sign: Error!",
+                            description: ":question: That role is not a level role!"
+                        });
+                    } else {
+                        return QuickMessage.error(msg.channel, `:question: That role is not a level role!`);
+                    }
                 }
+
+                for (const key in DBGuildLevelsystemRoles) {
+                    if (DBGuildLevelsystemRoles[key] == role.id) {
+                        delete DBGuildLevelsystemRoles[key];
+                    }
+                }
+                await sql.update("guild-levelsystem", { roles: JSON.stringify(DBGuildLevelsystemRoles) }, `id = ${DBGuildLevelsystem.id}`);
 
                 replyEmbed = {
                     color: 2215713,
-                    description: `:x: Removed ${role} from level roles.`
+                    description: `:x: Removed ${role} from level roles.\n\nReact with ✅ to remove the role from all members.`
                 }
-                if (interaction) {
-                    return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
-                } else {
-                    return msg.channel.send({ embed: replyEmbed});
-                }            
-            case 'reload':
+                const replyMessage = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed}),
+                    filter = (reaction, user) => reaction.emoji.name === '✅' && user.id == msg.author.id;
+                return replyMessage.react("✅")
+                    .then(() => {
+                        replyMessage.awaitReactions(filter, { idle: 30000, max: 1 })
+                            .then(async (collected) => {
+                                if (!collected.first()) {
+                                    await replyMessage.reactions.removeAll();
+                                    return await replyMessage.edit({ embed: {
+                                        color: 2215713,
+                                        description: `:x: Removed ${role} from level roles.\n\n~~React with ✅ to remove the role from all members.~~\n:x: Timeout!`
+                                    }});
+    
+                                }
+                                await replyMessage.edit({ embed: {
+                                    color: 2215713,
+                                    description: `:x: Removed ${role} from level roles.\n\n<a:discord_loading:821347252085063680> Removing ${role} from all guild members...`
+                                }});
+                                try {
+                                    await replyMessage.reactions.removeAll();
+                                    let awaiter = 0;
+                                    for (const user of DBGuildUsers) {
+                                        try {
+                                            const DSMember = await msg.guild.members.fetch(user.userid),
+                                                userLevelRoles = JSON.parse(user.levelRoles);
+                                            userLevelRoles.filter(levelRole => levelRole != role.id);
+                                            user.levelRoles = JSON.stringify(userLevelRoles);
+                                            DSMember.roles.remove(role);
+                                        } catch(err) {
+                                            console.error(err);
+                                            if (err.message === "Unknown member") user.inGuild = false;
+                                        }
+                                        awaiter = sql.update("guild-users", user, `guildid = ${user.guildid} AND userid = ${user.userid}`);
+                                    }                    
+                                    return await replyMessage.edit({ embed: {
+                                        color: 2215713,
+                                        description: `:x: Removed ${role} from level roles.\n\n✅ Removed ${role} from all guild members.${JSON.stringify(awaiter)}`.slice(0, -JSON.stringify(awaiter).length)
+                                    }});
+                                } catch(err) {
+                                    console.error(err);
+                                    return await replyMessage.edit({ embed: {
+                                        color: 2215713,
+                                        description: `:x: Removed ${role} from level roles.\n\n:exclamation: Something went wrong!`
+                                    }});
+    
+                                }
+                            });
+                    });
+            }
+            case 'reload': {
                 
                 replyEmbed = {
-                color: 49919,
+                    color: 49919,
                     description: "<a:discord_loading:821347252085063680> Reloading all level roles..."
                 }
 
-                const message = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed:  { replyEmbed } });
+                const message = interaction ? await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed) : await msg.channel.send({ embed: replyEmbed }),
+                                    
+                    DBGuildLevelsystemRolesSorted = Object.keys(DBGuildLevelsystemRoles).sort().reduce(
+                        (obj, key) => { 
+                            obj[key] = DBGuildLevelsystemRoles[key]; 
+                            return obj;
+                        }, 
+                        {}
+                    );                  
 
-
-                const userdata = user_db.chain().data();
-                for (let user of userdata) {
-                    for (let level = 0; level < user.level; level++) {
-                        if (db_guild.levelSystem.roles.hasOwnProperty(level)) {
-                            try {
-                                let member = await msg.guild.members.fetch(user.user_id);
-                                if (!db_guild.levelSystem.roles.cumulative) {
-                                    user.levelroles ||= [];
-                                    for (let role_id of user.levelroles) {
-                                        let role = await msg.guild.roles.fetch(role_id);
-                                        member.roles.remove(role);
-                                    }
-                                }
-                                const role = await msg.guild.roles.fetch(db_guild.levelSystem.roles[level]);
-                                member.roles.add(role);
-                                user.levelroles.push(db_guild.levelSystem.roles[level]);
-                            } catch (err) {
-                                if (err.message === "Unknown member") {
-                                    user.inGuild = false;
+                for (const user of DBGuildUsers) {
+                    try {
+                        const highestRoleKey = Object.keys(DBGuildLevelsystemRolesSorted).reduce((a, b) => Math.max(a, b)),
+                            member = await msg.guild.members.fetch(user.userid);
+                        let userLevelRoles = [];
+                        for (const roleID of Object.values(DBGuildLevelsystemRoles)) {
+                            const role = await msg.guild.roles.fetch(roleID);
+                            await member.roles.remove(role);
+                        }
+                        if (!DBGuildLevelsystem.rolesCumulative && user.level >= highestRoleKey) {
+                            const highestRole = await msg.guild.roles.fetch(DBGuildLevelsystemRoles[highestRoleKey]);
+                            await member.roles.add(highestRole);
+                            userLevelRoles = [DBGuildLevelsystemRoles[highestRoleKey]];
+                        } else {
+                            for (const levelRoleKey of Object.keys(DBGuildLevelsystemRolesSorted)) {
+                                if (user.level >= levelRoleKey) {
+                                    const role = await msg.guild.roles.fetch(DBGuildLevelsystemRoles[levelRoleKey]);
+                                    await member.roles.add(role);
+                                    userLevelRoles.push(DBGuildLevelsystemRoles[levelRoleKey]);
                                 }
                             }
-                            user_db.update(user);
-                            }
+                        }
+                        user.levelRoles = JSON.stringify(userLevelRoles);
+                    } catch(err) {
+                        console.error(err);
+                        if (err.message === "Unknown member") user.inGuild = false;
                     }
+                    sql.update("guild-users", user, `guildid = ${user.guildid} AND userid = ${user.userid}`);
                 }
+
                 message.edit({ embed: {
                     color: 2215713,
                     description: "~~:white_check_mark: Reloading all level roles...~~\n\nDone!"
@@ -131,22 +232,54 @@ module.exports = {
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
                 }
+            }
             case 'cumulative':
                 switch (args.lowercase[1]) {
-                    case 'true':
-                        db_guild.levelSystem.roles.cumulative = true;
-                        return QuickMessage.add(msg.channel, "Set cumulative roles to `true`.")
-                    case 'false':
-                        db_guild.levelSystem.roles.cumulative = false;
-                        return QuickMessage.remove(msg.channel, "Set cumulative roles to `false`.")
-                    default:
-                        return QuickMessage.invalid_argument(msg.channel, db_guild.prefix, "levelsettings");
+                    case 'true': {
+                        DBGuildLevelsystem.rolesCumulative = true;
+                        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`)
+                        replyEmbed = {
+                            color: 2215713,
+                            description: `:white_check_mark: Set cumulative roles to \`true\`.`
+                        }
+                        if (interaction) {
+                            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed)
+                        } else {
+                            return msg.channel.send({ embed: replyEmbed });
+                        }
+                    }
+                    case 'false': {
+                        DBGuildLevelsystem.rolesCumulative = false;
+                        await sql.update("guild-levelsystem", DBGuildLevelsystem, `id = ${DBGuildLevelsystem.id}`);
+                        replyEmbed = {
+                            color: 2215713,
+                            description: `:x: Set cumulative roles to \`false\`.`
+                        }
+                        if (interaction) {
+                            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                        } else {
+                            return msg.channel.send({ embed: replyEmbed });
+                        }
+                    }
+                    default: {
+                        replyEmbed = {
+                            color: 0xcf2d2d,
+                            title: ":octagonal_sign: Error!",
+                            description: `:question: Invalid argument! Use \`${DBGuild.prefix}help roles\` for help.`
+                        }
+                        if (interaction) {
+                            return await apiFunctions.interactionEdit(msg.client, interaction, msg.channel, replyEmbed);
+                        } else {
+                            return msg.channel.send({ embed: replyEmbed });
+                        }
+                    }
                 }
             case 'view':
-            default:
+            default: {
                 const arr = [];
-                for (const [key, value] of Object.entries(db_guild.levelSystem.roles)) {
-                    arr.push(`${key == `cumulative` ? `Cumulative: ${value}` : `Level: ${key} - ${await msg.guild.roles.fetch(value)}`}`);
+                arr.push(`Cumulatove roles: ${!!DBGuildLevelsystem.rolesCumulative}`); // alright this is fucking stupid, because DBGuildLevelsystem.rolesCumulative is a number (either 0 or 1) and not a boolean, I just invert it twice with ! to make it a boolean. This is why I love JavaScript.
+                for (const [key, value] of Object.entries(DBGuildLevelsystemRoles)) {
+                    arr.push(`Level: ${key} - ${await msg.guild.roles.fetch(value)}`);
                 }
                 replyEmbed = {
                     color: 49919,
@@ -158,6 +291,7 @@ module.exports = {
                 } else {
                     return msg.channel.send({ embed: replyEmbed});
                 }
+            }
         }
 
     }

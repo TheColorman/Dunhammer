@@ -1,15 +1,33 @@
-//@ts-check
-const { QuickMessage, apiFunctions } = require('../../helperfunctions.js');
+// eslint-disable-next-line no-unused-vars
+const MySQL = require("../../sql/sql"),
+    // eslint-disable-next-line no-unused-vars
+    Discord = require("discord.js"),
+
+    { apiFunctions } = require('../../helperfunctions.js');
 
 module.exports = {
     name: 'nickname',
     aliases: ['nick', 'name'],
-    short_desc: 'Change someones nickname.',
-    long_desc: 'Updates a users nickname.',
+    shortDesc: 'Change someones nickname.',
+    longDesc: 'Updates a users nickname.',
     usage: '<(tagged user/user tag)> <new nickname>',
     permissions: 'MANAGE_NICKNAMES',
     cooldown: 2,
-    async execute(msg, args, tags, databases, interaction) {
+    /**
+     * Command execution
+     * @param {Discord.Message} msg Message object
+     * @param {Object} args Argument object
+     * @param {Array<String>} args.lowercase Lowercase arguments
+     * @param {Array<String>} args.original Original arguments
+     * @param {Object} tags Tag object
+     * @param {Discord.Collection<string, Discord.User>} tags.users Collection of user tags
+     * @param {Discord.Collection<string, Discord.GuildMember>} tags.members Collection of member tags
+     * @param {Discord.Collection<string, Discord.TextChannel>} tags.channels Collection of channel tags
+     * @param {Discord.Collection<string, Discord.Role>} tags.roles Collection of role tags
+     * @param {MySQL} sql MySQL object
+     * @param {Object} interaction Interaction object
+     */
+    async execute(msg, args, tags, sql, interaction) {
         if (interaction) {  // Acknowledge slash command if it exists
             await msg.client.api.interactions(interaction.id, interaction.token).callback.post({ data: {
                 type: 5,
@@ -46,8 +64,8 @@ module.exports = {
             }    
         }
 
-        const clientHighestRole = msg.guild.me.roles.highest;
-        const memberHighestRole = msg.member.roles.highest;
+        const clientHighestRole = msg.guild.me.roles.highest,
+            memberHighestRole = taggedMember.roles.highest;
         if (clientHighestRole.position < memberHighestRole.position) {
             const replyEmbed = {
                 color: 0xcf2d2d,
@@ -62,7 +80,7 @@ module.exports = {
         }
         const old_nickname = taggedMember.nickname;
         args.original.splice(0, tags.members.first() ? 1 : taggedMember.user.tag.split(" ").length); // if the tag contains a space, remove the first 2 elements from args and so on
-        taggedMember.setNickname(args.original.join(" "), `Changed by ${msg.author.tag} using nickname command.`);
+        taggedMember.setNickname(args.original.join(" "), `Changed by "${msg.author.tag}" using nickname command.`);
         const replyEmbed = {
             color: 2215713,
             description: `:repeat: Updated ${taggedMember}'s nickname: \`${old_nickname}\` => \`${args.original.join(" ")}\``

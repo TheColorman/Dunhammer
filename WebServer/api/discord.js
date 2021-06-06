@@ -8,7 +8,6 @@ const router = express.Router();
 
 const CLIENT_ID = "671681661296967680";
 const CLIENT_SECRET = require('../../token.json').secret;
-const { response } = require('express');
 const redirect = encodeURIComponent('https://dunhammer.colorman.me/api/discord/callback');
 
 router.use(cookieParser(CLIENT_ID));
@@ -35,7 +34,7 @@ router.get('/login', catchAsync(async (req, res) => {
     res.cookie('state', state, {
         httpOnly: true,
         signed: true,
-        expires: new Date((30*60*1000) + Date.now()),
+        expires: new Date(30*60*1000 + Date.now()),
         secure: true,
     });
     res.send(`<meta http-equiv="refresh" content="0; URL=https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirect}&response_type=code&scope=email%20guilds&state=${state}">`);
@@ -76,7 +75,7 @@ router.get('/callback', catchAsync(async (req, res) => {
         const cookieConfig = {
             httpOnly: true,
             signed: true,
-            expires: new Date((7*24*60*60*1000) + Date.now()),
+            expires: new Date(7*24*60*60*1000 + Date.now()),
             secure: true,
         }        
         res.cookie('access_token', json.access_token, cookieConfig);
