@@ -54,6 +54,7 @@ module.exports = {
             }});
             await sql.getGuildInDB(guild);
             await sql.getGuildLevelsystemInDB(guild);
+            await sql.update(`guilds`, { name: guild.name }, `id = ${guild.id}`);
             const DSGuildMembers = (await guild.members.fetch()).map(member => member);
             statusMessage = cutLineBreaks(`${statusMessage}\n    Checking ${DSGuildMembers.length} members in guild`, 10);
             message.edit({ embed: {
@@ -63,6 +64,7 @@ module.exports = {
             for (let memberIndex = 0; memberIndex < DSGuildMembers.length; memberIndex++) {
                 const member = DSGuildMembers[memberIndex];
                 await sql.getGuildUserInDB(guild, member);
+                await sql.update(`guild-users`, { nickname: member.nickname }, `userid = ${member.id} AND guildid = ${guild.id}`)
             }
             statusMessage = cutLineBreaks(`${statusMessage}\n    Adding missing members to user database`, 10);
             message.edit({ embed: {

@@ -55,6 +55,7 @@ module.exports = {
             topTen = taggedrole ? userDB.filter(user => JSON.parse(user.roles).includes(taggedrole.id)) : await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`, 10),
             
             topTenArr = [];
+
         let index = 1,
             tagInTopTen = false;
         for (const DBUser of topTen) {

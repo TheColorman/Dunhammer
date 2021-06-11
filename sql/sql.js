@@ -196,26 +196,27 @@ class MySQL {
     /**
      * Adds guild user to database if they don't exist and returns the database entry
      * @param {Discord.Guild}  guild - DiscordJS guild
-     * @param {Discord.User}   user  - DiscordJS user
+     * @param {Discord.User}   member  - DiscordJS member
      * @returns {DBGuildUser} DBGuildUser object
      */
-    async getGuildUserInDB(guild, user) {
-        const DBGuildUserArr = await this.get("guild-users", `guildid = ${guild.id} AND userid = ${user.id}`);
+    async getGuildUserInDB(guild, member) {
+        const DBGuildUserArr = await this.get("guild-users", `guildid = ${guild.id} AND userid = ${member.id}`);
         if (!DBGuildUserArr.length) {
             const DBGuildLevelsystem = await this.getGuildLevelsystemInDB(guild),
                 levelSystemRoles = DBGuildLevelsystem.roles,
-                userRoles = (await guild.members.fetch(user.id)).roles.cache.map(item => item.id),
+                userRoles = (await guild.members.fetch(member.id)).roles.cache.map(item => item.id),
                 levelRoles = userRoles.filter(role => levelSystemRoles.includes(role));
             await this.insert("guild-users", {
-                userid: user.id,
+                userid: member.id,
                 guildid: guild.id,
+                nickname: member.nickname,
                 xp: 0,
                 level: 0,
                 levelRoles: JSON.stringify(levelRoles),
                 roles: JSON.stringify(userRoles),
                 inGuild: true
             });
-            return (await this.get("guild-users", `guildid = ${guild.id} AND userid = ${user.id}`))[0];
+            return (await this.get("guild-users", `guildid = ${guild.id} AND userid = ${member.id}`))[0];
         }
         return DBGuildUserArr[0];
     }
