@@ -51,7 +51,7 @@ class MySQL {
             const query = `INSERT INTO \`${v+table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => this.escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Inserted ${result.affectedRows} rows.`);
+                ///console.log(`Inserted ${result.affectedRows} rows.`);
                 res(result);
             });
         });
@@ -68,7 +68,7 @@ class MySQL {
             const query = `UPDATE \`${v+table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Updated ${result.affectedRows} rows.`);
+                ///console.log(`Updated ${result.affectedRows} rows.`);
                 res(result);
             });
         });
@@ -84,7 +84,7 @@ class MySQL {
             const query = `DELETE FROM ${v+table} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Removed ${result.affectedRows} rows`);
+                ///console.log(`Removed ${result.affectedRows} rows`);
                 res(result);
             })
         });

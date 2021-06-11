@@ -152,7 +152,6 @@ module.exports = {
                                             user.levelRoles = JSON.stringify(userLevelRoles);
                                             DSMember.roles.remove(role);
                                         } catch(err) {
-                                            console.error(err);
                                             if (err.message === "Unknown member") user.inGuild = false;
                                         }
                                         awaiter = sql.update("guild-users", user, `guildid = ${user.guildid} AND userid = ${user.userid}`);
@@ -213,7 +212,6 @@ module.exports = {
                         }
                         user.levelRoles = JSON.stringify(userLevelRoles);
                     } catch(err) {
-                        console.error(err);
                         if (err.message === "Unknown member") user.inGuild = false;
                     }
                     sql.update("guild-users", user, `guildid = ${user.guildid} AND userid = ${user.userid}`);
