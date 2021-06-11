@@ -720,39 +720,44 @@ module.exports = {
         //         await sql.insert("guild-levelsystem", levelsystemObject);
         //     }
 
-            const userDBOLD = guildUserDBOLD.find(element => element.name == currentGuild.guild_id);
-            for (let j = 0; j < userDBOLD.data.length; j++) {
-                const user = userDBOLD.data[j],
-                    foundGuildUser = (await sql.get("guild-users", `guildid = ${currentGuild.guild_id} AND userid = ${user.user_id}`))[0],
-                    foundUser = (await sql.get("users", `id = ${user.user_id}`))[0],
-                    guildUserObject = {
-                        userid: user.user_id,
-                        guildid: currentGuild.guild_id,
-                        xp: user.xp,
-                        level: user.level,
-                        levelRoles: JSON.stringify(user.levelroles),
-                        roles: JSON.stringify(user.roles),
-                        inGuild: user.inGuild || true
-                    },
-                    DSUser = await client.users.fetch(user.user_id),
-                    userObject = {
-                        id: user.user_id,
-                        username: DSUser.username,
-                        tag: DSUser.tag.slice(-4),
-                        unsubscribed: false
-                    }
-                if (foundGuildUser) {
-                    sql.update("guild-users", guildUserObject, `guildid = ${guildUserObject.guildid} AND userid = ${guildUserObject.userid}`);
-                } else {
-                    await sql.insert("guild-users", guildUserObject);
-                }
-                if (foundUser) {
-                    sql.update("users", userObject, `id = ${userObject.id}`);
-                } else {
-                    await sql.insert("users", userObject);
-                }
-            }
-        }
+        //     const userDBOLD = guildUserDBOLD.find(element => element.name == currentGuild.guild_id);
+        //     for (let j = 0; j < userDBOLD.data.length; j++) {
+        //     console.log(`User ${j+1}/${userDBOLD.data.length}`);
+        //         const user = userDBOLD.data[j],
+        //             foundGuildUser = (await sql.get("guild-users", `guildid = ${currentGuild.guild_id} AND userid = ${user.user_id}`))[0],
+        //             foundUser = (await sql.get("users", `id = ${user.user_id}`))[0],
+        //             guildUserObject = {
+        //                 userid: user.user_id,
+        //                 guildid: currentGuild.guild_id,
+        //                 xp: user.xp,
+        //                 level: user.level,
+        //                 levelRoles: JSON.stringify(user.levelroles || []),
+        //                 roles: JSON.stringify(user.roles),
+        //                 inGuild: user.inGuild || true
+        //             }
+        //             if (foundGuildUser) {
+        //                 sql.update("guild-users", guildUserObject, `guildid = ${guildUserObject.guildid} AND userid = ${guildUserObject.userid}`);
+        //             } else {
+        //                 await sql.insert("guild-users", guildUserObject);
+        //             }
+        //         try {
+        //             const DSUser = await client.users.fetch(user.user_id),
+        //             userObject = {
+        //                 id: user.user_id,
+        //                 username: DSUser.username,
+        //                 tag: DSUser.tag.slice(-4),
+        //                 unsubscribed: false
+        //             }
+        //             if (foundUser) {
+        //                 sql.update("users", userObject, `id = ${userObject.id}`);
+        //             } else {
+        //                 await sql.insert("users", userObject);
+        //             }
+        //         } catch(err) {
+        //             console.error(err);
+        //         }
+        //     }
+        // }
         //#endregion
     }
 }
