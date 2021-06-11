@@ -59,19 +59,23 @@ module.exports = {
         let index = 1,
             tagInTopTen = false;
         for (const DBUser of topTen) {
-            const DSUser = await msg.client.users.fetch(DBUser.userid);
-            if (!msg.guild.member(DSUser)) {
-                DBUser.inGuild = false;
-                await sql.update("guild-users", DBUser, `guildid = ${DBUser.guildid} AND userid = ${DBUser.userid}`);
+            try {
+                const DSUser = await msg.client.users.fetch(DBUser.userid);
+                if (!msg.guild.member(DSUser)) {
+                    DBUser.inGuild = false;
+                    await sql.update("guild-users", DBUser, `guildid = ${DBUser.guildid} AND userid = ${DBUser.userid}`);
+                }
+                let textDecor = "";
+                if (taggedMember.id == DSUser.id) {
+                    textDecor = "__";
+                    tagInTopTen = true;
+                }
+                
+                topTenArr.push(`${textDecor}#${index} - ${DSUser} - Level ${DBUser.level}${textDecor}`);
+                index++;
+            } catch (err) {
+                sql.update(`guild-users`, { inGuild: false }, `userid = ${DBUser.userid} AND guildid = ${DBUser.guildid}`);
             }
-            let textDecor = "";
-            if (taggedMember.id == DSUser.id) {
-                textDecor = "__";
-                tagInTopTen = true;
-            }
-            
-            topTenArr.push(`${textDecor}#${index} - ${DSUser} - Level ${DBUser.level}${textDecor}`);
-            index++;
         }
         const taggedDBUser = (await sql.get("guild-users", `guildid = ${msg.guild.id} AND userid = ${taggedMember.id}`))[0],
             hasRole = taggedrole ? JSON.parse(taggedDBUser.roles).includes(taggedrole.id) : true;
