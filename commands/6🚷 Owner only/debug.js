@@ -687,8 +687,8 @@ module.exports = {
         //#endregion
         
         //#region Guild DB update
+
         // for (let i = 0; i < guildDBOLD.length; i++) {
-        //     console.log(`Guild ${i+1}/${guildDBOLD.length}`);
         //     const currentGuild = guildDBOLD[i],
         //         foundGuild = (await sql.get("guilds", `id = ${currentGuild.guild_id}`))[0],
         //         guildObject = {
@@ -722,7 +722,6 @@ module.exports = {
 
         //     const userDBOLD = guildUserDBOLD.find(element => element.name == currentGuild.guild_id);
         //     for (let j = 0; j < userDBOLD.data.length; j++) {
-        //     console.log(`User ${j+1}/${userDBOLD.data.length}`);
         //         const user = userDBOLD.data[j],
         //             foundGuildUser = (await sql.get("guild-users", `guildid = ${currentGuild.guild_id} AND userid = ${user.user_id}`))[0],
         //             foundUser = (await sql.get("users", `id = ${user.user_id}`))[0],

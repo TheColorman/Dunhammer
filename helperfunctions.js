@@ -231,7 +231,7 @@ const CanvasImage = {
                 try {
                     nextDiscordMember = await guild.members.fetch(nextDBUser.userid);
                 } catch (err) {
-                    if (err.message === "Unknown User") {
+                    if (err.message === "Unknown User" || err.message === "Unknown Member") {
                         nextDBUser.inGuild = false;
                         await sql.update("guild-users", nextDBUser, `guildid = ${nextDBUser.guildid} AND userid = ${nextDBUser.userid}`)
                     }
