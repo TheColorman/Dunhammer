@@ -52,7 +52,7 @@ module.exports = {
 
         taggedMember ||= msg.member;
         const userDB = await sql.get("guild-users", `guildid = ${msg.guild.id}`, `xp DESC`),
-            topTen = taggedrole ? userDB.filter(user => JSON.parse(user.roles).includes(taggedrole.id)) : await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`, 10),
+            topTen = taggedrole ? (await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`)).filter(user => JSON.parse(user.roles).includes(taggedrole.id)).splice(0, 10) : await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`, 10),
             
             topTenArr = [];
 
