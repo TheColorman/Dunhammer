@@ -52,25 +52,30 @@ module.exports = {
 
         taggedMember ||= msg.member;
         const userDB = await sql.get("guild-users", `guildid = ${msg.guild.id}`, `xp DESC`),
-            topTen = taggedrole ? userDB.filter(user => JSON.parse(user.roles).includes(taggedrole.id)) : await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`, 10),
+            topTen = taggedrole ? (await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`)).filter(user => JSON.parse(user.roles).includes(taggedrole.id)).splice(0, 10) : await sql.get("guild-users", `guildid = ${msg.guild.id} AND inGuild != 0`, `xp DESC`, 10),
             
             topTenArr = [];
+
         let index = 1,
             tagInTopTen = false;
         for (const DBUser of topTen) {
-            const DSUser = await msg.client.users.fetch(DBUser.userid);
-            if (!msg.guild.member(DSUser)) {
-                DBUser.inGuild = false;
-                await sql.update("guild-users", DBUser, `guildid = ${DBUser.guildid} AND userid = ${DBUser.userid}`);
+            try {
+                const DSUser = await msg.client.users.fetch(DBUser.userid);
+                if (!msg.guild.member(DSUser)) {
+                    DBUser.inGuild = false;
+                    await sql.update("guild-users", DBUser, `guildid = ${DBUser.guildid} AND userid = ${DBUser.userid}`);
+                }
+                let textDecor = "";
+                if (taggedMember.id == DSUser.id) {
+                    textDecor = "__";
+                    tagInTopTen = true;
+                }
+                
+                topTenArr.push(`${textDecor}#${index} - ${DSUser} - Level ${DBUser.level}${textDecor}`);
+                index++;
+            } catch (err) {
+                sql.update(`guild-users`, { inGuild: false }, `userid = ${DBUser.userid} AND guildid = ${DBUser.guildid}`);
             }
-            let textDecor = "";
-            if (taggedMember.id == DSUser.id) {
-                textDecor = "__";
-                tagInTopTen = true;
-            }
-            
-            topTenArr.push(`${textDecor}#${index} - ${DSUser} - Level ${DBUser.level}${textDecor}`);
-            index++;
         }
         const taggedDBUser = (await sql.get("guild-users", `guildid = ${msg.guild.id} AND userid = ${taggedMember.id}`))[0],
             hasRole = taggedrole ? JSON.parse(taggedDBUser.roles).includes(taggedrole.id) : true;

@@ -1,4 +1,3 @@
-//@ts-check
 // eslint-disable-next-line no-unused-vars
 const MySQL = require("../../sql/sql"),
     // eslint-disable-next-line no-unused-vars
@@ -54,6 +53,7 @@ module.exports = {
             }});
             await sql.getGuildInDB(guild);
             await sql.getGuildLevelsystemInDB(guild);
+            await sql.update(`guilds`, { name: guild.name }, `id = ${guild.id}`);
             const DSGuildMembers = (await guild.members.fetch()).map(member => member);
             statusMessage = cutLineBreaks(`${statusMessage}\n    Checking ${DSGuildMembers.length} members in guild`, 10);
             message.edit({ embed: {
@@ -63,8 +63,10 @@ module.exports = {
             for (let memberIndex = 0; memberIndex < DSGuildMembers.length; memberIndex++) {
                 const member = DSGuildMembers[memberIndex];
                 await sql.getGuildUserInDB(guild, member);
+                await sql.update(`guild-users`, { nickname: member.nickname }, `userid = ${member.id} AND guildid = ${guild.id}`)
             }
-            statusMessage = cutLineBreaks(`${statusMessage}\n    Adding missing members to user database`, 10);
+
+            statusMessage = cutLineBreaks(`${statusMessage}\n        Adding missing members to user database`, 10);
             message.edit({ embed: {
                 color: 49919,
                 description: `${mainMessage}\n\n\`\`\`\n${statusMessage}\n\`\`\``
@@ -73,6 +75,26 @@ module.exports = {
                 const member = DSGuildMembers[memberIndex];
                 await sql.getUserInDB(member.user);
             }
+
+            statusMessage = cutLineBreaks(`${statusMessage}\n    Verifying status of guild users in database`, 10);
+            message.edit({ embed: {
+                color: 49919,
+                description: `${mainMessage}\n\n\`\`\`\n${statusMessage}\n\`\`\``
+            }});
+            const DBGuildUsers = await sql.get(`guild-users`, `guildid = ${guild.id}`);
+            DBGuildUsers.forEach(async DBGuildMember => {
+                const DSGuildMember = guild.member(DBGuildMember.userid);
+                await sql.update(`guild-users`, { inGuild: !!DSGuildMember }, `guildid = ${DBGuildMember.guildid} AND userid = ${DBGuildMember.userid}`)
+                try {
+                    await msg.client.users.fetch(DBGuildMember.userid);
+                } catch(err) {
+                    if (err.message == "Unknown User") await sql.delete(`guild-users`, `guildid = ${guild.id} AND userid = ${DBGuildMember.userid}`);
+                    else {
+                        console.log("error message");
+                        console.error(err);
+                    }
+                }
+            });
         }
 
         return message.edit({ embed: {

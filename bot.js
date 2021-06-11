@@ -348,7 +348,7 @@ async function levelsystem(msg, DBGuild) {
     const levelSystem = await sql.getGuildLevelsystemInDB(msg.guild);
 
     if (!levelSystem.enabled || JSON.parse(levelSystem.ignoredChannels).includes(msg.channel.id)) return;
-    const DBGuildUser = await sql.getGuildUserInDB(msg.guild, msg.author),
+    const DBGuildUser = await sql.getGuildUserInDB(msg.guild, msg.member),
     
     // Check if user cooldown is over
         now = Date.now(),
@@ -440,18 +440,18 @@ function replaceIngredients(string, member, DBGuildUser, role) {
 
 // Make sure we mark removed users so they don't break the program.
 client.on("guildMemberRemove", async member => {
-    const DBGuildUser = await sql.getGuildUserInDB(member.guild, member.user);
+    const DBGuildUser = await sql.getGuildUserInDB(member.guild, member);
     DBGuildUser.inGuild = false;
     await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`)
 });
 client.on("guildMemberAdd", async member => {
     await sql.getUserInDB(member.user);
-    await sql.getGuildUserInDB(member.guild, member.user);
+    await sql.getGuildUserInDB(member.guild, member);
 });
 
 // Get user roles - possibly more data in the future.
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
-    const DBGuildUser = await sql.getGuildUserInDB(newMember.guild, newMember.user);
+    const DBGuildUser = await sql.getGuildUserInDB(newMember.guild, newMember);
     if (DBGuildUser.roles != JSON.stringify(newMember.roles.cache.map(role => role.id))) {
         DBGuildUser.roles = JSON.stringify(newMember.roles.cache.map(role => role.id));
         await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
