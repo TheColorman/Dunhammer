@@ -81,7 +81,7 @@ class MySQL {
      */
     async delete(table, queryLogic) {
         return new Promise((res) => {
-            const query = `DELETE FROM ${v+table} WHERE (${queryLogic})`;
+            const query = `DELETE FROM \`${v+table}\` WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
                 console.log(`Removed ${result.affectedRows} rows`);
