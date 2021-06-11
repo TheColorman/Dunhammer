@@ -101,7 +101,7 @@ module.exports = {
                             });
                         
                         req.on('error', (err) => {
-                            console.log(err);
+                            console.error(err);
                         });
                         
                         req.write(data);
