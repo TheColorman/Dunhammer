@@ -4,7 +4,7 @@ const express = require('express'),
     { catchAsync, htmlEncode } = require('./utils'),
     fetch = require('node-fetch'),
 //const session = require('express-session');
-    { guild_config } = require('./api/loki'),
+    //{ guild_config } = require('./api/loki'),
 //const { token } = require('../token.json');
 
     app = express(),
@@ -20,6 +20,11 @@ app.get('/', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, 'index.html'));
 });
 
+app.get('/leaderboards', (req, res) => {
+    return res.send("Leaderboards currently don't work because I'm a big dumb dumb who forgot to update it to MySQL.");
+});
+//#region leaderboards
+/*
 app.get('/leaderboards', catchAsync(async (req, res) => {
     if (!req.signedCookies.access_token) {
         return res.end(`<h1>bro you are literally supposed to <a href="/api/discord/login">log in</a>.</p>`);
@@ -142,12 +147,14 @@ app.get('/leaderboards', catchAsync(async (req, res) => {
     });
     res.end(`</body>`);
 }));
+*/
+//#endregion
 
 app.listen(8081, () => {
     console.info('Running on port 8081');
 });
 
-app.use((err, req, res) => {
+/* app.use((err, req, res) => {
     switch (err.message) {
         case 'NoCodeProvided': {
             return res.status(400).send({
@@ -162,4 +169,4 @@ app.use((err, req, res) => {
             });
         }
     }
-});
+}); */
