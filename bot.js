@@ -63,7 +63,7 @@ function refreshPresence() {
     remainingPresences.splice(remainingPresences.indexOf(currentStatus), 1);
     client.user.setPresence({
         activity: {
-            name: `.help | ${rare_presence || current_presence}`
+            name: `${rareStatus || currentStatus} | .help - V2.6.1`
         }
     });
 }
