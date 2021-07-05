@@ -153,8 +153,8 @@ client.on("message", async (msg) => {
 
     let command;
     client.commandCategories.forEach(category => {
-        category.forEach((cmd, cmd_name) => {
-            const com = cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName) ? cmd : undefined;
+        category.forEach((cmd, cmdName) => {
+            const com = cmdName == commandName || cmd.aliases && cmd.aliases.includes(commandName) ? cmd : undefined;
             if (com) command = com;
         });
     });
@@ -238,8 +238,8 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
         commandName = interaction.data.name;
     let command;
     client.commandCategories.forEach(category => {
-        category.forEach((cmd, cmd_name) => {
-            const com = cmd_name == commandName || cmd.aliases && cmd.aliases.includes(commandName) ? cmd : undefined;
+        category.forEach((cmd, cmdName) => {
+            const com = cmdName == commandName || cmd.aliases && cmd.aliases.includes(commandName) ? cmd : undefined;
             if (com) command = com;
         });
     });
@@ -288,20 +288,20 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     setTimeout(() => timestamps.delete(msg.author.id), cooldownAmount);
 
     const args = [],
-        arguments_lowercase = [];
+        argumentsLowercase = [];
     if (interaction.data.options) {
         interaction.data.options.forEach(option => {
             if (option.options) {
                 args.push(option.name);
-                option.options.forEach(nested_option => {
-                    args.push(nested_option.value);
+                option.options.forEach(nestedOption => {
+                    args.push(nestedOption.value);
                 });
             } else {
                 args.push(`${option.value}` || `${option.name}`);
             }
         });
         args.forEach(argument => {
-            arguments_lowercase.push(`${argument}`.toLowerCase());
+            argumentsLowercase.push(`${argument}`.toLowerCase());
         });
     }
     const userTags = new Discord.Collection(),
@@ -322,7 +322,7 @@ client.ws.on('INTERACTION_CREATE', async interaction => {
     try {
         command.execute(
             msg,    // msg
-            { lowercase: arguments_lowercase, original: args}, // args
+            { lowercase: argumentsLowercase, original: args}, // args
             { users: userTags, members: memberTags, channels: channelTags, roles: roleTags}, // tags
             sql,    // databases
             interaction // interaction
@@ -368,8 +368,8 @@ async function levelsystem(msg, DBGuild) {
         upper = 10000000000;    // max xp. equivalent to sending 500 million messages, which would take 951 years at 1 message/minute.
     while (lower + 1 < upper) {
         const middle = Math.floor((lower + upper)/2),
-            level_xp = 5*(118*middle+2*middle*middle*middle)/6;
-        if (level_xp > xp) {
+            levelXP = 5*(118*middle+2*middle*middle*middle)/6;
+        if (levelXP > xp) {
             upper = middle;
         } else {
             lower = middle;
@@ -401,23 +401,24 @@ async function levelsystem(msg, DBGuild) {
             userLevelRoles.push(levelSystemRoles[level]);
         }
         await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
-
-        const levelup_message = {
+        const levelupMessage = {
             color: JSON.parse(levelSystem.levelupMessage).color,
             title: JSON.parse(levelSystem.levelupMessage).title ? replaceIngredients(JSON.parse(levelSystem.levelupMessage).title, msg.member, DBGuildUser, "{role}") : "",
             description: JSON.parse(levelSystem.levelupMessage).description ? replaceIngredients(JSON.parse(levelSystem.levelupMessage).description, msg.member, DBGuildUser, "{role}") : ""
         }
+
         if (levelSystem.levelupImage) {
             await CanvasImage.levelup_image(msg.member, DBGuildUser, msg.guild, sql);
             const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
             levelup_message.image = {
                 url: 'attachment://level.png'
             }
-            return channel.send({ files: [attachment], embed: levelup_message });
+            return channel.send({ files: [attachment], embed: levelupMessage });
         }
-        return channel.send({ embed: levelup_message });
+        return channel.send({ embed: levelupMessage });
     }
 }
+
 
 /**
  * Extracts text ingredients from strings and returns the updated string. Current ingredients are
