@@ -24,8 +24,11 @@
         "No additives!",
         "Fun fact: I just pulled 2 all-nighters in order to fix this stupid Discord Bot!",
         "Now with webhooks!",
-        "VR not supported"
-    ]
+        "VR not supported",
+        "Mining bitcoins on your GPU...",
+        "Stealing code from Dyno...",
+        "Now with a website: dunhammer.colorman.me!"
+    ],
     "mysql_login": {
         "host": "phpmyadmin.head9x.dk",
         "user": "Colorman",
