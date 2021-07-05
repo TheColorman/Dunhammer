@@ -425,7 +425,7 @@ async function levelsystem(msg, DBGuild) {
  * {username}, {level}, {xp}, {nickname}, {tag} and {role}
  * @param {string} string String to extract ingredients from
  * @param {Discord.GuildMember} member 
- * @param {Object} db_user 
+ * @param {DBGuildUser} DBGuildUser 
  * @param {Discord.Role | string} role
  */
 function replaceIngredients(string, member, DBGuildUser, role) {
