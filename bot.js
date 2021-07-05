@@ -4,7 +4,7 @@ const Discord = require('discord.js'),
     MySQL = require("./sql/sql"),
     { CanvasImage } = require('./helperfunctions.js'),
 
-    { presences } = require('./config.json'),
+    { statuses, mysql_login: mysqlLogin } = require('./config.json'),
     { token, mysqlPassword } = require('./token.json'),
     // eslint-disable-next-line no-unused-vars
     { apiFunctions } = require('./helperfunctions');
@@ -39,7 +39,7 @@ process.on('uncaughtException', async (err) => {
 });
 
 // When client is ready
-let remainingPresences = Array.from(presences);
+let remainingPresences = Array.from(statuses);
 client.once('ready', () => {
 
     console.log(`${client.user.tag} is online.`);
@@ -53,14 +53,14 @@ client.once('ready', () => {
 
 // Sets a presence with a 0.1% chance of a rare one
 function refreshPresence() {
-    const rare_presence = Math.random() > 0.99 ? "This message has a 0.1% chance of appearing, you're lucky!" : undefined;
-    if (!remainingPresences.length) remainingPresences = Array.from(presences);
+    const rareStatus = Math.random() > 0.99 ? "This message has a 0.1% chance of appearing, you're lucky!" : undefined;
+    if (!remainingPresences.length) remainingPresences = Array.from(statuses);
 
-    const current_presence = remainingPresences[Math.floor(Math.random() * remainingPresences.length)];
+    const currentStatus = remainingPresences[Math.floor(Math.random() * remainingPresences.length)];
     
-    console.log(`Setting presence... ["${current_presence}"]`);
+    console.log(`Setting presence... ["${currentStatus}"]`);
     
-    remainingPresences.splice(remainingPresences.indexOf(current_presence), 1);
+    remainingPresences.splice(remainingPresences.indexOf(currentStatus), 1);
     client.user.setPresence({
         activity: {
             name: `.help | ${rare_presence || current_presence}`
