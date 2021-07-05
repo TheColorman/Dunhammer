@@ -126,6 +126,12 @@ class MySQL {
      * @property {Array<String>}  roles      - Stringified array of role IDs of user roles
      * @property {Boolean}        inGuild    - Whether or not the user is present in the guild
      */
+    /**
+     * @typedef {Object} DBWebUser
+     * @property {String}  id          - User ID
+     * @property {String}  accessToken - User's Discord API access token
+     * @property {String}  state       - State as defined by Discord OAth2 docs
+     */
 
     /**
      * Adds user to database if they don't exist and returns the database entry

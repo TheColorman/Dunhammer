@@ -1,0 +1,35 @@
+.accordion-dark .accordion-button {
+    color: #f8f9fa;
+    background-color: #212529;
+    border: none;
+    border-bottom: 1px solid #373b3e;
+}
+.accordion-dark .accordion-item {
+    border: 1px solid #373b3e;
+}
+.accordion-dark .accordion-button:not(.collapsed) {
+    color: #8cb6e2;
+    background-color: #192531;
+    border-bottom: none;
+}
+.accordion-dark .accordion-button::after {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+.accordion-dark .accordion-body {
+    border-top: 1px solid #373b3e;
+    background-color: #25292E;
+}
+.accordion-dark .accordion-button:focus {
+    border: none;
+    border-color: #192531;
+}
+
+.card.bg-dark .card-body {
+    /* background-color: #1b1f22; */
+    background-color: #272F36;
+}
+
+.card.bg-dark .card-header {
+    /* background-color: #171a1d; */
+    background-color: #232A30;
+}

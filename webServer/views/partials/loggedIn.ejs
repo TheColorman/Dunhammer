@@ -1,0 +1,45 @@
+<a
+    href="#"
+    class="nav-link dropdown-toggle"
+    id="navbarDropdown"
+    role="button"
+    data-bs-toggle="dropdown"
+    aria-expanded="false"
+>
+        <% if (menu) { %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                <path d="M11 6a3 3 0 1 1-6 0 3 3 0 0 1 6 0z"/>
+                <path fill-rule="evenodd" d="M0 8a8 8 0 1 1 16 0A8 8 0 0 1 0 8zm8-7a7 7 0 0 0-5.468 11.37C3.242 11.226 4.805 10 8 10s4.757 1.225 5.468 2.37A7 7 0 0 0 8 1z"/>
+            </svg>
+        <% } else { %>
+            <img class="rounded-circle img-fluid" src=
+                <% if (user.avatar.startsWith("a_")) { %>
+                    <%= `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif?size=128` %>
+                <% } else { %>
+                    <%= `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=128` %>
+                <% } %>
+            alt="" width="40" />
+        <% } %>
+        <%= `${user.username}#${user.tag}` %>
+</a>
+<ul
+    class="dropdown-menu dropdown-menu-dark"
+    aria-labelledby="navbarDropdown"
+    style="position: absolute"
+>
+    <li>
+        <a href="/dashboard" class="dropdown-item">Dashboard</a>
+    </li>
+    <li>
+        <a href="/profile" class="dropdown-item">Profile</a>
+    </li>
+    <li>
+        <a href="/servers" class="dropdown-item">Servers</a>
+    </li>
+    <li>
+        <a href="/settings" class="dropdown-item">Settings</a>
+    </li>
+    <li>
+        <a href="/logout" class="dropdown-item">Log out</a>
+    </li>
+</ul>

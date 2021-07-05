@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head'); %>
+        <title>Dunhammer | Home</title>
+    </head>
+    <body class="bg-dark text-light">
+        <%- include('../partials/navbar', { user }); %>
+
+        <div class="container" style="margin-top: 100px;">
+            <div class="row">
+                <div class="col-2"></div>
+                <div class="col-8">
+                    <h1 class="display-1"><strong>Dunhammer</strong></h1>
+                    <p><em>Recommended by 9/10 doctors</em></p>
+                </div>
+                <div class="col-2"></div>
+            </div>
+            <div class="row my-3 gx-5">
+                <div class="col-2"></div>
+                <div class="col-8 px-5">
+                    <p class="text-center">Enjoy this abstract art</p>
+                    <img class="img-fluid" src="images/abstract-art.svg" alt="Art" style="display: block; margin: auto;" draggable="false">
+                </div>
+                <div class="col-2"></div>
+            </div>
+        </div>
+
+        <%- include('../partials/footer'); %>
+    </body>
+</html>

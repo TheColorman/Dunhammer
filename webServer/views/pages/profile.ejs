@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <%- include("../partials/head"); %>
+    <title>Dunhammer | Profile</title>
+</head>
+<body class="bg-dark text-light">
+    <%- include("../partials/navbar", { user }); %>
+
+    <div class="container gb-5" style="margin-top: 100px">
+        <div class="row">
+            <div class="col-0 col-xl-1"></div>
+            <div class="col-12 col-xl-10">
+                <civ class="card bg-dark text-light">
+                    <div class="card-body px-0 px-xl-2">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-3 my-auto px-0 p-xl-3">
+                                    <img class="rounded-circle img-fluid" src=
+                                        <% if (user.avatar.startsWith("a_")) { %>
+                                            <%= `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.gif?size=256` %>
+                                        <% } else { %>
+                                            <%= `https://cdn.discordapp.com/avatars/${user.id}/${user.avatar}.png?size=256` %>
+                                        <% } %>
+                                    alt="" width="192" />
+                                </div>
+                                <div class="col-9">
+                                    <h4 class="d-xl-none">Global level</h4>
+                                    <h2 class="d-none d-xl-block">Global level</h2>
+                                    <h6 class="text-muted d-xl-none">
+                                        <small>&emsp;&emsp;<%= `${user.username}#${user.tag}` %></small>
+                                    </h6>
+                                    <h3 class="text-muted d-none d-xl-block">
+                                        &emsp;&emsp;<%= `${user.username}#${user.tag}` %>
+                                    </h3>
+                                    <br><br class="d-none d-lg-block"><br class="d-none d-xl-block">
+                                    <span class="d-none d-xl-block">RANK <span class="h1">2</span>&emsp;&emsp;&emsp;<span class="text-success">LEVEL <span class="h1">32</span></span>&emsp;&emsp;&emsp;&emsp;4588 <span class="text-muted">/ 5380 xp</span></span>
+                                    <span class="d-xl-none" style="font-size: 12px;"><span>RANK <span class="h1" style="font-size: 24px">2</span>&emsp;</span><span class="text-success">LEVEL <span class="h1" style="font-size: 24px">32</span></span>&emsp;<span>4588</span> <span class="text-muted">/ 5380 xp</span></span>
+                                    <div class="progress" style="background-color: rgb(63, 63, 63);">
+                                        <div class="progress-bar bg-success" style="width: 69%;" role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </civ>
+            </div>
+            <div class="col-0 col-xl-1"></div>
+        </div>
+        <div class="row mt-5">
+            <div class="col text-center">
+                <h1>Server specific levels</h1>
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col-2"></div>
+            <div class="col-8">
+                <% guilds.forEach(guild => { %>
+                    <% if (!guild.name) return; %> 
+                    <%  %> 
+                    <div class="card bg-dark text-light mb-2">
+                        <div class="card-header">
+                            <img class="rounded-circle img-fluid me-2" src="https://cdn.discordapp.com/icons/776187795013894164/3b7e625830ed64cbbe77207213e7a0db.webp?size=128" alt="" width="40">
+                            <%= guild.name %> 
+                        </div>
+                        <div class="card-body">
+                            <small><span>RANK <span class="h2 me-3">2</span><span class="text-success mx-5">LEVEL <span class="h2"><%= guild.level %></span></span><span class="ms-5">4588 </span> <span class="text-muted">/ 5380 xp</span></span></small>
+                            <div class="progress" style="background-color: rgb(63, 63, 63);">
+                                <div class="progress-bar bg-success" style="width: 69%;" role="progressbar" aria-valuenow="69" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+            <div class="col-2"></div>
+        </div>
+    </div>
+
+    <%- include('../partials/footer'); %>
+</body>
+</html>

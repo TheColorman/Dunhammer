@@ -1,165 +1,155 @@
-const express = require('express'),
-    path = require('path'),
-    cookieParser = require('cookie-parser'),
-    { catchAsync, htmlEncode } = require('./utils'),
-    fetch = require('node-fetch'),
-//const session = require('express-session');
-    { guild_config } = require('./api/loki'),
-//const { token } = require('../token.json');
-
+const express = require("express"),
+    fetch = require("node-fetch"),
+    { catchAsync } = require("./utils"),
+    session = require("express-session"),
+    MySQLStore = require("express-mysql-session")(session),
+    bodyParser = require("body-parser"),
+    crypto = require("crypto"),
+    path = require("path"),
+    MySQL = require("../sql/sql"),
+    ejs = require("ejs"),
     app = express(),
-    client_id = "671681661296967680";
 
-// Routes
-app.use('/api/discord', require('./api/discord'));
+    { cookieSecret, mysqlPassword, applicationSecret } = require("../token.json"),
+    { mysql_login: mysqlLogin, client_id: clientID } = require("../config.json");
 
-app.use(cookieParser(client_id));
-app.set('etag', false);
+// set the view engine to ejs
+app.set("view engine", "ejs");
 
-app.get('/', (req, res) => {
-    res.status(200).sendFile(path.join(__dirname, 'index.html'));
+const sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword})),
+    sessionStore = new MySQLStore({}, sql.con);
+
+app.use(express.static(`${__dirname}/assets`));
+app.use(session({
+    secret: cookieSecret,
+    store: sessionStore,
+    resave: false,
+    saveUninitialized: false
+}));
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
+
+// index page
+app.get("/", (req, res) => {
+    const user = req.session.user;
+    res.render("pages/index", { user });
 });
 
-app.get('/leaderboards', catchAsync(async (req, res) => {
-    if (!req.signedCookies.access_token) {
-        return res.end(`<h1>bro you are literally supposed to <a href="/api/discord/login">log in</a>.</p>`);
-    }
-    const access_token = req.signedCookies.access_token;
-    const response = await fetch(`https://discord.com/api/v8/users/@me/guilds`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${access_token}`
-        }
+app.get("/help", (req, res) => {
+    const user = req.session.user;
+    res.render("pages/help", { user });
+});
+
+app.get("/profile", catchAsync(async (req, res) => {
+    const user = req.session.user;
+    if (!user) return res.redirect("/login");
+    
+    const DBUserGuilds = await sql.get("guild-users", `userid = ${user.id}`),
+        DBGuilds = DBUserGuilds.map(async DBUserGuild => {
+            const DBGuild = (await sql.get("guilds", `id = ${DBUserGuild.guildid}`))[0];
+            return Object.assign({}, DBUserGuild, DBGuild);
+        });
+    //#region Updating database information
+        /*
+            write a function that updates data for user in database for all their guilds.
+            that would mean updating their xpRelative, xpRelativeNextLevel and Rank.
+            (actually why even have it in the database if i'm calculating it here anyway?)
+
+        */
+    //#endregion
+    
+    Promise.all(DBGuilds).then(async (guilds) => {
+        const html = await ejs.renderFile("./views/pages/profile", { user, guilds }, { async: true });
+        res.send(html);
     });
-    const json = await response.json();
-    const filtered = json.filter(guild => {
-        const user_db = guild_config.getCollection(guild.id);
-        return user_db !== null;
-    });
-
-    //dark mode check
-    if (!req.cookies.darkmode) res.cookie('darkmode', false, { expires: new Date(7*24*60*60*1000 + Date.now()) });
-    const theme = req.cookies.darkmode == "true" ? "class=\"dark-mode\"" : "";
-
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.write(`
-    <body onload="darkmodeCheck()" ${theme}>
-        <style>
-            body {
-                font-family: Whitney,Helvetica Neue,Helvetica,Arial,sans-serif;
-            }
-            table {
-                width: 90%;
-            }
-            th {
-                text-align: left;
-                font-size: 32pt;
-            }
-            td {
-                text-align: left;
-                font-size: 26pt;
-                width: 32%;
-            }
-            img {
-                width: 1em;
-                border-radius: 50%;
-                vertical-align: sub;
-            }
-            .dark-mode {
-                background-color: #36393f;
-                color: white;
-            }
-            .dark-mode > * a  {
-                color: #00b0f4;
-            }
-        </style>
-        <script>
-            function darkmodeCheck() {
-                const dark = (getCookie("darkmode") == "true");
-                if (dark) document.body.classList.add("dark-mode");
-            }
-
-            function toggleDarkMode() {
-                document.body.classList.toggle("dark-mode");
-                const dark = (getCookie("darkmode") == "true");
-                document.cookie = "darkmode=" + !dark + "; expires=" + new Date((7*24*60*60*1000) + Date.now()) + ";";
-            }
-
-            function getCookie(cname) {
-                var name = cname + "=";
-                var decodedCookie = decodeURIComponent(document.cookie);
-                var ca = decodedCookie.split(';');
-                for(var i = 0; i <ca.length; i++) {
-                  var c = ca[i];
-                  while (c.charAt(0) == ' ') {
-                    c = c.substring(1);
-                  }
-                  if (c.indexOf(name) == 0) {
-                    return c.substring(name.length, c.length);
-                  }
-                }
-                return "";              
-            }
-        </script>
-        <br>
-        <p>oh yeah, before i forget, <a href="/">heres</a> the home button. or just fucking change the url, its not that hard. its 2 am im gonna go to bed now</p>
-        <br><br><br>
-        <button onClick="toggleDarkMode()">dark mode (actual dark mode, trust me)</button>
-    `);
-    filtered.forEach(async guild => {
-        res.write(`
-            <h3>
-                ${guild.name}
-            </h3>
-            <br>
-            <table style="width:90%">
-        `);
-        const user_db = guild_config.getCollection(guild.id);
-        const sorted = user_db.chain().simplesort('xp', true).data();
-        let index = 1;
-        res.write(`
-                <tr>
-                    <th>Rank</th>
-                    <th>ID</th>
-                    <th>Level</th>
-                </tr>
-        `);
-        for (const db_user of sorted) {
-
-            res.write(`
-                <tr>
-                    <td>${index}</td>
-                    <td><img src="${db_user.avatarUrl}">${db_user.username ? htmlEncode(db_user.username) : db_user.username}</td>
-                    <td>${db_user.level}</td>
-                </tr>
-            `);
-            index++;        
-        }
-        res.write(`
-            </table>
-            <br><br>
-        `);
-    });
-    res.end(`</body>`);
 }));
 
-app.listen(8081, () => {
-    console.info('Running on port 8081');
+//#region Login
+app.get("/logout", (req, res) => {
+    req.session.user = undefined;
+    res.redirect("/");
 });
-
-app.use((err, req, res) => {
-    switch (err.message) {
-        case 'NoCodeProvided': {
-            return res.status(400).send({
-                status: 'ERROR',
-                error: err.message,
+app.get("/login", catchAsync(async (req, res) => {
+    if (req.session.user) {
+        const cookieUser = req.session.user,
+            DBWebUser = await sql.getWebUserInDB(cookieUser.id),
+        
+            DiscordResponse = await fetch(`https://discord.com/api/v8/users/@me`, {
+                method: "GET",
+                headers: {
+                    "Authorization": `Bearer ${DBWebUser.accessToken}`
+                }
             });
-        }
-        default: {
-            return res.status(500).send({
-                status: 'ERROR',
-                error: err.message,
-            });
+        if (DiscordResponse.status != 401) {
+            return res.send(`<p>You have been logged in, congrats.</p>`);
         }
     }
+    return res.sendFile(path.join(__dirname, '/api/login.html'));
+}));
+//#endregion
+//#region APIs
+    //#region Login APIs
+app.get("/api/discord/login", (req, res) => {
+    let state;
+
+    const hash = crypto.createHash('sha256');
+
+    hash.on('readable', () => {
+        const data = hash.read();
+        if (data) {
+            state = data.toString('hex');
+        }
+    });
+
+    hash.write(req.session.id);
+    hash.end();
+
+    res.json({
+        state,
+        client_id: clientID
+    });
 });
+app.get("/api/discord/callback", (req, res) => {
+    return res.sendFile(path.join(__dirname, 'api/callback.html'));
+});
+app.post("/api/discord/verify", catchAsync(async (req, res) => {
+    const code = req.body.code,
+        redirect = req.body.redirect_uri;
+    if (!code) throw new Error("NoCodeProvided");
+
+    const data = `client_id=${clientID}&client_secret=${applicationSecret}&grant_type=authorization_code&code=${code}&redirect_uri=${redirect}&scope=email%20guilds`,
+        response = await fetch(`https://discord.com/api/v8/oauth2/token`, {
+            method: 'POST',
+            body: data,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        }),
+        tokenJSON = await response.json(),
+    
+        userResponse = await fetch(`https://discord.com/api/v8/users/@me`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${tokenJSON.access_token}`
+            }
+        }),
+        userJSON = await userResponse.json();
+
+    req.session.user = {
+        id: userJSON.id,
+        username: userJSON.username,
+        tag: userJSON.discriminator,
+        avatar: userJSON.avatar,
+        access_token: tokenJSON.access_token
+    }
+
+    res.status(204).end();
+}));
+    //#endregion
+//#endregion
+
+app.listen(8081);
+console.log("Server is listening on port 8081");

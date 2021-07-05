@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <%- include('../partials/head') %>
+        <title>Dunhammer | Help</title>
+    </head>
+    <body class="bg-dark text-light">
+        <%- include('../partials/navbar', { user }); %>
+
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-sm-1 col-md-2"></div>
+                <div class="col-sm-10 col-md-8">
+                    <p>
+                        List of all commands in Dunhammer.<br />
+                        <br />
+                        It's highly recommended to use Slash commands, as they
+                        allow for more command features and are easier to use.
+                        Just type "/" into the Discord message box and you will
+                        see a list of available Slash commands. <br />
+                        <br />
+                        Command usage is displayed with
+                        <code>command argument1 argument2 ...</code>.<br />
+                        Arguments are shown with different brackets: <br />
+                        <code>[argument]</code> - Optional argument. <br />
+                        <code>&lt;argument&gt;</code> - Required argument.
+                        <br />
+                        <br />
+                        <code>[argument/otherArgument]</code> - Optional choice
+                        between <code>argument</code> or
+                        <code>otherArgument</code>. <br />
+                        <code>&lt;argument/otherArgument&gt;</code> - Required
+                        choice between <code>argument</code> or
+                        <code>otherArgument</code>.
+                        <br />
+                    </p>
+                    <br />
+                    <h4>General</h4>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">help</th>
+                                <td>
+                                    Sends a help message with brief information
+                                    over all commands.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>help [command]</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>h, commands</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">invite</th>
+                                <td>
+                                    Sends a Dunhammer invite link.
+                                    <br /><br /><strong>Usage:</strong> <br />
+                                    <code>invite</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>inv</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">ping</th>
+                                <td>
+                                    Measures delay between Discord - Dunhammer.
+                                    <br /><br /><strong>Usage:</strong> <br />
+                                    <code>ping</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>pong</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">roadmap</th>
+                                <td>
+                                    Sends a link to the Dunhammer roadmap.
+                                    <br /><br /><strong>Usage:</strong> <br />
+                                    <code>roadmap</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>trello, todo, to-do</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">suggestion</th>
+                                <td>
+                                    Adds an item to the roadmap.
+                                    <br /><br /><strong>Usage:</strong> <br />
+                                    <code>suggestion &lt;message&gt;</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code
+                                        >suggest, idea, report, bug,
+                                        glitch</code
+                                    >
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <br />
+                    <h4>Bot settings</h4>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">allowbots</th>
+                                <td>
+                                    Changes whether or not bots are counted as
+                                    users by Dunhammer. Setting this to false
+                                    will make Dunhammer ignore any commands
+                                    triggered by bots, and will also prevent
+                                    bots from gaining xp in the level system.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>allowbots &lt;true/false&gt;</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>bots</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">prefix</th>
+                                <td>
+                                    Changes the bot prefix. Max length for a
+                                    prefix is 50 characters. Special characters
+                                    such as emojis and zero-width spaces are
+                                    also supported, so be careful. <br />
+                                    Prefix can always be changed with
+                                    <code
+                                        >@Dunhammer prefix &lt;new
+                                        prefix&gt;</code
+                                    >. <br /><br /><strong>Usage:</strong><br />
+                                    <code>prefix &lt;new prefix&gt;</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    None
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4>Fun</h4>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">neko</th>
+                                <td>
+                                    Sends a picture of a catgirl. <br />
+                                    Several types can be used: <br />
+                                    <div
+                                        class="accordion accordion-dark"
+                                        id="nekoTypes"
+                                    >
+                                        <div class="accordion-item">
+                                            <h2
+                                                class="accordion-header"
+                                                id="headingSFW"
+                                            >
+                                                <button
+                                                    class="
+                                                        accordion-button
+                                                        collapsed
+                                                    "
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseSFW"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseSFW"
+                                                >
+                                                    SFW types
+                                                </button>
+                                            </h2>
+                                            <div
+                                                id="collapseSFW"
+                                                class="
+                                                    accordion-collapse
+                                                    collapse
+                                                "
+                                                aria-labelledby="headingSFW"
+                                            >
+                                                <div class="accordion-body">
+                                                    <p>
+                                                        <code>
+                                                            tickle, slap, poke,
+                                                            pat, neko, meow,
+                                                            lizard, kiss, hug,
+                                                            fox_girl, feed,
+                                                            cuddle, ngif,
+                                                            kemonomimi, holo,
+                                                            smug, baka, woof,
+                                                            wallpaper, goose,
+                                                            gecg, avatar, waifu.
+                                                        </code>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="accordion-item">
+                                            <h2
+                                                class="accordion-header"
+                                                id="headingNSFW"
+                                            >
+                                                <button
+                                                    class="
+                                                        accordion-button
+                                                        collapsed
+                                                    "
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseNSFW"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseNSFW"
+                                                >
+                                                    NSFW types
+                                                </button>
+                                            </h2>
+                                            <div
+                                                id="collapseNSFW"
+                                                class="
+                                                    accordion-collapse
+                                                    collapse
+                                                "
+                                                aria-labelledby="headingNSFW"
+                                            >
+                                                <div class="accordion-body">
+                                                    <p>
+                                                        <code>
+                                                            random_hentai_gif,
+                                                            pussy,
+                                                            nsfw_neko_gif, lewd,
+                                                            les, kuni, cum,
+                                                            classic, boobs, bj,
+                                                            anal, nsfw_avatar,
+                                                            yuri, trap, tits,
+                                                            solog, solo, pwankg,
+                                                            pussy_jpg, lewdkemo,
+                                                            lewdk, keta,
+                                                            hololewd, holoero,
+                                                            hentai, futanari,
+                                                            femdom, feetg,
+                                                            erofeet, feet, ero,
+                                                            erok, erokemo, eron,
+                                                            eroyuri, cum_jpg,
+                                                            blowjob, spank,
+                                                            gasm.
+                                                        </code>
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <small
+                                        >A detailed description of types can be
+                                        found
+                                        <a
+                                            href="https://github.com/Nekos-life/nekos-dot-life"
+                                            target="_blank"
+                                            >here</a
+                                        >.</small
+                                    >
+                                    <br />
+                                    <br />
+                                    NSFW types can only be used in channels
+                                    marked NSFW.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>neko [type]</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>image, catgirl</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Attach Files</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">speak</th>
+                                <td>
+                                    Uses text to speach to say something in a
+                                    voice channel.<br />The user doesn't need to
+                                    be in a voice channel to use the command.
+                                    <br />This command can be used in several
+                                    languages, but defaults to English. To do
+                                    this, a language code must be passed as the
+                                    first argument. <br />
+                                    <br />
+                                    <div
+                                        class="accordion accordion-dark"
+                                        id="languageCodes"
+                                    >
+                                        <div class="accordion-item">
+                                            <h2
+                                                class="accordion-header"
+                                                id="headingLanguageCodes"
+                                            >
+                                                <button
+                                                    class="
+                                                        accordion-button
+                                                        collapsed
+                                                    "
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseLanguageCodes"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseLanguageCodes"
+                                                >
+                                                    Language codes
+                                                </button>
+                                            </h2>
+                                            <div
+                                                id="collapseLanguageCodes"
+                                                class="
+                                                    accordion-collapse
+                                                    collapse
+                                                "
+                                                aria-labelledby="headingLanguageCodes"
+                                            >
+                                                <div class="accordion-body">
+                                                    <p>
+                                                        <code>ar-XA</code> -
+                                                        Arabic.<br />
+                                                        <code>bn-IN</code> -
+                                                        Bengali (India).<br />
+                                                        <code>yue-HK</code> -
+                                                        Chinese (Hong Kong).<br />
+                                                        <code>cs-CZ</code> -
+                                                        Czech (Czech
+                                                        Republic).<br />
+                                                        <code>da-DK</code> -
+                                                        Danish (Denmark).<br />
+                                                        <code>nl-NL</code> -
+                                                        Dutch (Netherlands).<br />
+                                                        <code>en-AU</code> -
+                                                        English (Australia).<br />
+                                                        <code>en-IN</code> -
+                                                        English (India).<br />
+                                                        <code>en-GB</code> -
+                                                        English (UK).<br />
+                                                        <code>en-US</code> -
+                                                        English (US).<br />
+                                                        <code>fil-PH</code> -
+                                                        Filipino
+                                                        (Philippines).<br />
+                                                        <code>fi-FI</code> -
+                                                        Finnish (Finland).<br />
+                                                        <code>fr-CA</code> -
+                                                        French (Canada).<br />
+                                                        <code>fr-FR</code> -
+                                                        French (France).<br />
+                                                        <code>de-DE</code> -
+                                                        German (Germany).<br />
+                                                        <code>el-GR</code> -
+                                                        Greek (Greece).<br />
+                                                        <code>gu-IN</code> -
+                                                        Gujarati (India).<br />
+                                                        <code>hi-IN</code> -
+                                                        Hindi (India).<br />
+                                                        <code>hu_HU</code> -
+                                                        Hungarian (Hungary).<br />
+                                                        <code>id-ID</code> -
+                                                        Indonesian
+                                                        (Indonesia).<br />
+                                                        <code>it-IT</code> -
+                                                        Italian (Italy).<br />
+                                                        <code>ja-JP</code> -
+                                                        Japanese (Japan).<br />
+                                                        <code>kn-IN</code> -
+                                                        Kannada (India).<br />
+                                                        <code>ko-KR</code> -
+                                                        Korean (South Korea).<br />
+                                                        <code>ml-IN</code> -
+                                                        Malayalam (India).<br />
+                                                        <code>cmn-CN</code> -
+                                                        Mandarin Chinese.<br />
+                                                        <code>nb-NO</code> -
+                                                        Norwegian (Norway).<br />
+                                                        <code>pl-PL</code> -
+                                                        Polish (Poland).<br />
+                                                        <code>pt-BR</code> -
+                                                        Portuguese (Brazil).<br />
+                                                        <code>pt-PT</code> -
+                                                        Portuguese
+                                                        (Portugal).<br />
+                                                        <code>ro-RO</code> -
+                                                        Romanian (Romania).<br />
+                                                        <code>ru-RU</code> -
+                                                        Russian (Russia).<br />
+                                                        <code>sk-SK</code> -
+                                                        Slovak (Slovakia).<br />
+                                                        <code>es-ES</code> -
+                                                        Spanish (Spain).<br />
+                                                        <code>sv-SE</code> -
+                                                        Swedish (Sweden).<br />
+                                                        <code>ta-IN</code> -
+                                                        Tamil (India).<br />
+                                                        <code>te-IN</code> -
+                                                        Telugu (India).<br />
+                                                        <code>th-TH</code> -
+                                                        Thai (Thailand).<br />
+                                                        <code>tr-TR</code> -
+                                                        Turkish (Turkey).<br />
+                                                        <code>uk-UA</code> -
+                                                        Ukrainian (Ukraine).<br />
+                                                        <code>vi-VN</code> -
+                                                        Vietnamese (Vietnam).<br />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code
+                                        >speak [language code] [female/male]
+                                        &lt;message&gt;</code
+                                    ><br />
+                                    Note: To select gender, a langauge code is
+                                    requried.
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>tts</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4>Levels</h4>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">ignore</th>
+                                <td>
+                                    Makes the level system ignore a channel,
+                                    aka. users won't be able to get xp from the
+                                    channel.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>neko &lt;channel&gt;</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>ignoreChannel</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">leaderboard</th>
+                                <td>
+                                    Displays a leaderboard with the top 10 users
+                                    in the server.<br />Arguments can be
+                                    configured to show a specific user or filter
+                                    by role. <br /><br /><strong>Usage:</strong
+                                    ><br />
+                                    <code>leaderboard [user/role]</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>scoreboard, scores, leader</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">level</th>
+                                <td>
+                                    Shows current level, rank and progress until
+                                    next level. A user can also be specified.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>level [user]</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>rank, lvl</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    None
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">levelsenabled</th>
+                                <td>
+                                    Enables/disables the level system. Disabling
+                                    the level system does not clear users
+                                    levels, it just prevents anyone from getting
+                                    xp.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code
+                                        >levelsenabled &lt;true/false&gt;</code
+                                    >
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code
+                                        >enablelevels, disablelevels,
+                                        enablelevelsystem,
+                                        disablelevelsystem</code
+                                    >
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">levelupchannel</th>
+                                <td>
+                                    Specifies the channel where levelup messages
+                                    are sent. Will default to channel where
+                                    message caused the levelup if channel
+                                    argument is left blank.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>levelupchannel [channel]</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>setlevelupchannel, lvlupchnl</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">levelupmessage</th>
+                                <td>
+                                    Change the message displayed upon levelups.
+                                    <br />The levelup message has 3 different
+                                    fields: <br />
+                                    <div
+                                        class="accordion accordion-dark"
+                                        id="levelupmessageFields"
+                                    >
+                                        <div class="accordion-item">
+                                            <h2
+                                                class="accordion-header"
+                                                id="headingFields"
+                                            >
+                                                <button
+                                                    class="
+                                                        accordion-button
+                                                        collapsed
+                                                    "
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseFields"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseFields"
+                                                >
+                                                    Message fields
+                                                </button>
+                                            </h2>
+                                            <div
+                                                id="collapseFields"
+                                                class="
+                                                    accordion-collapse
+                                                    collapse
+                                                "
+                                                aria-labelledby="headingFields"
+                                            >
+                                                <div class="accordion-body">
+                                                    <p>
+                                                        <code>title</code> -
+                                                        Title of the message,
+                                                        <code>[text]</code>.
+                                                        <br />
+                                                        <code>description</code>
+                                                        - Description of the
+                                                        message,
+                                                        <code>[text]</code>.
+                                                        <br />
+                                                        <code>image</code> -
+                                                        Whether or not an image
+                                                        is displayed,
+                                                        <code
+                                                            >&lt;true/false&gt;</code
+                                                        >.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    Only one fields can be changed at a time if
+                                    not using Slash commands. <br />
+                                    <br />
+                                    The text fields have some usable placeholder
+                                    ingredients. These ingredients will be
+                                    replaced when the levelup message is sent:
+                                    <br />
+                                    <div
+                                        class="accordion accordion-dark"
+                                        id="levelupmessageIngredients"
+                                    >
+                                        <div class="accordion-item">
+                                            <h2
+                                                class="accordion-header"
+                                                id="headingIngredients"
+                                            >
+                                                <button
+                                                    class="
+                                                        accordion-button
+                                                        collapsed
+                                                    "
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseIngredients"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseIngredients"
+                                                >
+                                                    Placeholder ingredients
+                                                </button>
+                                            </h2>
+                                            <div
+                                                id="collapseIngredients"
+                                                class="
+                                                    accordion-collapse
+                                                    collapse
+                                                "
+                                                aria-labelledby="headingIngredients"
+                                            >
+                                                <div class="accordion-body">
+                                                    <p>
+                                                        <code>{username}</code>
+                                                        - Users username. <br />
+                                                        <code>{nickname}</code>
+                                                        - Users nickname in the
+                                                        server. <br />
+                                                        <code>{tag}</code> -
+                                                        Users tag (e.g. #2354).
+                                                        <br />
+                                                        <code>{user}</code> -
+                                                        User object (looks like
+                                                        a mention, but doesn't
+                                                        actually mention the
+                                                        user). <br />
+                                                        <code>{level}</code> -
+                                                        Users new level. <br />
+                                                        <code>{xp}</code> -
+                                                        <i>Total</i> user xp.
+                                                        <br />
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code
+                                        >levelupmessage &lt;field&gt;
+                                        [option]</code
+                                    ><br />
+                                    Note that <code>[option]</code> is required
+                                    if <code>&lt;field&gt;</code> is
+                                    <code>image</code>. <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>lvlupmessage, lvlupmsg</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">roles</th>
+                                <td>
+                                    Change which roles are awarded when users
+                                    reach a specific level. Use without
+                                    arguments to see current roles.
+                                    <br />Roles has 3 options: <br />
+                                    <div
+                                        class="accordion accordion-dark"
+                                        id="rolesOptions"
+                                    >
+                                        <div class="accordion-item">
+                                            <h2
+                                                class="accordion-header"
+                                                id="headingRolesOptions"
+                                            >
+                                                <button
+                                                    class="
+                                                        accordion-button
+                                                        collapsed
+                                                    "
+                                                    type="button"
+                                                    data-bs-toggle="collapse"
+                                                    data-bs-target="#collapseRolesOptions"
+                                                    aria-expanded="false"
+                                                    aria-controls="collapseRolesOptions"
+                                                >
+                                                    Role options
+                                                </button>
+                                            </h2>
+                                            <div
+                                                id="collapseRolesOptions"
+                                                class="
+                                                    accordion-collapse
+                                                    collapse
+                                                "
+                                                aria-labelledby="headingRolesOptions"
+                                            >
+                                                <div class="accordion-body">
+                                                    <p>
+                                                        <code>add</code> - Add a
+                                                        role to be awarded at a
+                                                        specific level,
+                                                        <code
+                                                            >add &lt;level&gt;
+                                                            &lt;role&gt;</code
+                                                        >. <br />
+                                                        <code>remove</code> -
+                                                        Remove a role from boing
+                                                        awarded,
+                                                        <code
+                                                            >remove
+                                                            &lt;role&gt;</code
+                                                        ><br />
+                                                        <code>cumulative</code>
+                                                        - Specifies whether
+                                                        gained roles are
+                                                        cumulative (whether or
+                                                        not they stack),
+                                                        <code
+                                                            >cumulative
+                                                            &lt;true/false&gt;</code
+                                                        >
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code
+                                        >roles [option]
+                                        &lt;...arguments&gt;</code
+                                    >
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code
+                                        >levelroles, leveluproles, lvlroles,
+                                        lvluproles</code
+                                    >
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">setlevel</th>
+                                <td>
+                                    Gives a user a specific level. Basically
+                                    cheat the level system.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code
+                                        >setlevel &lt;user&gt; &lt;new level&gt;
+                                        [xp]</code
+                                    >
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>setxp, setlvl</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Ban Members</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4>Moderation</h4>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">nickname</th>
+                                <td>
+                                    Changes someone's nickname.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code
+                                        >nickname &lt;user&gt; &lt;new
+                                        nickname&gt;</code
+                                    >
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    <code>nick, name</code>
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Manage Nicknames</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h4>Owner only</h4>
+                    <br />
+                    <p>
+                        These commands can only be used by the creator of
+                        Dunhammer and specific appointed administrators.
+                    </p>
+                    <table class="table table-dark">
+                        <tbody>
+                            <tr>
+                                <th scope="row">debug</th>
+                                <td>
+                                    Debug command for testing varius new and
+                                    experimental features.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>debug</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    None
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Dunhammer Administrator</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">reloaddatabase</th>
+                                <td>
+                                    Reloads the databse of all guilds and users.
+                                    Used when new properties are added to the
+                                    database.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>reloaddatabase</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    None
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Dunhammer Administrator</code>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">shutdown</th>
+                                <td>
+                                    Shuts down Dunhammer. Practically never
+                                    used.
+                                    <br /><br /><strong>Usage:</strong><br />
+                                    <code>shutdown</code>
+                                    <br /><br />
+                                    <strong>Aliases:</strong> <br />
+                                    None
+                                    <br /><br />
+                                    <strong>Permissions:</strong> <br />
+                                    <code>Dunhammer Administrator</code>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-sm-1 col-md-2"></div>
+            </div>
+        </div>
+        <%- include('../partials/footer'); %>
+    </body>
+</html>

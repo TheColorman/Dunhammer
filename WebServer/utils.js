@@ -1,10 +1,10 @@
 // async/await error catcher
-const catchAsyncErrors = (fn) => (req, res, next) => {
-    const routePromise = fn(req, res, next);
-    if (routePromise.catch) {
-        routePromise.catch((err) => next(err));
+function catchAsyncErrors (callback) {
+    return function (req, res, next) {
+        callback(req, res, next)
+            .catch(next);
     }
-};
+}
 
 function htmlEncode(string) {
     return string
