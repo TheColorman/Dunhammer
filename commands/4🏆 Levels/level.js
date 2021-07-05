@@ -41,7 +41,7 @@ module.exports = {
         if (taggedmember) await sql.getGuildUserInDB(msg.guild, taggedmember);
         await CanvasImage.rank_image(taggedmember || msg.member, sql);
         
-        const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
+        const attachment = new Discord.MessageAttachment('./media/imageData/generated/level.png');
         
         if (interaction) await apiFunctions.interactionEdit(msg.client, interaction, msg.channel);
 

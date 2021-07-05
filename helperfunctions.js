@@ -109,7 +109,7 @@ const { Client, TextChannel, MessageEmbed, MessageAttachment, Message, Channel, 
 const CanvasImage = {
         //#region rank_image
         /**
-         * Draws an image showcasing the members level, their rank and experience bar, and saves it as 'level.png' to 'imageData/'.
+         * Draws an image showcasing the members level, their rank and experience bar, and saves it as 'level.png' to 'media/imageData/'.
          * @param {GuildMember} member The Discord Guild member
          * @param {MySQL} sql MySQL object
          */
@@ -207,12 +207,12 @@ const CanvasImage = {
 
             ctx.drawImage(image, 30, 30, 240, 240);
             const buffer = canvas.toBuffer('image/png');
-            fs.writeFileSync('./imageData/generated/level.png', buffer);
+            fs.writeFileSync('./media/imageData/generated/level.png', buffer);
         },
         //#endregion
         //#region levelup_image
         /**
-         * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'imageData/'.
+         * Draws an image showcasing the members new level and rank, and saves it as 'levelup.png' to 'media/imageData/'.
          * @param {GuildMember} member The Discord Guild member
          * @param {RowDataPacket} DBGuildUser The database of saved users
          * @param {Guild} guild The guild of the user
@@ -261,8 +261,8 @@ const CanvasImage = {
             ctx.fillStyle = "#4D8C69";
             ctx.fillRect(0, canvas.height/2+20, canvas.width, canvas.height/2-20);
             //add images
-            const backgroundLeft = await loadImage('./imageData/levelupBGLeft.png'),
-                backgroundRight = await loadImage('./imageData/levelupBGRight.png');
+            const backgroundLeft = await loadImage('./media/imageData/levelupBGLeft.png'),
+                backgroundRight = await loadImage('./media/imageData/levelupBGRight.png');
             ctx.drawImage(backgroundLeft, 0, 0, 246, 600);
             ctx.drawImage(backgroundRight, canvas.width-246, 0, 246, 600);
             //rank
@@ -318,7 +318,7 @@ const CanvasImage = {
             ctx.drawImage(avatar, canvas.width/2-avatar_size/2, canvas.height/2-avatar_size/2+vOffset, avatar_size, avatar_size);
 
             const buffer = canvas.toBuffer('image/png');
-            fs.writeFileSync('./imageData/generated/level.png', buffer);
+            fs.writeFileSync('./media/imageData/generated/level.png', buffer);
         },
         //#endregion
     },

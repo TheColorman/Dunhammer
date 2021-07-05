@@ -220,7 +220,6 @@ class MySQL {
         }
         return DBGuildUserArr[0];
     }
-
 }
 
 module.exports = MySQL;

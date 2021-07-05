@@ -121,10 +121,10 @@ module.exports = {
         
             [response] = await ttsClient.synthesizeSpeech(request),
             writeFile = util.promisify(fs.writeFile);
-        await writeFile('./audioData/output.mp3', response.audioContent, 'binary');
+        await writeFile('./media/audioData/output.mp3', response.audioContent, 'binary');
             
         const connection = await channel.join(),
-            dispatcher = connection.play('./audioData/output.mp3');
+            dispatcher = connection.play('./media/audioData/output.mp3');
     
         dispatcher.on("finish", () => channel.leave());
     }

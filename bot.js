@@ -409,8 +409,8 @@ async function levelsystem(msg, DBGuild) {
 
         if (levelSystem.levelupImage) {
             await CanvasImage.levelup_image(msg.member, DBGuildUser, msg.guild, sql);
-            const attachment = new Discord.MessageAttachment('./imageData/generated/level.png');
-            levelup_message.image = {
+            const attachment = new Discord.MessageAttachment('./media/imageData/generated/level.png');
+            levelupMessage.image = {
                 url: 'attachment://level.png'
             }
             return channel.send({ files: [attachment], embed: levelupMessage });

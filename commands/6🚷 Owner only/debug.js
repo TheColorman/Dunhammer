@@ -667,7 +667,7 @@ module.exports = {
         //#endregion
 
         //#region Direct Discord API file upload
-        // const filePath = `./imageData/generated/level.png`;
+        // const filePath = `./media/imageData/generated/level.png`;
         // const form = new FormData();
         // const stats = fs.statSync(filePath);
         // const fileSizeInBytes = stats.size;
