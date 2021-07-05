@@ -9,7 +9,7 @@ const Discord = require('discord.js'),
     // eslint-disable-next-line no-unused-vars
     { apiFunctions } = require('./helperfunctions');
 // Database
-const sql = new MySQL({ host: "phpmyadmin.head9x.dk", user: "Colorman", password: mysqlPassword, database: "colorman" }),
+const sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword})),
 
 
 // Create a new Discord client
