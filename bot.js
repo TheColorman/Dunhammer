@@ -48,7 +48,7 @@ client.once('ready', () => {
 
     setInterval(() => {
         refreshPresence();
-    }, 21600000);   // 21600000 = 6 hours, default
+    }, 3600000);   // 3600000 = 1 hour, default
 });
 
 // Sets a presence with a 0.1% chance of a rare one
