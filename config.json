@@ -30,7 +30,7 @@
         "Now with a website: dunhammer.colorman.me!"
     ],
     "mysql_login": {
-        "host": "phpmyadmin.head9x.dk",
+        "host": "head9x.dk",
         "user": "Colorman",
         "database": "colorman"
     },

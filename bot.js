@@ -33,11 +33,11 @@ for (const folder of Object.keys(commandFilesObj)) {
 }
 
 // State of the art crash protection (don't do this)
-process.on('uncaughtException', async (err) => {
+/* process.on('uncaughtException', async (err) => {
     console.error("WARNING: PROGRAM WAS SUPPOSED TO BE TERMINATED. I hope you (I) know what you are (I am) doing.")
     console.error(err);
 });
-
+ */
 // When client is ready
 let remainingPresences = Array.from(statuses);
 client.once('ready', () => {

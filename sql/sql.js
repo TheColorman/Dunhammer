@@ -16,6 +16,7 @@ class MySQL {
             if (err) throw err;
             console.log(`Established connection to MySQL server at ${login.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`${v}guilds\``, (error, result) => {
+                if (error) throw err;
                 console.log(`Number of guilds in database: ${result[0]["COUNT(*)"]}.`);
             });
         });
