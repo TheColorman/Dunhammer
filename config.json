@@ -26,3 +26,8 @@
         "Shutting down.",
         "Read One Piece"
     ],
+    "mysql_login": {
+        "host": "localhost",
+        "user": "Colorman",
+        "database": "colorman"
+    },
