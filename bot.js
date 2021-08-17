@@ -46,7 +46,182 @@ client.once('ready', () => {
     }, 3600000);   // 3600000 = 1 hour, default
 
 });
+
+const adminCommands = {
+    /**
+     * 
+     * @param {Message} message 
+     */
+    debug: async (message) => {
+        message.channel.send({ content: "welcome to the debug zone" });
+    },
+    /**
+     * 
+     * @param {Message} message 
+     */
+    registercommands: async (message, type) => {
+        if (!type) {
+            return message.reply({
+                content: "What commands would you like to update?",
+                components: [{
+                    type: "ACTION_ROW",
+                    components: [{
+                        type: "BUTTON",
+                        label: "Guild",
+                        customId: "admincommands.registercommands.guild",
+                        style: "SECONDARY"
+                    }, {
+                        type: "BUTTON",
+                        label: "Global",
+                        customId: "admincommands.registercommands.global",
+                        style: "DANGER"
+                    }]
+                }]
+            });
+        }
+        switch(type) {
+            case "guild": {
+                const guildID = message.guild ? message.guild.id : message.content.split(" ")[1];
+                if (!guildID) return message.reply({ content: "No Guild ID!" });
+                message.update({
+                    content: `Registering slash commands in guild with ID ${guildID}... `,
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guild",
+                            customId: "admincommands.registercommands.guild",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Global",
+                            customId: "admincommands.registercommands.global",
+                            style: "DANGER",
+                            disabled: true
+                        }]
+                    }]    
+                });
+        
+                client.commands.each(command => {
+                    message.channel.send({ content: `Registering ${command.name}`});
+                    client.application.commands.create(command.ApplicationCommandData, guildID);
+                });        
+                break;
+            }
+            case "global": {
+                message.update({
+                    content: `Registering slash commands globally...`,
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guild",
+                            customId: "admincommands.registercommands.guild",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Global",
+                            customId: "admincommands.registercommands.global",
+                            style: "DANGER",
+                            disabled: true
+                        }]
+                    }]    
+                });
+        
+                client.commands.each(command => {
+                    message.channel.send({ content: `Registering ${command.name}`});
+                    client.application.commands.create(command.ApplicationCommandData);
+                });        
+                break;
+            }
+        }
+
+    },
+    // Message here can also be an interaction if a button is pressed.
+    reloaddatabase: async (message, type) => {
+        if (!type) {
+            return message.reply({
+                content: "What databases would you like to reload?",
+                components: [{
+                    type: "ACTION_ROW",
+                    components: [{
+                        type: "BUTTON",
+                        label: "Guilds",
+                        customId: "admincommands.reloaddatabase.guilds",
+                        style: "PRIMARY"
+                    }]
+                }]
+            });
+        }
+        switch (type) {
+            case "guilds": {
+                message.update({
+                    content: "<a:discord_loading:821347252085063680> Reloading Guild database",
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "PRIMARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                client.guilds.fetch().then(async collection => {
+                    collection.each(async guild => {
+                        if (!(await sql.get('guilds', `id = ${guild.id}`)).length) {
+                            await sql.insert('guilds', {
+                                id: guild.id,
+                                name: guild.name
+                            });
+                        } else {
+                            await sql.update('guilds', {
+                                name: guild.name
+                            }, `id = ${guild.id}`);
+                        }
+                    });
+                    message.message.edit({
+                        content: `:white_check_mark: Done, all ${collection.size} guilds now up to date in database.`,
+                        components: [{
+                            type: "ACTION_ROW",
+                            components: [{
+                                type: "BUTTON",
+                                label: "Done",
+                                customId: "admincommands.reloaddatabase.guilds",
+                                style: "PRIMARY",
+                                disabled: true
+                            }]
+                        }]
+                    });
+                });
+
+                break;
+            }
+            default: {
+                message.message.reply({ content: "You find yourself in a mysterious place..." });
+            }
+        }
+    }
+}
+
+client.on("messageCreate", async messagePartial => {
+    // Check for message partial
+    const fullMessage = await (async () => {
+        if (messagePartial.partial) return await messagePartial.fetch();
+        else return messagePartial;
+    })();
+    if (!fullMessage.content.startsWith(".")) return;
+    const command = fullMessage.content.split(" ")[0].substr(1);
+
+    if (Object.keys(adminCommands).includes(command.toLowerCase())) {
+        if (!admins.includes(fullMessage.author.id)) return fullMessage.reply({ content: "Looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>" });
+        adminCommands[command.toLowerCase()](fullMessage);
+    }
 });
+
 // Slash commands
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
