@@ -16,6 +16,9 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
+// Start MySQL connection 🤣
+const sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword}));
+
 // Random status setter
 let statuses = [...config.statuses];
 function updateStatus() {
