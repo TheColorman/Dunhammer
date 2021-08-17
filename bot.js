@@ -16,8 +16,33 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
+// Random status setter
+let statuses = [...config.statuses];
+function updateStatus() {
+    if (!statuses.length) statuses = [...config.statuses];
+    const randomIndex = Math.floor(Math.random() * statuses.length),
+        newStatus = statuses[randomIndex];
+    statuses.splice(randomIndex, 1);
+
+    console.log(`Setting status: [${newStatus}], ${statuses.length} remaining.`);
+
+    client.user.setPresence({
+        activities: [{
+            name: `V3.0.0 under development! | ${newStatus}`,
+            type: 'PLAYING'
+        }]
+    });
+}
+
 client.once('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
+    // Timed status update
+    updateStatus();
+    setInterval(() => {
+        updateStatus();
+    }, 3600000);   // 3600000 = 1 hour, default
+
+});
 });
 // Slash commands
 client.on('interactionCreate', async interaction => {
