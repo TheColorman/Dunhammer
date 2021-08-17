@@ -238,4 +238,29 @@ client.on('interactionCreate', async interaction => {
         await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
     }
 });
+
+// Buttons
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+
+    // Split up interactions customId to use in admin commands
+    const interactionInfo = interaction.customId.split(".");
+    if (interactionInfo[0] == "admincommands") {
+        // Reject if not admin
+        if (!admins.includes(interaction.user.id)) return interaction.reply({ content: `${interaction.member} looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>` });
+        // Run admin command using interaction customId
+        adminCommands[interactionInfo[1]](interaction, interactionInfo[2]);
+        return;
+    }
+    // Some commands have special event receivers
+    const command = client.commands.get(interactionInfo[1]);
+    try {
+        await command[interactionInfo[2]](interaction)
+    } catch(err) {
+        console.error(err);
+        await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+    }
+    
+});
+
 client.login(botToken);
