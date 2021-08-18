@@ -216,15 +216,35 @@ client.on("messageCreate", async messagePartial => {
     if (!fullMessage.content.startsWith(".")) return;
     const command = fullMessage.content.split(" ")[0].substr(1);
 
+    // Check if admin
     if (Object.keys(adminCommands).includes(command.toLowerCase())) {
         if (!admins.includes(fullMessage.author.id)) return fullMessage.reply({ content: "Looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>" });
         adminCommands[command.toLowerCase()](fullMessage);
     }
 });
 
+//#region Interaction events
 // Slash commands
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
+
+    const dbUser = await sql.get("users", `id = ${interaction.user.id}`);
+    if (!dbUser.length) {
+        await sql.insert("users", {
+            id: interaction.user.id,
+            username: interaction.user.username,
+            tag: interaction.user.tag.slice(-4),
+            xp: 0,
+            level: 0
+        });
+        await sql.insert("guildusers", {
+            guildid: interaction.guild.id,
+            userid: interaction.user.id,
+            nickname: interaction.member.nickname,
+            xp: 0,
+            level: 0
+        });
+    }
 
     const command = client.commands.get(interaction.commandName);
 
@@ -262,5 +282,6 @@ client.on('interactionCreate', async interaction => {
     }
     
 });
+//#endregion
 
 client.login(botToken);
