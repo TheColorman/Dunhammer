@@ -5,7 +5,6 @@ const Discord = require('discord.js'),
 
 module.exports = {
     name: "ping",
-    description: "Pings Discord.",
     ApplicationCommandData: {
         name: "ping",
         description: "Pings Discord."

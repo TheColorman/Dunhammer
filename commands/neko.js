@@ -6,7 +6,6 @@ const Discord = require("discord.js"),
 
 module.exports = {
     name: "neko",
-    description: "Sends a catgirl.",
     ApplicationCommandData: {
         name: "neko",
         description: "Sends a catgirl.",

@@ -5,7 +5,6 @@ const Discord = require('discord.js'),
 
 module.exports = {
     name: "nickname",
-    description: "Changes a users nickname.",
     ApplicationCommandData: {
         name: "nickname",
         description: "Changes a users nickname",
