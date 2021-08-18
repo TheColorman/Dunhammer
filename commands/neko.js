@@ -255,10 +255,14 @@ module.exports = {
         interaction.reply({
             embeds: [{
                 "color": 0x5823A8,
-                "title": endpoint,
+                "title": `:cat: ${endpoint}`,
                 "url": nekoRes.url,
                 "image": {
                     "url": nekoRes.url
+                },
+                "footer": {
+                    "iconURL": "https://nekos.life/static/icons/android-chrome-72x72.png",
+                    "text": "nekos.life"
                 }
             }],
             components: [{
