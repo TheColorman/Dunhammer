@@ -21,6 +21,7 @@
         "prefer-const": "error",
         "no-unused-vars": "error",
         "operator-assignment": "error",
-        "one-var": ["error", "consecutive"]
+        "one-var": ["error", "consecutive"],
+        "no-unreachable": "warn"
     }
 }
