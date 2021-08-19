@@ -10,7 +10,7 @@ class MySQL {
         config.charset = 'UTF8MB4_GENERAL_CI';
         this.con = require("mysql").createConnection(config);
 
-        console.log("Connecting to MySQL server...")
+        console.log("Connecting to MySQL server...");
         this.con.connect(err => {
             if (err) throw err;
             console.log(`Established connection to MySQL server at ${login.host}`);
