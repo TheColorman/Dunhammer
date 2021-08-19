@@ -42,7 +42,7 @@ async function createImage(interaction) {
                 format: "png",
             })
         ),
-        //#region Background image
+    //#region Background image
         cornerCropSize = 200,
         bgCropRotationOffset = 30;
     ctx.beginPath();
@@ -114,14 +114,17 @@ async function createImage(interaction) {
         ),
         iconSize = 60,
         iconPosition = {
-            x: 400,
+            x: 390,
             y: 125,
         },
+        iconOutlineWidth = 3,
         barOffset = 90,
-        barOffsetX = 20,
-        barRadius = 17.5,
-        barEndX = 750,
+        barOffsetX = 10,
+        barRadius = 16,
+        barEndX = 760,
         barOffsetY = iconPosition.y + (iconSize - barRadius * 2) / 2 - 5,
+        innerBarOffset = 2.5,
+        font = "Nyata FTR",
         drawIcon = (iteration, icon) => {
             ctx.beginPath();
             ctx.arc(
@@ -133,6 +136,8 @@ async function createImage(interaction) {
                 false
             );
             ctx.closePath();
+            ctx.lineWidth = iconOutlineWidth;
+            ctx.stroke();
             ctx.save();
             ctx.clip();
 
@@ -144,48 +149,174 @@ async function createImage(interaction) {
                 iconSize
             );
             ctx.restore();
-        },
-        drawxpBar = (iteration, xpCurrent, xpMax, color) => {
-            const bar = (iteration, radius, insideColor) => {
+        },//        End of bar          -  Start of bar
+        barLength = barEndX + barRadius - (iconPosition.x + iconSize + barOffsetX - barRadius),
+        // draw outer + inner xp bar
+        drawxpBar = (iteration, xpCurrent, xpMax, color, rank) => {
+            const xpPercentage = xpCurrent/xpMax,
+            // draw inner xp bar
+                bar = (iteration, radius, insideColor) => {
+                    ctx.beginPath();
+                    ctx.arc(
+                        iconPosition.x + iconSize + barOffsetX,
+                        barOffsetY + iteration * barOffset,
+                        radius,
+                        0.6 * Math.PI,
+                        1.5 * Math.PI
+                    );
+                    ctx.lineTo(700, barOffsetY + iteration * barOffset - radius);
+                    ctx.arc(
+                        barEndX,
+                        barOffsetY + iteration * barOffset,
+                        radius,
+                        1.5 * Math.PI,
+                        0.5 * Math.PI
+                    );
+                    ctx.lineTo(
+                        iconPosition.x + iconSize + barOffsetX,
+                        barOffsetY + iteration * barOffset + radius
+                    );
+                    ctx.closePath();
+                    ctx.fillStyle = insideColor;
+                    ctx.fill();
+                };
+
+            bar(iteration, barRadius, "#CDCDCD");
+            // Create clipping mask for inner bar
+            const xpBoundingBox = () => {
                 ctx.beginPath();
-                ctx.arc(
-                    iconPosition.x + iconSize + barOffsetX,
-                    barOffsetY + iteration * barOffset,
-                    radius,
-                    0.6 * Math.PI,
-                    1.5 * Math.PI
+                ctx.moveTo( // Top left corner
+                    iconPosition.x + iconSize + barOffsetX - barRadius, // innerBarOffset is added to reduce grey lines at the edge of the bounding box from the inversion process
+                    barOffsetY + iteration * barOffset - barRadius
                 );
-                ctx.lineTo(700, barOffsetY + iteration * barOffset - radius);
-                ctx.arc(
-                    barEndX,
-                    barOffsetY + iteration * barOffset,
-                    radius,
-                    1.5 * Math.PI,
-                    0.5 * Math.PI
+                ctx.lineTo( // Bottom left corner
+                    iconPosition.x + iconSize + barOffsetX - barRadius,
+                    barOffsetY + iteration * barOffset + barRadius
+                );  
+                ctx.lineTo( // Bottom right corner (limited by xp)
+                    iconPosition.x + iconSize + barOffsetX - barRadius + barLength * xpPercentage,
+                    barOffsetY + iteration * barOffset + barRadius
                 );
-                ctx.lineTo(
-                    iconPosition.x + iconSize + barOffsetX,
-                    barOffsetY + iteration * barOffset + radius
+                ctx.lineTo( // Top right corner (limited by xp)
+                    iconPosition.x + iconSize + barOffsetX - barRadius + barLength * xpPercentage,
+                    barOffsetY + iteration * barOffset - barRadius
                 );
                 ctx.closePath();
-                ctx.fillStyle = insideColor;
+            }
+            xpBoundingBox();
+            ctx.save();
+            ctx.clip();
+            bar(iteration, barRadius - innerBarOffset, color);
+            ctx.restore();
+
+            // Draw the numbers for the xp inside the bars.
+            xpBoundingBox();
+            // This function uses the bounding box previously drawn to clip the xp,
+            // but this time the box is used to invert the area.
+            // Once the text has been drawn, the area is inverted again,
+            // but only the text inside the xp area is affected,
+            // making it change color once the xp bar reaches the text.
+            const invert = () => {
+                ctx.globalCompositeOperation = "difference";
+                ctx.fillStyle = "white";
                 ctx.fill();
-            };
-            bar(iteration, barRadius, "#CDCDCD");
-            bar(iteration, barRadius - 3, color);
+                ctx.globalCompositeOperation = "source-over";
+            }
+            invert();
+
+            ctx.font = `25px ${font}`;
+            ctx.textAlign = "center";
+            ctx.fillStyle = "#323232";
+            ctx.fillText(
+                `${xpCurrent}/${xpMax}`,
+                iconPosition.x + iconSize + barOffsetX - barRadius + barLength/2,
+                barOffsetY + iteration * barOffset + 7
+            );
+            invert();
+            
+            // Draw leaderboard name
+            const boardName = iteration ? "Global" : "Server";
+            ctx.font = `25px ${font}`;
+            ctx.textAlign = "right";
+            ctx.shadowColor = "black";
+            ctx.strokeStyle = "black";
+            ctx.shadowBlur = 2;
+            ctx.lineWidth = 2;
+            ctx.strokeText(
+                boardName,
+                barEndX,
+                barOffsetY + iteration * barOffset - 23
+            );
+            ctx.shadowBlur = 0;
             ctx.fillStyle = "#CDCDCD";
-        };
+            ctx.fillText(
+                boardName,
+                barEndX,
+                barOffsetY + iteration * barOffset - 23
+            );
+
+            // Draw rank
+            ctx.textAlign = "left";
+            ctx.shadowBlur = 2;
+            ctx.strokeText(
+                `Rank: #${rank}`,
+                iconPosition.x + iconSize + barOffsetX - barRadius + 10,
+                barOffsetY + iteration * barOffset - 23
+            );
+            ctx.shadowBlur = 0;
+            ctx.fillText(
+                `Rank: #${rank}`,
+                iconPosition.x + iconSize + barOffsetX - barRadius + 10,
+                barOffsetY + iteration * barOffset - 23
+            );
+        },
+
+        xpCurr = 700,
+        xpMax = 1000,
+        serverRank = 10,
+        globalRank = 2313;
 
     drawIcon(0, guildAvatar);
     drawIcon(1, dunhammerAvatar);
 
-    drawxpBar(0, 50, 100, `#95133B`);
-    drawxpBar(1, 50, 100, "#4D662A");
-    ctx.globalCompositeOperation = "difference";
-    ctx.fillStyle = "white";
-    drawxpBar(0, 50, 100, `#95133B`);
-    drawxpBar(1, 50, 100, "#4D662A");
+    drawxpBar(0, xpCurr, xpMax, `#95133B`, serverRank);
+    drawxpBar(1, xpCurr, xpMax, "#4D662A", globalRank);
 
+    //#endregion
+
+    //#region Username
+    const usernameSize = 60;
+    ctx.font = `${usernameSize}px ${font}`;
+    ctx.shadowBlur = 7;
+    ctx.lineWidth = 3;
+    ctx.strokeText(
+        interaction.user.username,
+        460,
+        55
+    );
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#CDCDCD"
+    ctx.fillText(
+        interaction.user.username,
+        460,
+        55
+    );
+    const usernameWidth = ctx.measureText(interaction.user.username).width;
+    ctx.shadowColor = "black";
+    ctx.shadowBlur = 7;
+    ctx.font = `${usernameSize/2.25}px ${font}`;
+    ctx.strokeText(
+        `#${interaction.user.tag.slice(-4)}`,
+        460 + usernameWidth,
+        55
+    );
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = "#ACACAC";
+    ctx.fillText(
+        `#${interaction.user.tag.slice(-4)}`,
+        460 + usernameWidth,
+        55
+    );
     //#endregion
 
     return new Discord.MessageAttachment(canvas.toBuffer(), "profile.png");
