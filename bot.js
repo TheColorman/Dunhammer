@@ -16,8 +16,13 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
+
+// xp gain cooldown
+const levelTimestamps = new Collection(),
+    minuteTimestamps = new Collection(),
+
 // Start MySQL connection 🤣
-const sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword}));
+    sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword}));
 
 // Random status setter
 let statuses = [...config.statuses];
