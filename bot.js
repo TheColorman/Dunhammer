@@ -371,4 +371,34 @@ client.on('interactionCreate', async interaction => {
 setInterval(() => {
     minuteTimestamps.clear();
 }, 1000 * 60);
+
+// Add new guilds to database
+client.on("guildCreate", async (guild) => {
+    await sql.getDBGuild(guild);
+    await sql.getDBGuildLevelsystem(guild);
+});
+
+//#region Update existing database entries
+client.on("guildUpdate", async (oldGuild, newGuild) => {
+    await sql.updateDBGuild(newGuild);
+});
+
+client.on("guildMemberUpdate", async (oldMember, newMember) => {
+    await sql.updateDBGuildMember(newMember);
+});
+
+client.on("guildMemberRemove", async (member) => {
+    const DBGuildMembers = await sql.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
+    if (DBGuildMembers.length) {
+        await sql.update("guildusers", {
+            inGuild: false
+        }, `guildid = ${member.guild.id} AND userid = ${member.id}`);
+    }
+});
+
+client.on("guildMemberAdd", async (member) => {
+    await sql.updateDBGuildMember(member);
+});
+//#endregion
+
 client.login(botToken);
