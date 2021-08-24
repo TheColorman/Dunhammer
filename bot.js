@@ -156,7 +156,12 @@ const adminCommands = {
                         type: "BUTTON",
                         label: "Guilds",
                         customId: "admincommands.reloaddatabase.guilds",
-                        style: "PRIMARY"
+                        style: "SECONDARY"
+                    }, {
+                        type: "BUTTON",
+                        label: "Guild levelsystems",
+                        customId: "admincommands.reloaddatabase.guildlevelsystem",
+                        style: "SECONDARY"
                     }]
                 }]
             });
@@ -171,23 +176,20 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guilds",
                             customId: "admincommands.reloaddatabase.guilds",
-                            style: "PRIMARY",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
                             disabled: true
                         }]
                     }]
                 });
                 client.guilds.fetch().then(async collection => {
                     collection.each(async guild => {
-                        if (!(await sql.get('guilds', `id = ${guild.id}`)).length) {
-                            await sql.insert('guilds', {
-                                id: guild.id,
-                                name: guild.name
-                            });
-                        } else {
-                            await sql.update('guilds', {
-                                name: guild.name
-                            }, `id = ${guild.id}`);
-                        }
+                        sql.getDBGuild(guild);
                     });
                     message.message.edit({
                         content: `:white_check_mark: Done, all ${collection.size} guilds now up to date in database.`,
@@ -195,15 +197,67 @@ const adminCommands = {
                             type: "ACTION_ROW",
                             components: [{
                                 type: "BUTTON",
-                                label: "Done",
+                                label: "Guilds",
                                 customId: "admincommands.reloaddatabase.guilds",
-                                style: "PRIMARY",
+                                style: "SECONDARY",
+                                disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "Guild levelsystems",
+                                customId: "admincommands.reloaddatabase.guildlevelsystem",
+                                style: "SECONDARY",
                                 disabled: true
                             }]
                         }]
                     });
                 });
 
+                break;
+            }
+            case "guildlevelsystem": {
+                message.update({
+                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                client.guilds.fetch().then(async collection => {
+                    collection.each(async guild => {
+                        sql.getDBGuildLevelsystem(guild);
+                    });
+                    message.message.edit({
+                        content: `:white_check_mark: Done, all ${collection.size} guild levelsystems now up to date in database.`,
+                        components: [{
+                            type: "ACTION_ROW",
+                            components: [{
+                                type: "BUTTON",
+                                label: "Guilds",
+                                customId: "admincommands.reloaddatabase.guilds",
+                                style: "SECONDARY",
+                                disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "Guild levelsystems",
+                                customId: "admincommands.reloaddatabase.guildlevelsystem",
+                                style: "SECONDARY",
+                                disabled: true
+                            }]
+                        }]
+                    });
+                });
                 break;
             }
             default: {
