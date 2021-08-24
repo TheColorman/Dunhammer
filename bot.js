@@ -264,6 +264,45 @@ const adminCommands = {
                 message.message.reply({ content: "You find yourself in a mysterious place..." });
             }
         }
+    },
+    // Shows the levelupimage
+    levelupimage: async (message, type) => {
+        if (!type) {
+            return message.reply({
+                content: "What image would you like to send?",
+                components: [{
+                    type: "ACTION_ROW",
+                    components: [{
+                        type: "BUTTON",
+                        label: "Server",
+                        customId: "admincommands.levelupimage.server",
+                        style: "SECONDARY"
+                    }, {
+                        type: "BUTTON",
+                        label: "Global",
+                        customId: "admincommands.levelupimage.global",
+                        style: "SECONDARY"
+                    }]
+                }]
+            });
+        }
+        switch (type) {
+            case "server": {
+                message.update({
+                    content: `${message.member}\n{levelupMessage}`,
+                    files: [await levelsystem.createLevelupImageServer()],
+                    components: []
+                });
+                break;
+            }
+            case "global": {
+                message.update({
+                    content: `Congratulations ${message.user}! You reached level 10 on the Global Dunhammer Leaderboard and gained ${10 * 10} <:DunhammerCoin:878740195078463519>.`,
+                    files: [await levelsystem.createLevelupImageGlobal()],
+                    components: []
+                });
+            }
+        }
     }
 }
 
