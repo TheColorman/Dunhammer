@@ -1,4 +1,8 @@
 // Start and stop MySQL server in run > services.msc > Apache2.4 + MySQL on localhost/phpmyadmin
+
+// eslint-disable-next-line no-unused-vars
+const Disord = require('discord.js');
+
 class MySQL {
     /**
      * Creates a MySQL connection
@@ -12,7 +16,10 @@ class MySQL {
 
         console.log("Connecting to MySQL server...");
         this.con.connect(err => {
-            if (err) throw err;
+            if (err) {
+                console.error("Connection failed!");
+                throw err;
+            }
             console.log(`Established connection to MySQL server at ${login.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`guilds\``, (error, result) => {
                 if (error) throw err;
@@ -29,7 +36,7 @@ class MySQL {
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @param {String} sortLogic Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
      * @param {Number} limit Max number of results
-     * @returns {Promise<Array<import("../bot").DBGuildUser>>} Array of objects (found rows)
+     * @returns {Promise<Array<import("../bot").DBGuildMember>>} Array of objects (found rows)
      */
     async get(table, queryLogic, sortLogic, limit) {
         return new Promise((res) => {
@@ -95,42 +102,41 @@ class MySQL {
      * @property {String}   id           - User ID
      * @property {String}   username     - Username without tag
      * @property {String}   tag          - User tag
-     * @property {Boolean}  unsubscribed - Whether user is unsubscribed from DMs
+     * @property {Number}   xp           - User total xp
+     * @property {Number}   level        - User level
+     * @property {Number}   coins        - Users coins
      */
     /**
      * @typedef {Object} DBGuild
      * @property {String}   id         - Guild ID
      * @property {String}   name       - Guild name
-     * @property {String}   prefix     - Guild prefix
-     * @property {Boolean}  ignoreBots - Whether guild ignores bots
      */
     /**
      * @typedef {Object} DBGuildLevelsystem
-     * @property {String}               id              - Guild id
-     * @property {Boolean}              enabled         - Whether levelsystem is enabled
-     * @property {Array<String>}        ignoredChannels - Stringified array of ignord channel IDs
-     * @property {String|Null}          levelupChannel  - Channel ID where levelup messages are sent
-     * @property {Discord.MessageEmbed} levelupMessage  - Stringified embed object for levelup
-     * @property {Discord.MessageEmbed} newroleMessage  - Stringified embed object for newrole
-     * @property {Boolean}              levelupImage    - Whether levelup messages contain an image
-     * @property {Boolean}              rolesCumulative - Whether levelup roles are cumulative
-     * @property {{Level: String}}      roles           - Stringified object of roles where `key = level` and `value = role ID`
+     * @property {String}           id              - Guild id
+     * @property {Boolean}          enabled         - Whether levelsystem is enabled
+     * @property {Array<String>}    ignoredChannels - Stringified array of ignord channel IDs
+     * @property {String|null}      levelupChannel  - Channel ID where levelup messages are sent
+     * @property {String}           levelupMessage  - Stringified embed object for levelup
+     * @property {String}           newroleMessage  - Stringified embed object for newrole
+     * @property {Boolean}          tagMember       - Whether to tag the member who leveled up
+     * @property {Boolean}          rolesCumulative - Whether levelup roles are cumulative
+     * @property {{Level: String}}  roles           - Stringified object of roles where `key = level` and `value = role ID`
      */
     /**
-     * @typedef {Object} DBGuildUser
-     * @property {String}         userid     - User ID
+     * @typedef {Object} DBGuildMember
      * @property {String}         guildid    - Guild ID
+     * @property {String}         userid     - Member ID
+     * @property {String}         nickname   - Member nickname
      * @property {Number}         xp         - Total XP
      * @property {Number}         level      - Current level
-     * @property {Array<String>}  levelRoles - Stringified array of role IDs of users level roles
-     * @property {Array<String>}  roles      - Stringified array of role IDs of user roles
-     * @property {Boolean}        inGuild    - Whether or not the user is present in the guild
      */
     /**
-     * @typedef {Object} DBWebUser
-     * @property {String}  id          - User ID
-     * @property {String}  accessToken - User's Discord API access token
-     * @property {String}  state       - State as defined by Discord OAth2 docs
+     * @typedef {Object} DBChannel
+     * @property {String}   id                   - Channel ID
+     * @property {Number}   messageStreak        - Current channel message streak
+     * @property {Number}   streakTimestamp      - Date when streak was last updated in millisecond format
+     * @property {String}   lastMessageMember    - ID of last user to send a message in channel
      */
 
     /**
@@ -138,14 +144,16 @@ class MySQL {
      * @param {Discord.User}  user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
-    async getUserInDB(user) {
+    async getDBUser(user) {
         const DBUserArr = await this.get("users", `id = ${user.id}`);
         if (!DBUserArr.length) {
             await this.insert("users", {
                 id: user.id,
                 username: user.username,
                 tag: user.tag.slice(-4),
-                unsubscribed: false
+                xp: 0,
+                level: 0,
+                coins: 0
             });
             return (await this.get("users", `id = ${user.id}`))[0];
         }
@@ -156,14 +164,12 @@ class MySQL {
      * @param {Discord.Guild}  guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
-    async getGuildInDB(guild) {
+    async getDBGuild(guild) {
         const DBGuildArr = await this.get("guilds", `id = ${guild.id}`);
         if (!DBGuildArr.length) {
             await this.insert("guilds", {
                 id: guild.id,
                 name: guild.name,
-                prefix: ".",
-                ignoreBots: true
             });
             return (await this.get("guilds", `id = ${guild.id}`))[0];
         }
@@ -174,57 +180,102 @@ class MySQL {
      * @param {Discord.Guild}  guild - DiscordJS guild
      * @returns {DBGuildLevelsystem} DBGuild object
      */
-    async getGuildLevelsystemInDB(guild) {
-        const DBGuildLevelsystemArr = await this.get("guild-levelsystem", `id = ${guild.id}`);
+    async getDBGuildLevelsystem(guild) {
+        const DBGuildLevelsystemArr = await this.get("guildlevelsystem", `id = ${guild.id}`);
         if (!DBGuildLevelsystemArr.length) {
-            await this.insert("guild-levelsystem", {
+            await this.insert("guildlevelsystem", {
                 id: guild.id,
-                enabled: false,
+                enabled: true,
                 ignoredChannels: JSON.stringify([]),
                 levelupChannel: null,
-                levelupMessage: JSON.stringify({
-                    "color": 2215713,
-                    "title": "Congratulations {username}, you reached level {level}!",
-                    "description": ""
-                }),
-                newroleMessage: JSON.stringify({
-                    "color": 2215713,
-                    "description": "Congratulations {username}, you reached level {level} and gained the role {role}!"
-                }),
-                levelupImage: true,
-                rolesCumulative: false,
+                levelupMessage: "Congratulations {username}, you reached level {level}!",
+                newroleMessage: "Congratulations {username}, you reached level {level} and gained the role {role}!",
+                tagMember: true,
+                rolesCumulative: true,
                 roles: JSON.stringify({})
             });
-            return (await this.get("guild-levelsystem", `id = ${guild.id}`))[0];
+            return (await this.get("guildlevelsystem", `id = ${guild.id}`))[0];
         }
         return DBGuildLevelsystemArr[0];
     }
     /**
      * Adds guild user to database if they don't exist and returns the database entry
-     * @param {Discord.Guild}  guild - DiscordJS guild
-     * @param {Discord.User}   member  - DiscordJS member
-     * @returns {DBGuildUser} DBGuildUser object
+     * @param {Discord.GuildMember}   member  - DiscordJS member
+     * @returns {DBGuildMember} DBGuildMember object
      */
-    async getGuildUserInDB(guild, member) {
-        const DBGuildUserArr = await this.get("guild-users", `guildid = ${guild.id} AND userid = ${member.id}`);
-        if (!DBGuildUserArr.length) {
-            const DBGuildLevelsystem = await this.getGuildLevelsystemInDB(guild),
-                levelSystemRoles = DBGuildLevelsystem.roles,
-                userRoles = (await guild.members.fetch(member.id)).roles.cache.map(item => item.id),
-                levelRoles = userRoles.filter(role => levelSystemRoles.includes(role));
-            await this.insert("guild-users", {
+    async getDBGuildMember(member) {
+        const DBGuildMemberArr = await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
+        if (!DBGuildMemberArr.length) {
+            await this.insert("guildusers", {
+                guildid: member.guild.id,
                 userid: member.id,
-                guildid: guild.id,
                 nickname: member.nickname,
                 xp: 0,
                 level: 0,
-                levelRoles: JSON.stringify(levelRoles),
-                roles: JSON.stringify(userRoles),
                 inGuild: true
             });
-            return (await this.get("guild-users", `guildid = ${guild.id} AND userid = ${member.id}`))[0];
+            return (await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`))[0];
         }
-        return DBGuildUserArr[0];
+        return DBGuildMemberArr[0];
+    }
+    /**
+     * Adds a channel to the database if it doesn't exist and returns the database entry
+     * @param {Discord.TextChannel} channel DiscordJS channel
+     * @returns {DBChannel}
+     */
+    async getDBChannel(channel) {
+        const DBChannelArr = await this.get("channels", `id = ${channel.id}`);
+        if (!DBChannelArr.length) {
+            await this.insert("channels", {
+                id: channel.id,
+                messageStreak: 0,
+                streakTimestamp: Date.now(),
+                lastMessageMember: "0"
+            });
+            return (await this.get("channels", `id = ${channel.id}`))[0];
+        }   
+        return DBChannelArr[0];
+    }
+    /**
+     * Updates a DBUser with Discord information
+     * @param {Discord.User} user - DiscordJS user
+     * @returns {DBUser} DBUser object
+     */
+    async updateDBUser(user) {
+        const DBUserArr = await this.get("users", `id = ${user.id}`);
+        if (!DBUserArr.length) return;
+        await this.update("users", {
+            username: user.username,
+            tag: user.tag.slice(-4)
+        }, `id = ${user.id}`);
+        return await this.getDBUser(user);
+    }
+    /**
+     * Updates a DBGuild with information from Discord
+     * @param {Discord.Guild} guild - DiscordJS guild
+     * @returns {DBGuild} DBGuild object
+     */
+    async updateDBGuild(guild) {
+        const DBGuildArr = await this.get("guilds", `id = ${guild.id}`);
+        if (!DBGuildArr.length) return;
+        await this.update("guilds", {
+            name: guild.name
+        }, `id = ${guild.id}`);
+        return await this.getDBGuild(guild);
+    }
+    /**
+     * Updates a DBGuildMember with information from Discord
+     * @param {Discord.GuildMember} member DiscordJS GuildMember
+     * @returns {DBGuildMember|undefined} DBGuildMember object if Discord member is found in database
+     */
+    async updateDBGuildMember(member) {
+        const DBGuildMemberArr = await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
+        if (!DBGuildMemberArr.length) return;
+        await this.update("guildusers", {
+            nickname: member.nickname,
+            inGuild: true
+        }, `guildid = ${member.guild.id} AND userid = ${member.id}`);
+        return await this.getDBGuildMember(member);
     }
 }
 
