@@ -22,8 +22,8 @@ module.exports = {
      * @param {Discord.CommandInteraction} interaction Interaction object
      * @param {MySQL} sql MySQL custom object
      */
-    async execute(interaction) {
-        const attachment = await createImage(interaction);
+    async execute(interaction, sql) {
+        const attachment = await createImage(interaction, sql);
         interaction.reply({
             files: [attachment],
         });
@@ -32,15 +32,19 @@ module.exports = {
 
 /**
  * @param {Discord.CommandInteraction} interaction
+ * @param {MySQL} sql
  */
-async function createImage(interaction) {
+async function createImage(interaction, sql) {
     const canvas = Canvas.createCanvas(800, 270),
         ctx = canvas.getContext("2d"),
         background = await Canvas.loadImage("./data/levelBackgrounds/0.png"),
         avatar = await Canvas.loadImage(
-            interaction.user.displayAvatarURL({
-                format: "png",
-            })
+            (interaction.options.data.length ? 
+                interaction.options.data[0].user :
+                interaction.user)
+                .displayAvatarURL({
+                    format: "png"
+                })
         ),
     //#region Background image
         cornerCropSize = 200,
@@ -124,7 +128,16 @@ async function createImage(interaction) {
         barEndX = 760,
         barOffsetY = iconPosition.y + (iconSize - barRadius * 2) / 2 - 5,
         innerBarOffset = 2.5,
-        font = "Nyata FTR",
+        font = 'Nyata FTR, Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif, Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace, Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif',
+            // {    Discord fonts
+            //     --font-primary: Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            //     --font-display: Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            //     --font-code: Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace;
+            //     --font-korean: Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            //     --font-japanese: Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif;
+            //     --font-chinese-simplified: Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            //     --font-chinese-traditional: Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif;
+            // }
         drawIcon = (iteration, icon) => {
             ctx.beginPath();
             ctx.arc(
@@ -270,52 +283,104 @@ async function createImage(interaction) {
                 barOffsetY + iteration * barOffset - 23
             );
         },
-
-        xpCurr = 700,
-        xpMax = 1000,
-        serverRank = 10,
-        globalRank = 2313;
+        drawLevel = (iteration, level) => {
+            ctx.textAlign = "center";
+            ctx.font = `50px ${font}`;
+            ctx.shadowBlur = 4;
+            const levelWidth = ctx.measureText(level).width;
+            ctx.strokeText(
+                level,
+                iconPosition.x - iconSize - levelWidth / 2 + 10,
+                iconPosition.y + iteration * barOffset + 25
+            );
+            ctx.shadowBlur = 0;
+            ctx.fillText(
+                level,
+                iconPosition.x - iconSize - levelWidth / 2 + 10,
+                iconPosition.y + iteration * barOffset + 25
+            );
+            ctx.font = `25px ${font}`;
+            ctx.shadowBlur = 2;
+            ctx.strokeText(
+                "LVL",
+                iconPosition.x - iconSize - levelWidth / 2 + 10,
+                iconPosition.y + iteration * barOffset - 15
+            );
+            ctx.shadowBlur = 0;
+            ctx.fillText(
+                "LVL",
+                iconPosition.x - iconSize - levelWidth / 2 + 10,
+                iconPosition.y + iteration * barOffset - 15
+            );
+            ctx.textAlign = "left";
+        },
+        member = (interaction.options.data.length ? interaction.options.data[0] : interaction).member,
+        memberID = member.id,
+        DBGuildMember = await sql.getDBGuildMember(member),
+        DBUser = await sql.getDBUser(member.user),
+        userDB = await sql.get("users", "", "xp DESC"),
+        guildMemberDB = await sql.get("guildusers", `guildid = ${interaction.guild.id}`, "xp DESC"),
+        xpTotalGlob = DBUser.xp,
+        currentLevelGlob = DBUser.level,
+        nextLevelGlob = currentLevelGlob + 1,
+        xpCurrGlob = xpTotalGlob - 5*(118*currentLevelGlob+2*currentLevelGlob*currentLevelGlob*currentLevelGlob)/6,
+        xpMaxGlob = 5*(118*nextLevelGlob+2*nextLevelGlob*nextLevelGlob*nextLevelGlob)/6 - 5*(118*currentLevelGlob+2*currentLevelGlob*currentLevelGlob*currentLevelGlob)/6,
+        globalRank = userDB.findIndex(user => user.id == memberID) + 1,
+        xpTotalServ = DBGuildMember.xp,
+        currentLevelServ = DBGuildMember.level,
+        nextLevelServ = currentLevelServ + 1,
+        xpCurrServ = xpTotalServ - 5*(118*currentLevelServ+2*currentLevelServ*currentLevelServ*currentLevelServ)/6,
+        xpMaxServ = 5*(118*nextLevelServ+2*nextLevelServ*nextLevelServ*nextLevelServ)/6 - 5*(118*currentLevelServ+2*currentLevelServ*currentLevelServ*currentLevelServ)/6,
+        serverRank = guildMemberDB.findIndex(member => member.userid == memberID) + 1;
 
     drawIcon(0, guildAvatar);
     drawIcon(1, dunhammerAvatar);
 
-    drawxpBar(0, xpCurr, xpMax, `#95133B`, serverRank);
-    drawxpBar(1, xpCurr, xpMax, "#4D662A", globalRank);
+    drawxpBar(0, xpCurrServ, xpMaxServ, `#37393D`, serverRank);
+    drawxpBar(1, xpCurrGlob, xpMaxGlob, "#4D662A", globalRank);
+
+    drawLevel(0, DBGuildMember.level);
+    drawLevel(1, DBUser.level);
 
     //#endregion
 
     //#region Username
-    const usernameSize = 60;
-    ctx.font = `${usernameSize}px ${font}`;
-    ctx.shadowBlur = 7;
-    ctx.lineWidth = 3;
+    let usernameFontSize = 60;
+    const username = (interaction.options.data.length ? interaction.options.data[0] : interaction).user.username;
+    ctx.font = `${usernameFontSize}px ${font}`;
+    while (ctx.measureText(`${username}`).width > 350) {
+        ctx.font = `${usernameFontSize -= 5}px ${font}`;
+    }
+    ctx.shadowBlur = usernameFontSize/8.5;
+    ctx.lineWidth = usernameFontSize/20;
     ctx.strokeText(
-        interaction.user.username,
+        username,
         460,
         55
     );
     ctx.shadowBlur = 0;
     ctx.fillStyle = "#CDCDCD"
     ctx.fillText(
-        interaction.user.username,
+        username,
         460,
         55
     );
-    const usernameWidth = ctx.measureText(interaction.user.username).width;
+    const { width: usernameWidth, emHeightDescent: usernameHeight } = ctx.measureText(username);
     ctx.shadowColor = "black";
-    ctx.shadowBlur = 7;
-    ctx.font = `${usernameSize/2.25}px ${font}`;
+    ctx.shadowBlur = usernameFontSize/8.5;
+    ctx.font = `${usernameFontSize/2.25}px ${font}`;
+    ctx.textAlign = "right";
     ctx.strokeText(
-        `#${interaction.user.tag.slice(-4)}`,
+        `#${(interaction.options.data.length ? interaction.options.data[0] : interaction).user.tag.slice(-4)}`,
         460 + usernameWidth,
-        55
+        62 + usernameHeight
     );
     ctx.shadowBlur = 0;
     ctx.fillStyle = "#ACACAC";
     ctx.fillText(
-        `#${interaction.user.tag.slice(-4)}`,
+        `#${(interaction.options.data.length ? interaction.options.data[0] : interaction).user.tag.slice(-4)}`,
         460 + usernameWidth,
-        55
+        62 + usernameHeight
     );
     //#endregion
 
