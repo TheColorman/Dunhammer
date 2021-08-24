@@ -325,23 +325,9 @@ client.on("messageCreate", async message => {
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
-    const dbUser = await sql.get("users", `id = ${interaction.user.id}`);
-    if (!dbUser.length) {
-        await sql.insert("users", {
-            id: interaction.user.id,
-            username: interaction.user.username,
-            tag: interaction.user.tag.slice(-4),
-            xp: 0,
-            level: 0
-        });
-        await sql.insert("guildusers", {
-            guildid: interaction.guild.id,
-            userid: interaction.user.id,
-            nickname: interaction.member.nickname,
-            xp: 0,
-            level: 0
-        });
-    }
+    // Check if interaction user is in the database
+    sql.getDBGuildMember(interaction.member);
+    sql.getDBUser(interaction.user);
 
     const command = client.commands.get(interaction.commandName);
 
