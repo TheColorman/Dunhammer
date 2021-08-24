@@ -5,6 +5,7 @@ const { Client, Intents, Collection, Message } = require('discord.js'),
     { mysql_login: mysqlLogin, admins } = require('./config.json'),
     fs = require('fs'),
     MySQL = require('./sql/sql.js'),
+    levelsystem = require('./levelsystem'),
 
     client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
 
