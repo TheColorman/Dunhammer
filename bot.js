@@ -306,19 +306,17 @@ const adminCommands = {
     }
 }
 
-client.on("messageCreate", async messagePartial => {
-    // Check for message partial
-    const fullMessage = await (async () => {
-        if (messagePartial.partial) return await messagePartial.fetch();
-        else return messagePartial;
-    })();
-    if (!fullMessage.content.startsWith(".")) return;
-    const command = fullMessage.content.split(" ")[0].substr(1);
 
+
+client.on("messageCreate", async message => {
+    // levelsystem.xpGain(message, sql, levelTimestamps, minuteTimestamps);
+
+    if (!message.content.startsWith(".")) return;
+    const command = message.content.split(" ")[0].substr(1);
     // Check if admin
     if (Object.keys(adminCommands).includes(command.toLowerCase())) {
-        if (!admins.includes(fullMessage.author.id)) return fullMessage.reply({ content: "Looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>" });
-        adminCommands[command.toLowerCase()](fullMessage);
+        if (!admins.includes(message.author.id)) return message.reply({ content: "Looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>" });
+        adminCommands[command.toLowerCase()](message);
     }
 });
 
