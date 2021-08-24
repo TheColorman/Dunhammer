@@ -367,4 +367,8 @@ client.on('interactionCreate', async interaction => {
 });
 //#endregion
 
+// Clear xp limits every minute
+setInterval(() => {
+    minuteTimestamps.clear();
+}, 1000 * 60);
 client.login(botToken);
