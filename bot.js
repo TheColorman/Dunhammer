@@ -288,18 +288,40 @@ const adminCommands = {
         }
         switch (type) {
             case "server": {
-                message.update({
-                    content: `${message.member}\n{levelupMessage}`,
-                    files: [await levelsystem.createLevelupImageServer()],
-                    components: []
+                message.message.removeAttachments().then(async () => {
+                    message.update({
+                        content: `Server levelup debug`,
+                        files: [await require('./levelsystem').createLevelupImageServer(message.message, 15, sql)],
+                        components: [{
+                            type: "ACTION_ROW",
+                            components: [{
+                                type: "BUTTON",
+                                label: "refresh",
+                                customId: "admincommands.levelupimage.server",
+                                style: "PRIMARY",
+                                emoji: "🔄"
+                            }]
+                        }]
+                    });
                 });
                 break;
             }
             case "global": {
-                message.update({
-                    content: `Congratulations ${message.user}! You reached level 10 on the Global Dunhammer Leaderboard and gained ${10 * 10} <:DunhammerCoin:878740195078463519>.`,
-                    files: [await levelsystem.createLevelupImageGlobal()],
-                    components: []
+                message.message.removeAttachments().then(async () => {
+                    message.update({
+                        content: `Global levelup debug.`,
+                        files: [await require('./levelsystem').createLevelupImageGlobal(message.message, 15, sql)],
+                        components: [{
+                            type: "ACTION_ROW",
+                            components: [{
+                                type: "BUTTON",
+                                label: "refresh",
+                                customId: "admincommands.levelupimage.global",
+                                style: "PRIMARY",
+                                emoji: "🔄"
+                            }]
+                        }]
+                    });
                 });
             }
         }
