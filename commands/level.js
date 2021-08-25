@@ -37,7 +37,9 @@ module.exports = {
 async function createImage(interaction, sql) {
     const canvas = Canvas.createCanvas(800, 270),
         ctx = canvas.getContext("2d"),
-        background = await Canvas.loadImage("./data/levelBackgrounds/0.png"),
+        member = (interaction.options.data.length ? interaction.options.data[0] : interaction).member,
+        DBUser = await sql.getDBUser(member.user),
+        background = await Canvas.loadImage(`./data/levelBackgrounds/${DBUser.currentBackground}.png`),
         avatar = await Canvas.loadImage(
             (interaction.options.data.length ? 
                 interaction.options.data[0].user :
@@ -314,10 +316,8 @@ async function createImage(interaction, sql) {
             );
             ctx.textAlign = "left";
         },
-        member = (interaction.options.data.length ? interaction.options.data[0] : interaction).member,
         memberID = member.id,
         DBGuildMember = await sql.getDBGuildMember(member),
-        DBUser = await sql.getDBUser(member.user),
         userDB = await sql.get("users", "", "xp DESC"),
         guildMemberDB = await sql.get("guildusers", `guildid = ${interaction.guild.id}`, "xp DESC"),
         xpTotalGlob = DBUser.xp,
