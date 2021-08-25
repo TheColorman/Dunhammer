@@ -19,7 +19,7 @@
             "ignoreComments": true
         }],
         "prefer-const": "error",
-        "no-unused-vars": "error",
+        "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
         "operator-assignment": "error",
         "one-var": ["error", "consecutive"],
         "no-unreachable": "warn"
