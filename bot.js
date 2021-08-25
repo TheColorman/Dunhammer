@@ -332,6 +332,7 @@ const adminCommands = {
 
 client.on("messageCreate", async message => {
     // levelsystem.xpGain(message, sql, levelTimestamps, minuteTimestamps);
+    if (message.author.bot) return;
 
     if (!message.content.startsWith(".")) return;
     const command = message.content.split(" ")[0].substr(1);
