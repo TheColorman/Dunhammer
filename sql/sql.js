@@ -99,12 +99,16 @@ class MySQL {
     //  Specified functions
     /**
      * @typedef {Object} DBUser
-     * @property {String}   id           - User ID
-     * @property {String}   username     - Username without tag
-     * @property {String}   tag          - User tag
-     * @property {Number}   xp           - User total xp
-     * @property {Number}   level        - User level
-     * @property {Number}   coins        - Users coins
+     * @property {String}   id                   - User ID
+     * @property {String}   username             - Username without tag
+     * @property {String}   tag                  - User tag
+     * @property {Number}   xp                   - User total xp
+     * @property {Number}   level                - User level
+     * @property {Number}   coins                - Users coins
+     * @property {Number}   badges               - Bitfield value of all unlocked badges
+     * @property {Number}   profileBadges        - Bitfield value of all badges displayed on profile
+     * @property {Number}   backgrounds          - Bitfield value of all unlocked backgrounds
+     * @property {Number}   currentBackground    - Current selected background
      */
     /**
      * @typedef {Object} DBGuild
