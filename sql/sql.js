@@ -71,6 +71,7 @@ class MySQL {
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
     async update(table, object, queryLogic) {
+        if (!queryLogic) throw new Error("Failed to update database. No selector parameter passed, aborting update.");
         return new Promise((res) => {
             const query = `UPDATE \`${table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
