@@ -15,8 +15,12 @@ module.exports = {
                 description: "Prevents xp gain in the specified channel"
             }, {
                 type: "BOOLEAN",
-                name: "disable_levelsystem",
+                name: "levelsystem_disabled",
                 description: "Disables the levelling system"
+            }, {
+                type: "BOOLEAN",
+                name: "public_leaderboard",
+                description: "Makes the leaderboard public the Dunhammer website"
             }
         ]
     },
@@ -63,7 +67,7 @@ module.exports = {
                     }, `id = ${interaction.guild.id}`);
                     break;
                 }
-                case "disable_levelsystem": {
+                case "levelsystem_disabled": {
                     const hasPerms = interaction.member.permissionsIn(interaction.channel).has("KICK_MEMBERS");
                     if (!hasPerms) return interaction.reply({
                         embeds: [{
@@ -72,9 +76,24 @@ module.exports = {
                         }],
                         ephemeral: true
                     });
-                    embed.description = embed.description.concat(`${option.value ? "❎ Disabled" : "✅ Enabled"} the levelsystem.`);
+                    embed.description = embed.description.concat(`${option.value ? "❎ Disabled" : "✅ Enabled"} the levelsystem.\n`);
                     sql.update("guildlevelsystem", {
                         enabled: !option.value
+                    }, `id = ${interaction.guild.id}`);
+                    break;
+                }
+                case "public_leaderboard": {
+                    const hasPerms = interaction.member.permissionsIn(interaction.channel).has("BAN_MEMBERS");
+                    if (!hasPerms) return interaction.reply({
+                        embeds: [{
+                            color: 0xad3737,
+                            description: "You need the \"Ban members\" permission to use `public-leaderboard`!"
+                        }],
+                        ephemeral: true
+                    });
+                    embed.description = embed.description.concat(`${option.value ? "🌎 Made leaderboard public.\n" : "🔒 Made leaderboard private.\n"}`)
+                    sql.update("guildlevelsystem", {
+                        publicLeaderboard: option.value
                     }, `id = ${interaction.guild.id}`);
                 }
             }
