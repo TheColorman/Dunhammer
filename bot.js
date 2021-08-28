@@ -162,6 +162,11 @@ const adminCommands = {
                         label: "Guild levelsystems",
                         customId: "admincommands.reloaddatabase.guildlevelsystem",
                         style: "SECONDARY"
+                    }, {
+                        type: "BUTTON",
+                        label: "Guild members",
+                        customId: "admincommands.reloaddatabase.guildmembers",
+                        style: "SECONDARY"
                     }]
                 }]
             });
@@ -182,6 +187,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild levelsystems",
                             customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -207,11 +218,16 @@ const adminCommands = {
                                 customId: "admincommands.reloaddatabase.guildlevelsystem",
                                 style: "SECONDARY",
                                 disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "Guild members",
+                                customId: "admincommands.reloaddatabase.guildmembers",
+                                style: "SECONDARY",
+                                disabled: true
                             }]
                         }]
                     });
                 });
-
                 break;
             }
             case "guildlevelsystem": {
@@ -229,6 +245,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild levelsystems",
                             customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -254,9 +276,78 @@ const adminCommands = {
                                 customId: "admincommands.reloaddatabase.guildlevelsystem",
                                 style: "SECONDARY",
                                 disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "Guild members",
+                                customId: "admincommands.reloaddatabase.guildmembers",
+                                style: "SECONDARY",
+                                disabled: true
                             }]
                         }]
                     });
+                });
+                break;
+            }
+            case "guildmembers": {
+                message.update({
+                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                const guilds = await client.guilds.fetch();
+                guilds.forEach(async guildPartial => {
+                    const
+                        guild = await guildPartial.fetch(),
+                        members = await guild.members.fetch();
+                    
+                    members.forEach(member => {
+                        sql.updateDBGuildMember(member);
+                    });
+                });
+                message.message.edit({
+                    content: `:white_check_mark: Done, updated members in all ${guilds.size} guilds.`,
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
                 });
                 break;
             }
