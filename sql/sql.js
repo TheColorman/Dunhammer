@@ -118,15 +118,16 @@ class MySQL {
      */
     /**
      * @typedef {Object} DBGuildLevelsystem
-     * @property {String}           id              - Guild id
-     * @property {Boolean}          enabled         - Whether levelsystem is enabled
-     * @property {Array<String>}    ignoredChannels - Stringified array of ignord channel IDs
-     * @property {String|null}      levelupChannel  - Channel ID where levelup messages are sent
-     * @property {String}           levelupMessage  - Stringified embed object for levelup
-     * @property {String}           newroleMessage  - Stringified embed object for newrole
-     * @property {Boolean}          tagMember       - Whether to tag the member who leveled up
-     * @property {Boolean}          rolesCumulative - Whether levelup roles are cumulative
-     * @property {{Level: String}}  roles           - Stringified object of roles where `key = level` and `value = role ID`
+     * @property {String}           id                   - Guild id
+     * @property {Boolean}          enabled              - Whether levelsystem is enabled
+     * @property {Array<String>}    ignoredChannels      - Stringified array of ignord channel IDs
+     * @property {String|null}      levelupChannel       - Channel ID where levelup messages are sent
+     * @property {String}           levelupMessage       - Stringified embed object for levelup
+     * @property {String}           newroleMessage       - Stringified embed object for newrole
+     * @property {Boolean}          tagMember            - Whether to tag the member who leveled up
+     * @property {Boolean}          rolesCumulative      - Whether levelup roles are cumulative
+     * @property {{Level: String}}  roles                - Stringified object of roles where `key = level` and `value = role ID`
+     * @property {Boolean}          publicLeaderboard    - Whether leaderboard is public
      */
     /**
      * @typedef {Object} DBGuildMember
@@ -135,6 +136,7 @@ class MySQL {
      * @property {String}         nickname   - Member nickname
      * @property {Number}         xp         - Total XP
      * @property {Number}         level      - Current level
+     * @property {String[]}       roles      - Stringified list of member roles
      */
     /**
      * @typedef {Object} DBChannel
@@ -217,7 +219,8 @@ class MySQL {
                 nickname: member.nickname,
                 xp: 0,
                 level: 0,
-                inGuild: true
+                inGuild: true,
+                roles: JSON.stringify(member.roles.cache.map(role => role.id))
             });
             return (await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`))[0];
         }
@@ -278,7 +281,8 @@ class MySQL {
         if (!DBGuildMemberArr.length) return;
         await this.update("guildusers", {
             nickname: member.nickname,
-            inGuild: true
+            inGuild: true,
+            roles: JSON.stringify(member.roles.cache.map(role => role.id))
         }, `guildid = ${member.guild.id} AND userid = ${member.id}`);
         return await this.getDBGuildMember(member);
     }
