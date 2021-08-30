@@ -27,7 +27,7 @@ module.exports = {
         
             minutesSinceStreakTimestamp = (Date.now() - DBChannel.streakTimestamp) / 60000;
         if (minutesSinceStreakTimestamp > streakTimeout) DBChannel.messageStreak = 0;
-        else DBChannel.messageStreak -= Math.floor(minutesSinceStreakTimestamp);
+        else DBChannel.messageStreak -= Math.min(Math.floor(minutesSinceStreakTimestamp), DBChannel.messageStreak);
         const newMessage = DBChannel.lastMessageMember != message.member.id,
     
             now = Date.now(),
