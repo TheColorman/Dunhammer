@@ -137,7 +137,7 @@ client.on("message", async (msg) => {
                 }});
             }
             DBGuild.prefix = newPrefix;
-            await sql.update("guilds", DBGuild, `id = ${DBGuild.id}`);
+            await sql.update("guilds", { prefix: newPrefix }, `id = ${DBGuild.id}`);
             return msg.channel.send({ embed: {
                 "color": 2215713,
                 "description": `:repeat: Updated server prefix to \`${DBGuild.prefix}\`.`
@@ -400,7 +400,7 @@ async function levelsystem(msg, DBGuild) {
             }});
             userLevelRoles.push(levelSystemRoles[level]);
         }
-        await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
+        await sql.update("guild-users", { level: level }, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
 
         const levelup_message = {
             color: JSON.parse(levelSystem.levelupMessage).color,
@@ -442,7 +442,7 @@ function replaceIngredients(string, member, DBGuildUser, role) {
 client.on("guildMemberRemove", async member => {
     const DBGuildUser = await sql.getGuildUserInDB(member.guild, member);
     DBGuildUser.inGuild = false;
-    await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`)
+    await sql.update("guild-users", { inGuild: false }, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`)
 });
 client.on("guildMemberAdd", async member => {
     await sql.getUserInDB(member.user);
@@ -461,13 +461,12 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
 client.on("userUpdate", async (oldUser, newUser) => {
     const DBUser = await sql.getUserInDB(oldUser),
         newDBUser = {
-            id: newUser.id,
             username: newUser.username,
             tag: newUser.tag.slice(-4),
             unsubscribed: DBUser.unsubscribed
         }
     if (JSON.stringify(DBUser) != JSON.stringify(newDBUser)) {
-        await sql.update("users", newDBUser, `id = ${newDBUser.id}`);
+        await sql.update("users", newDBUser, `id = ${newUser.id}`);
     }
 });
 
