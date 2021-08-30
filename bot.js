@@ -480,7 +480,11 @@ client.on('interactionCreate', async interaction => {
     // Some commands have special event receivers
     const command = client.commands.get(interactionInfo[1]);
     try {
-        await command[interactionInfo[2]](interaction)
+        // -- Button event listeners. --
+        // 2nd argument is always sql object for database function.
+        // Further arguments are on a case-by-case basis if
+        // further information is needed as a data store.
+        await command[interactionInfo[2]](interaction, sql, interactionInfo[3])
     } catch(err) {
         console.error(err);
         await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
