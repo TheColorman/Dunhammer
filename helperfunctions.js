@@ -197,7 +197,7 @@ const CanvasImage = {
             const rank_text = ctx.measureText(`RANK`);
             ctx.fillText(`RANK`, canvas.width - level_number.width - xp_text_width - 80 - level_text.width - rank_number.width - rank_text.width, description_text_y);
 
-            const avatar_url = member.user.displayAvatarURL({format: "png", dynamic: true, avatar_size: 256}),
+            const avatar_url = member.user.displayAvatarURL({ format: "jpeg", dynamic: false, avatar_size: 256 }),
                 image = await loadImage(avatar_url);
 
             // clip profile picture
@@ -308,7 +308,7 @@ const CanvasImage = {
                 center.y+avatar_size/2+ctx.measureText(username_text).emHeightAscent+CanvasImagesMeta.measureTextPlus(ctx, level_text, `100px Arial`).height, 
                 3
             );
-            const avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: true, avatar_size: 256 })),
+            const avatar = await loadImage(member.user.displayAvatarURL({ format: "png", dynamic: false, avatar_size: 256 })),
             // crop
                 vOffset = 0;
             ctx.beginPath();
