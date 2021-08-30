@@ -376,7 +376,7 @@ async function levelsystem(msg, DBGuild) {
         }
     }
     const level = lower;
-    await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
+    await sql.update("guild-users", { xp: DBGuildUser.xp }, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
     
     // Congratulate if new level
     if (level > DBGuildUser.level) {
@@ -454,7 +454,7 @@ client.on("guildMemberUpdate", async (oldMember, newMember) => {
     const DBGuildUser = await sql.getGuildUserInDB(newMember.guild, newMember);
     if (DBGuildUser.roles != JSON.stringify(newMember.roles.cache.map(role => role.id))) {
         DBGuildUser.roles = JSON.stringify(newMember.roles.cache.map(role => role.id));
-        await sql.update("guild-users", DBGuildUser, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
+        await sql.update("guild-users", { roles: DBGuildUser.roles }, `guildid = ${DBGuildUser.guildid} AND userid = ${DBGuildUser.userid}`);
     }
 });
 
