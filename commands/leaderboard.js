@@ -65,49 +65,49 @@ module.exports = {
         if (type == "server") await replyServer(interaction, sql, reply, 1);
         else await replyGlobal(interaction, sql, reply, 1);
     },
-    /**
-     * @param {Discord.ButtonInteraction} interaction 
-     * @param {Number} currentPage 
-     */
-    async previous(interaction, sql, dataString) {
-        /** Oh boy I'm gonna need a multi-line comment for this one.
-         * So, basically, the function replyServer (and replyGlobal when I finish that one)
-         * excpects the first parameter to be an interaction. That's all good, but only CommandInteractions have the .options 
-         * property,  so when  interaction.options  is checked,  it's  always  going  to  return  undefined  when checking  a
-         * ButtonInteraction.  Now, what if someone uses a role  when doing the CommandInteraction  and they press a  button?
-         * The  ButtonInteraction won't have  a role,  and all  further pages aren't  going to filter by  the role.  That's a
-         * problem. So, I  have added a .options property  to the ButtonInteraction with the  methods used in the replyServer
-         * function,  and they return the value  from the data object, which is a  stringified object passed as a part of the
-         * buttons  CustomId.  This CustomId  is  defined  at the  bototm of  the replyServer  function,  called  dataString.
-         * Thank you for coming to my Ted Talk.
-         * 
-         * TL;DR: I'm creating fake methods and returning stringified objects.
-         */
+    // Button functions
+    previous(interaction, sql, dataString) {
 
         const data = JSON.parse(dataString);
-        interaction.options = {
-            getUser: (_user) => undefined,
-            getRole: (_role) => data.role ? interaction.guild.roles.fetch(data.role) : undefined,
-            getString: (_filter) => data.filter
-        }
-        if (data.type == "server") await replyServer(interaction, sql, interaction, data.page - 1);
-        else await replyGlobal(interaction, sql, interaction, data.page - 1);
+        buttonHandler(interaction, sql, data, data.page - 1);
     },
-    /**
-     * @param {Discord.ButtonInteraction} interaction 
-     * @param {Number} currentPage 
-     */
-    async next(interaction, sql, dataString) {
+    next(interaction, sql, dataString) {
         const data = JSON.parse(dataString);
-        interaction.options = {
-            getUser: (_user) => undefined,
-            getRole: (_role) => data.role ? interaction.guild.roles.fetch(data.role) : undefined,
-            getString: (_filter) => data.filter
-        }
-        //                                                                                    ⬇ fuck javascript, all my homies hate javascript
-        if (data.type == "server") await replyServer(interaction, sql, interaction, data.page - - 1);
-        else await replyGlobal(interaction, sql, interaction, data.page - - 1);
+        //                                              ⬇ fuck javascript, all my homies hate javascript
+        buttonHandler(interaction, sql, data, data.page - - 1);
+    },
+    first(interaction, sql, dataString) {
+        const data = JSON.parse(dataString);
+        buttonHandler(interaction, sql, data, 1);        
+    },
+    last(interaction, sql, dataString) {
+        const data = JSON.parse(dataString);
+        buttonHandler(interaction, sql, data, 999999);  // truly the best solution to jumping to the last page
     }
+}
+
+function buttonHandler(interaction, sql, data, page) {
+    //#region trash
+    /* Oh boy I'm gonna need a multi-line comment for this one.
+       So, basically, the function replyServer (and replyGlobal when I finish that one)
+       excpects the first parameter to be an interaction. That's all good, but only CommandInteractions have the .options 
+       property,  so when  interaction.options  is checked,  it's  always  going  to  return  undefined  when checking  a
+       ButtonInteraction.  Now, what if someone uses a role  when doing the CommandInteraction  and they press a  button?
+       The  ButtonInteraction won't have  a role,  and all  further pages aren't  going to filter by  the role.  That's a
+       problem. So, I  have added a .options property  to the ButtonInteraction with the  methods used in the replyServer
+       function,  and they return the value  from the data object, which is a  stringified object passed as a part of the
+       buttons  CustomId.  This CustomId  is  defined  at the  bototm of  the replyServer  function,  called  dataString.
+       Thank you for coming to my Ted Talk.
+      
+       TL;DR: I'm creating fake methods and returning stringified objects. */
+    //#endregion
+    interaction.options = {
+        getUser: (_user) => undefined,
+        getRole: (_role) => data.role ? interaction.guild.roles.fetch(data.role) : undefined,
+        getString: (_filter) => data.filter
+    }
+    if (data.type == "server") replyServer(interaction, sql, interaction, page);
+    else replyGlobal(interaction, sql, interaction, page);
 }
 
 /**
@@ -134,9 +134,10 @@ async function replyServer(interaction, sql, reply, page) {
                 !JSON.parse(DBGuildMember.roles).includes(role.id) :
                 JSON.parse(DBGuildMember.roles).includes(role.id)) :
             GuildMemberDB,
+        
         // Maximum amount of pages based on how many entries are in the database
         maxPage = Math.ceil(GuildMemberDBFiltered.length / 10),
-        currentPage = page > maxPage ? 1 : page < 1 ? maxPage : page,
+        currentPage = Math.min(maxPage, Math.max(page, 1)),
         // Calculate the 10 members shown based on the page we are on
         DBGuildMemberList = GuildMemberDBFiltered.splice(10 * (currentPage - 1), 10),
         // Map the array into both DiscordJS GuildMembers and DBGuildMembers for use in ...
@@ -184,6 +185,11 @@ async function replyServer(interaction, sql, reply, page) {
             components: [{
                 type: "ACTION_ROW",
                 components: [{
+                    type: "BUTTON",
+                    customId: `commands.leaderboard.first.${dataString}`,
+                    emoji: "⏪",
+                    style: "PRIMARY"
+                }, {
                     type: "BUTTON", 
                     customId: `commands.leaderboard.previous.${dataString}`, // yeah stringifying an object is a stupid-ass solution but why are you reading the fucking source code?
                     emoji: "◀",
@@ -192,6 +198,11 @@ async function replyServer(interaction, sql, reply, page) {
                     type: "BUTTON",
                     customId: `commands.leaderboard.next.${dataString}`,
                     emoji: "▶",
+                    style: "PRIMARY"
+                }, {
+                    type: "BUTTON",
+                    customId: `commands.leaderboard.last.${dataString}`,
+                    emoji: "⏩",
                     style: "PRIMARY"
                 }]
             }]
@@ -218,7 +229,7 @@ async function replyGlobal(interaction, sql, reply, page) {
         // Filter by role, check if filter is blacklist and continue accordingly
         // Maximum amount of pages based on how many entries are in the database
         maxPage = Math.ceil(UserDB.length / 10),
-        currentPage = page > maxPage ? 1 : page < 1 ? maxPage : page,
+        currentPage = Math.min(maxPage, Math.max(page, 1)),
         // Calculate the 10 members shown based on the page we are on
         DBUserList = UserDB.splice(10 * (currentPage - 1), 10),
         // ... this array, where it's all turned into a string with the format "#1 - {DiscordGuildMember} `1234` xp"
@@ -247,6 +258,11 @@ async function replyGlobal(interaction, sql, reply, page) {
             components: [{
                 type: "ACTION_ROW",
                 components: [{
+                    type: "BUTTON",
+                    customId: `commands.leaderboard.first.${dataString}`,
+                    emoji: "⏪",
+                    style: "PRIMARY"
+                }, {
                     type: "BUTTON", 
                     customId: `commands.leaderboard.previous.${dataString}`, // yeah stringifying an object is a stupid-ass solution but why are you reading the fucking source code?
                     emoji: "◀",
@@ -255,6 +271,11 @@ async function replyGlobal(interaction, sql, reply, page) {
                     type: "BUTTON",
                     customId: `commands.leaderboard.next.${dataString}`,
                     emoji: "▶",
+                    style: "PRIMARY"
+                }, {
+                    type: "BUTTON",
+                    customId: `commands.leaderboard.last.${dataString}`,
+                    emoji: "⏩",
                     style: "PRIMARY"
                 }]
             }]
