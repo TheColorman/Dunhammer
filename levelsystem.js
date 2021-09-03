@@ -96,19 +96,36 @@ module.exports = {
     /**
      * Levels up a guild member
      * @param {Message} message DiscordJS message
-     * @param {DBGuildMember} DBGuildMember DBGuildMember object
+     * @param {MySQL.DBGuildMember} DBGuildMember DBGuildMember object
      * @param {Number} level New level
+     * @param {MySQL} sql
      */
     async serverLevelup(message, DBGuildMember, level, sql) {
-        const DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
+        const
+            DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
             levelupChannel = await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) || message.channel,
             levelupMessage = DBGuildLevelsystem.levelupMessage
                 .replace("{username}", message.user.username)
                 .replace("{nickname}", message.member.displayName)
                 .replace("{level}", level)
                 .replace("{total_xp}", DBGuildMember.xp),
+            attachment = await this.createLevelupImageServer(message, level, sql),
+
+            // Roles
+            guildRoles = JSON.parse(DBGuildLevelsystem.roles);
+        if (guildRoles[level]) {    // check if there is a role on new level
+            const
+                memberRoles = JSON.parse(DBGuildMember.roles),
+                guildLevelRoles = Object.values(guildRoles),
+                memberLevelRoles = memberRoles.filter(roleid => guildLevelRoles.includes(roleid)),
+                member = message.member;
+            // Remove all levelroles if roles aren't cumulative
+            if (!DBGuildLevelsystem.rolesCumulative && memberLevelRoles.length) await member.roles.remove(memberLevelRoles, "Normal level roles.");
+            await member.roles.add(guildRoles[level], "Normal level roles");
+        }
+
+
         
-            attachment = await this.createLevelupImageServer(message, level, sql);
 
         levelupChannel.send({
             content: `${DBGuildLevelsystem.tagMember ? `${message.member}\n` : ""}${levelupMessage}`,
