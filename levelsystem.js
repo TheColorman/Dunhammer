@@ -17,13 +17,13 @@ module.exports = {
             DBUser = await sql.getDBUser(message.author),
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.guild),
     
-            basexp = 1,
-            messageLengthDevisor = 5,
-            maxStreak = 20,
+            basexp = Math.random() * 2 + 1,
+            messageLengthDevisor = 7,
+            maxStreak = 100,
             streakTimeout = 5,
-            streakDevisor = 3,
+            streakDevisor = 10,
             linkEmbedAddition = 20,
-            maxxpPerMinute = 80,
+            maxxpPerMinute = 40,
         
             minutesSinceStreakTimestamp = (Date.now() - DBChannel.streakTimestamp) / 60000;
         if (minutesSinceStreakTimestamp > streakTimeout) DBChannel.messageStreak = 0;
@@ -41,14 +41,14 @@ module.exports = {
         levelTimestamps.set(message.author.id, now);
         setTimeout(() => levelTimestamps.delete(message.author.id), cooldownAmount);
     
-        const gainedxp = Math.floor(
-            basexp * (message.content.split(" ").length / messageLengthDevisor) +
+        const gainedxp = Math.round(
+            basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor) +
             (newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0) + 
             (message.embeds.length ? linkEmbedAddition : 0)
         );
         if (minuteTimestamps.has(message.author.id)) {
             const xpThisMinute = minuteTimestamps.get(message.author.id);
-            message.reply({ content: `${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
+            message.reply({ content: `base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
             if (xpThisMinute > maxxpPerMinute) return;
             minuteTimestamps.set(message.author.id, xpThisMinute + gainedxp);
         } else minuteTimestamps.set(message.author.id, gainedxp);
@@ -127,7 +127,8 @@ module.exports = {
             const newRoleMessage = DBGuildLevelsystem.newroleMessage
                 .replace("{username}", message.author.username)
                 .replace("{nickname}", member.displayName)
-                .replace("{role}", await message.guild.roles.fetch(guildRoles[level]));
+                .replace("{role}", await message.guild.roles.fetch(guildRoles[level]))
+                .replace("{level}", level);
 
             await member.roles.add(guildRoles[level], "Normal level roles");
             levelupChannel.send({
@@ -387,6 +388,7 @@ module.exports = {
             }
         let nicknameSize = 90;
         ctx.fillStyle = "white";
+        ctx.textAlign = "left";
         ctx.font = `${nicknameSize}px ${font}`;
         while (ctx.measureText(nickname).width > 425) {
             ctx.font = `${nicknameSize -= 2}px ${font}`;
@@ -649,7 +651,7 @@ module.exports = {
         if (rank > 1) {
             const
                 xpBehind = nextDBUser.xp - DBUser.xp,
-                xpBehindUsername = `${nextDBUser.username}#${nextDBUser.tag}`,
+                xpBehindUsername = `${nextDBUser.username}`,
                 xpBehindColor = "#999999";
             let xpBehindFontSize = 50;
 
@@ -684,6 +686,7 @@ module.exports = {
         let nicknameSize = 90;
         ctx.fillStyle = "white";
         ctx.font = `${nicknameSize}px ${font}`;
+        ctx.textAlign = "left";
         while (ctx.measureText(nickname).width > 425) {
             ctx.font = `${nicknameSize -= 2}px ${font}`;
         }
