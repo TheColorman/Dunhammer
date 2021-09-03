@@ -12,7 +12,7 @@ module.exports = {
             {
                 type: "STRING",
                 name: "method",
-                description: "Choose to add, remove or view current level roles.",
+                description: "Choose to add, remove, view or reload current level roles.",
                 required: true,
                 choices: [
                     {
@@ -24,6 +24,9 @@ module.exports = {
                     }, {
                         name: "View",
                         value: "view"
+                    }, {
+                        name: "Reload",
+                        value: "reload"
                     }
                 ]
             }, {
@@ -49,11 +52,11 @@ module.exports = {
             level = interaction.options.getInteger("level"),
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(interaction.guild),
             guildLevelRoles = JSON.parse(DBGuildLevelsystem.roles),
-            guildLevelRolesString = Object.keys(guildLevelRoles).map(key => `Level ${key}: <@&${guildLevelRoles[key]}>`).join("\n"),
             cumulative = !!DBGuildLevelsystem.rolesCumulative; // alright this is fucking stupid, because DBGuildLevelsystem.rolesCumulative is a number (either 0 or 1) and not a boolean, I just invert it twice with ! to make it a boolean. This is why I love JavaScript.
-        
+            
         switch (method) {
             case "view": {
+                const guildLevelRolesString = Object.keys(guildLevelRoles).map(key => `Level ${key}: <@&${guildLevelRoles[key]}>`).join("\n");
                 interaction.reply({
                     embeds: [
                         {
@@ -139,6 +142,40 @@ module.exports = {
                         }
                     ]
                 });
+                break;
+            }
+            case "reload": {
+                const
+                    reply = await interaction.reply({
+                        embeds: [{
+                            "color": 0x2F3136,
+                            "description": `<a:discord_loading:821347252085063680>`
+                        }],
+                        fetchReply: true
+                    }),
+                    guildLevels = Object.keys(guildLevelRoles),
+                    guildRoles = Object.values(guildLevelRoles),
+                    members = await interaction.guild.members.fetch();
+                // Loops through each guild member and...
+                members.each(async member => {
+                    const DBGuildMember = await sql.getDBGuildMember(member);
+                    await member.roles.remove(guildRoles, "Refreshing level roles..."); // Removes all their level roles
+                    const maxRoleLevel = Math.max.apply(Math, guildLevels.filter(level => level <= DBGuildMember.level));
+                    if(guildLevelRoles[maxRoleLevel]) await member.roles.add(guildLevelRoles[maxRoleLevel], "Refreshing level roles...");   // Adds the highest role they can have based on their level
+                    if (cumulative) {   // And adds all the other levelroles below it if cumulative roles are enables.
+                        const allRoles = guildLevels.filter(roleLevel => roleLevel < maxRoleLevel).map(level => guildLevelRoles[level]);
+                        if (allRoles.length) await member.roles.add(allRoles, "Refreshing level roles...");
+                    }
+                });
+                // ok yeah, this runs before all the promises in the loop are done but you know what?
+                // fuck promises i dont care anymore its only fake news if you know the truth.
+                reply.edit({
+                    embeds: [{
+                        color: 0x7BA043,
+                        description: "Finished reloading all level roles."
+                    }]
+                });
+                break;
             }
         }
     }
