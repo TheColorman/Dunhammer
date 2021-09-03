@@ -62,8 +62,8 @@ module.exports = {
             }),
             type = interaction.options.getString('type') || "server";
 
-        if (type == "server") await replyServer(interaction, sql, reply, 1);
-        else await replyGlobal(interaction, sql, reply, 1);
+        if (type == "server") await replyServer(interaction, sql, reply);
+        else await replyGlobal(interaction, sql, reply);
     },
     // Button functions
     previous(interaction, sql, dataString) {
@@ -83,10 +83,54 @@ module.exports = {
     last(interaction, sql, dataString) {
         const data = JSON.parse(dataString);
         buttonHandler(interaction, sql, data, 999999);  // truly the best solution to jumping to the last page
+    },
+    custom(interaction, sql, dataString) {
+        const
+            data = JSON.parse(dataString),
+            filter = message => message.author.id == interaction.user.id && !isNaN(message.content) && !isNaN(parseFloat(message.content));
+        
+        interaction.reply({
+            content: `${interaction.member}, what page would you like to go to?`,
+            fetchReply: true,
+            deffered: true
+        })
+            .then((reply) => {
+                interaction.channel.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
+                    .then(collected => {
+                        const
+                            message = collected.first(),
+                            str = Math.round(message.content);
+                        // See buttonHandler
+                        interaction.options = {
+                            getUser: (_user) => undefined,
+                            getRole: (_role) => data.role ? interaction.guild.roles.fetch(data.role) : undefined,
+                            getString: (_filter) => data.filter
+                        }
+                        interaction.deferButton = true;
+                        if (data.type == "server") replyServer(interaction, sql, interaction.message, str);
+                        else replyGlobal(interaction, sql, interaction.message, str);
+
+
+                        reply.delete();
+                        collected.first().delete();
+                    })
+                    .catch(_collected => {
+                        reply.delete();
+                    });
+            });
+    },
+    /**
+     * @param {Discord.SelectMenuInteraction} interaction 
+     * @param {MySQL} sql 
+     */
+    select(interaction, sql, dataString) {
+        const data = JSON.parse(dataString);
+        data.type = interaction.values[0];
+        buttonHandler(interaction, sql, data, data.page);
     }
 }
 
-function buttonHandler(interaction, sql, data, page) {
+async function buttonHandler(interaction, sql, data, page) {
     //#region trash
     /* Oh boy I'm gonna need a multi-line comment for this one.
        So, basically, the function replyServer (and replyGlobal when I finish that one)
@@ -101,8 +145,13 @@ function buttonHandler(interaction, sql, data, page) {
       
        TL;DR: I'm creating fake methods and returning stringified objects. */
     //#endregion
+    const user = data.user ?
+        data.type == "server" ?
+            await interaction.guild.members.fetch(data.user) :
+            await interaction.client.users.fetch(data.user) :
+        undefined
     interaction.options = {
-        getUser: (_user) => undefined,
+        getUser: (_user) => user,
         getRole: (_role) => data.role ? interaction.guild.roles.fetch(data.role) : undefined,
         getString: (_filter) => data.filter
     }
@@ -133,8 +182,13 @@ async function replyServer(interaction, sql, reply, page) {
             GuildMemberDB.filter(DBGuildMember => filter && filter == "blacklist" ?
                 !JSON.parse(DBGuildMember.roles).includes(role.id) :
                 JSON.parse(DBGuildMember.roles).includes(role.id)) :
-            GuildMemberDB,
-        
+            GuildMemberDB;
+    if (!page) {
+        // Index of chosen member, used to automatically show the right page
+        const memberIndex = GuildMemberDB.findIndex(DBGuildMember => DBGuildMember.userid == member.id);
+        page = Math.ceil((memberIndex + 1) / 10);
+    }
+    const
         // Maximum amount of pages based on how many entries are in the database
         maxPage = Math.ceil(GuildMemberDBFiltered.length / 10),
         currentPage = Math.min(maxPage, Math.max(page, 1)),
@@ -151,7 +205,7 @@ async function replyServer(interaction, sql, reply, page) {
                 mentioned = memberArr[1].userid == user.id,
                 added = mentioned ? "__" : "";
             // Calculation for rank is based on index and page, so page 2 has from rank 11 to 20
-            return `${added}#${(currentPage - 1) * 10 + index + 1} - ${memberArr[0]} \`${memberArr[1].xp}\` xp${added}`
+            return `${added}#${(currentPage - 1) * 10 + index + 1} - ${memberArr[0]} \`${memberArr[1].xp}\` xp${added}`;
         }),
 
 
@@ -159,7 +213,8 @@ async function replyServer(interaction, sql, reply, page) {
             page: currentPage,
             role: role? role.id : undefined,
             filter: filter,
-            type: "server"
+            type: "server",
+            user: member.id
         }),
         roleString = `${
             // If filtered by role
@@ -196,6 +251,11 @@ async function replyServer(interaction, sql, reply, page) {
                     style: "PRIMARY"
                 }, {
                     type: "BUTTON",
+                    customId: `commands.leaderboard.custom.${dataString}`,
+                    emoji: "🔢",
+                    style: "SECONDARY"
+                }, {
+                    type: "BUTTON",
                     customId: `commands.leaderboard.next.${dataString}`,
                     emoji: "▶",
                     style: "PRIMARY"
@@ -205,10 +265,27 @@ async function replyServer(interaction, sql, reply, page) {
                     emoji: "⏩",
                     style: "PRIMARY"
                 }]
+            }, {
+                type: "ACTION_ROW",
+                components: [{
+                    type: "SELECT_MENU",
+                    customId: `commands.leaderboard.select.${dataString}`,
+                    options: [{
+                        label: "Server",
+                        value: "server",
+                        description: "Server-wide leaderboard",
+                        default: true
+                    }, {
+                        label: "Global",
+                        value: "global",
+                        description: "Global Dunhammer leaderboard",
+                        default: false
+                    }]
+                }]
             }]
         }
-
-    if (interaction.isButton()) return reply.update(replyObj);
+    
+    if ((interaction.isButton() || interaction.isMessageComponent()) && !interaction.deferButton) return reply.update(replyObj);
     reply.edit(replyObj);
 }
 /**
@@ -225,9 +302,15 @@ async function replyGlobal(interaction, sql, reply, page) {
         // that the user is in the database or it wont be
         // able to find the user later
         _DBUser = await sql.getDBUser(user),
-        UserDB = await sql.get("users", ``, `xp DESC`),
+        UserDB = await sql.get("users", ``, `xp DESC`);
         // Filter by role, check if filter is blacklist and continue accordingly
         // Maximum amount of pages based on how many entries are in the database
+    if (!page) {
+        // Index of chosen member, used to automatically show the right page
+        const memberIndex = UserDB.findIndex(DBUser => DBUser.userid == user.id);
+        page = Math.ceil((memberIndex + 1) / 10);
+    }    
+    const
         maxPage = Math.ceil(UserDB.length / 10),
         currentPage = Math.min(maxPage, Math.max(page, 1)),
         // Calculate the 10 members shown based on the page we are on
@@ -244,7 +327,8 @@ async function replyGlobal(interaction, sql, reply, page) {
 
         dataString = JSON.stringify({
             page: currentPage,
-            type: "global"
+            type: "global",
+            user: user.id
         }),
         replyObj = {
             embeds: [{
@@ -269,6 +353,11 @@ async function replyGlobal(interaction, sql, reply, page) {
                     style: "PRIMARY"
                 }, {
                     type: "BUTTON",
+                    customId: `commands.leaderboard.custom.${dataString}`,
+                    emoji: "🔢",
+                    style: "SECONDARY"
+                }, {
+                    type: "BUTTON",
                     customId: `commands.leaderboard.next.${dataString}`,
                     emoji: "▶",
                     style: "PRIMARY"
@@ -278,9 +367,26 @@ async function replyGlobal(interaction, sql, reply, page) {
                     emoji: "⏩",
                     style: "PRIMARY"
                 }]
+            }, {
+                type: "ACTION_ROW",
+                components: [{
+                    type: "SELECT_MENU",
+                    customId: `commands.leaderboard.select.${dataString}`,
+                    placeholder: "Leaderboard",
+                    options: [{
+                        label: "Server",
+                        value: "server",
+                        description: "Server-wide leaderboard",
+                        default: false
+                    }, {
+                        label: "Global",
+                        value: "global",
+                        description: "Global Dunhammer leaderboard",
+                        default: true
+                    }]
+                }]
             }]
         }
-
-    if (interaction.isButton()) return reply.update(replyObj);
+    if ((interaction.isButton() || interaction.isMessageComponent()) && !interaction.deferButton) return reply.update(replyObj);
     reply.edit(replyObj);
 }
