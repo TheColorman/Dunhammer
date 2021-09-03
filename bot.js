@@ -464,9 +464,9 @@ client.on('interactionCreate', async interaction => {
     }
 });
 
-// Buttons
+// Buttons and Select Menus
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isButton()) return;
+    if (!interaction.isButton() || !interaction.isSelectMenu) return;
 
     // Split up interactions customId to use in admin commands
     const interactionInfo = interaction.customId.split(".");
