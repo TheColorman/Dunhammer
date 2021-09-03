@@ -121,10 +121,20 @@ module.exports = {
                 member = message.member;
             // Remove all levelroles if roles aren't cumulative
             if (!DBGuildLevelsystem.rolesCumulative && memberLevelRoles.length) await member.roles.remove(memberLevelRoles, "Normal level roles.");
+
+            // Message
+            const newRoleMessage = DBGuildLevelsystem.newroleMessage
+                .replace("{username}", message.author.username)
+                .replace("{nickname}", member.displayName)
+                .replace("{role}", await message.guild.roles.fetch(guildRoles[level]));
+
             await member.roles.add(guildRoles[level], "Normal level roles");
+            levelupChannel.send({
+                embeds: [{
+                    description: newRoleMessage
+                }]
+            });
         }
-
-
         
 
         levelupChannel.send({
