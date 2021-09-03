@@ -58,7 +58,7 @@ module.exports = {
                     embeds: [
                         {
                             color: 0x7BA043,
-                            title: `List of level roles in ${interaction.guild.name}`,
+                            title: `List of level roles in \`${interaction.guild.name}\``,
                             description: `Cumulative roles: ${cumulative}\n${guildLevelRolesString}`
                         }
                     ]
@@ -100,7 +100,7 @@ module.exports = {
                     embeds: [
                         {
                             color: 0x7BA043,
-                            description: `✔ Added ${role} at level ${level}.`
+                            description: `:white_check_mark: Added ${role} at level ${level}.`
                         }
                     ]
                 });
@@ -120,12 +120,12 @@ module.exports = {
                 if (role) {
                     for (const key in guildLevelRoles) {
                         if (guildLevelRoles[key] == role.id) {
-                            text = `✔ Removed ${role} from level roles.`
+                            text = `:white_check_mark: Removed ${role} from level roles.`
                             delete guildLevelRoles[key];
                         }
                     }
                 } else if (level) {
-                    text = `✔ Removed role at level ${level} from level roles.`
+                    text = `:white_check_mark: Removed role at level ${level} from level roles.`
                     delete guildLevelRoles[level];
                 }
                 await sql.update("guildlevelsystem", {
