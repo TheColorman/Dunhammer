@@ -126,7 +126,7 @@ module.exports = {
     select(interaction, sql, dataString) {
         const data = JSON.parse(dataString);
         data.type = interaction.values[0];
-        buttonHandler(interaction, sql, data, data.page);
+        buttonHandler(interaction, sql, data);
     }
 }
 
