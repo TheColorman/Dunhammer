@@ -84,7 +84,16 @@ module.exports = {
         const data = JSON.parse(dataString);
         buttonHandler(interaction, sql, data, 999999);  // truly the best solution to jumping to the last page
     },
+    /**
+     * @param {Discord.ButtonInteraction} interaction 
+     */
     custom(interaction, sql, dataString) {
+        if (interaction.client.collectors.includes(interaction.channel.id)) {
+            return interaction.reply({
+                content: "Please wait until the previous request has been complete.",
+                ephemeral: true
+            });
+        }
         const
             data = JSON.parse(dataString),
             filter = message => message.author.id == interaction.user.id && !isNaN(message.content) && !isNaN(parseFloat(message.content));
@@ -95,8 +104,9 @@ module.exports = {
             deffered: true
         })
             .then((reply) => {  // It works, trust me 😎
+                interaction.client.collectors.push(interaction.channel.id);
                 interaction.channel.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
-                    .then(collected => {
+                    .then(async collected => {
                         const
                             message = collected.first(),
                             str = Math.round(message.content);
@@ -110,12 +120,28 @@ module.exports = {
                         if (data.type == "server") replyServer(interaction, sql, interaction.message, str);
                         else replyGlobal(interaction, sql, interaction.message, str);
 
-
-                        reply.delete();
-                        collected.first().delete();
+                        try {   // In case someone decided to delete our message >:(
+                            await collected.first().delete();
+                        } catch(e0) {
+                            // why tf do i even need a catch block at this point???
+                        } finally {
+                            try {
+                                await reply.delete();
+                            } catch(e1) {
+                                // god this code is ass
+                            } finally {
+                                interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id, 1));
+                            }
+                        }
                     })
-                    .catch(_collected => {
-                        reply.delete();
+                    .catch(async _collected => {
+                        try {
+                            await reply.delete();
+                        } catch(e) {
+                            // bitch
+                        } finally {
+                            interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id, 1));
+                        }
                     });
             });
     },

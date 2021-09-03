@@ -17,6 +17,9 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
+// this is stupid. im adding a property so i can keep track of all running collectors, because 2 collectors in the same channel is a bad idea
+client.collectors = [];
+
 
 // xp gain cooldown
 const levelTimestamps = new Collection(),
