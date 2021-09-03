@@ -94,7 +94,7 @@ module.exports = {
             fetchReply: true,
             deffered: true
         })
-            .then((reply) => {
+            .then((reply) => {  // It works, trust me 😎
                 interaction.channel.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
                     .then(collected => {
                         const
