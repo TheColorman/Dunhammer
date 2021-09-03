@@ -230,6 +230,7 @@ async function replyServer(interaction, sql, reply, page) {
         }`,
         replyObj = {
             embeds: [{
+                color: 0x7BA043,
                 title: `🏆 ${interaction.guild.name}'s Leaderboard`,
                 description: `${roleString}${GuildMemberDisplay.join("\n")}`,
                 footer: {
@@ -336,6 +337,7 @@ async function replyGlobal(interaction, sql, reply, page) {
         }),
         replyObj = {
             embeds: [{
+                color: 0x7BA043,
                 title: `🏆 Dunhammer Global Leaderboard <:DunhammerCoin:878740195078463519>`,
                 description: `${UserDisplay.join("\n")}`,
                 footer: {
