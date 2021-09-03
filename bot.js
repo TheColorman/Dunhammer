@@ -469,8 +469,7 @@ client.on('interactionCreate', async interaction => {
 
 // Buttons and Select Menus
 client.on('interactionCreate', async interaction => {
-    if (!interaction.isButton() || !interaction.isSelectMenu) return;
-
+    if (!(interaction.isButton() || interaction.isSelectMenu())) return;
     // Split up interactions customId to use in admin commands
     const interactionInfo = interaction.customId.split(".");
     if (interactionInfo[0] == "admincommands") {
