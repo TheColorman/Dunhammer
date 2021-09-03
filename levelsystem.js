@@ -48,6 +48,7 @@ module.exports = {
         );
         if (minuteTimestamps.has(message.author.id)) {
             const xpThisMinute = minuteTimestamps.get(message.author.id);
+            message.reply({ content: `${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
             if (xpThisMinute > maxxpPerMinute) return;
             minuteTimestamps.set(message.author.id, xpThisMinute + gainedxp);
         } else minuteTimestamps.set(message.author.id, gainedxp);
