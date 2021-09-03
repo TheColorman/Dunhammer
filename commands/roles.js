@@ -47,7 +47,7 @@ module.exports = {
             method = interaction.options.getString("method"),
             role = interaction.options.getRole("role"),
             level = interaction.options.getInteger("level"),
-            DBGuildLevelsystem = sql.getDBGuildLevelsystem(interaction.guild),
+            DBGuildLevelsystem = await sql.getDBGuildLevelsystem(interaction.guild),
             guildLevelRoles = JSON.parse(DBGuildLevelsystem.roles),
             guildLevelRolesString = Object.keys(guildLevelRoles).map(key => `Level ${key}: <@&${guildLevelRoles[key]}>`).join("\n"),
             cumulative = !!DBGuildLevelsystem.rolesCumulative; // alright this is fucking stupid, because DBGuildLevelsystem.rolesCumulative is a number (either 0 or 1) and not a boolean, I just invert it twice with ! to make it a boolean. This is why I love JavaScript.
