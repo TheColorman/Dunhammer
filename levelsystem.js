@@ -105,7 +105,7 @@ module.exports = {
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
             levelupChannel = await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) || message.channel,
             levelupMessage = DBGuildLevelsystem.levelupMessage
-                .replace("{username}", message.user.username)
+                .replace("{username}", message.author.username)
                 .replace("{nickname}", message.member.displayName)
                 .replace("{level}", level)
                 .replace("{total_xp}", DBGuildMember.xp),
