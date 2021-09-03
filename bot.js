@@ -454,7 +454,7 @@ client.on('interactionCreate', async interaction => {
             sql
         )
     } catch (err) {
-        console.error(err.message);
+        console.error(err);
         try {
             await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
         } catch(e) {    // You may call it "shit code", I call it "*functional code*""
