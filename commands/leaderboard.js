@@ -297,11 +297,15 @@ async function replyServer(interaction, sql, reply, page) {
 async function replyGlobal(interaction, sql, reply, page) {
     const
         // Get general info
-        user = interaction.options ? interaction.options.getUser('user') || interaction.user : interaction.user,
-        // Variable isn't used, but the program needs to verify
-        // that the user is in the database or it wont be
-        // able to find the user later
-        _DBUser = await sql.getDBUser(user),
+        user = interaction.options ? interaction.options.getUser('user') || interaction.user : interaction.user;
+    //// Variable isn't used, but the program needs to verify
+    //// that the user is in the database or it wont be
+    //// able to find the user later
+    // DeepScan wouldn't shut the fuck up about my unused
+    // variable so I removed the variable declaration.
+    // Are you happy DeepScan? Because I'm not.
+    await sql.getDBUser(user);
+    const
         UserDB = await sql.get("users", ``, `xp DESC`);
         // Filter by role, check if filter is blacklist and continue accordingly
         // Maximum amount of pages based on how many entries are in the database
