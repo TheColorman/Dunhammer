@@ -231,7 +231,7 @@ async function replyServer(interaction, sql, reply, page) {
                 mentioned = memberArr[1].userid == user.id,
                 added = mentioned ? "__" : "";
             // Calculation for rank is based on index and page, so page 2 has from rank 11 to 20
-            return `${added}#${(currentPage - 1) * 10 + index + 1} - ${memberArr[0]} \`${memberArr[1].xp}\` xp${added}`;
+            return `${added}#${(currentPage - 1) * 10 + index + 1} - ${memberArr[0]} lvl ${memberArr[1].level}, \`${memberArr[1].xp}\` xp${added}`;
         }),
 
 
@@ -352,7 +352,7 @@ async function replyGlobal(interaction, sql, reply, page) {
                 mentioned = DBUser.id == user.id,
                 added = mentioned ? "__" : "";
             // Calculation for rank is based on index and page, so page 2 has from rank 11 to 20
-            return `${added}#${(currentPage - 1) * 10 + index + 1} - ${DBUser.username} \`${DBUser.xp}\` xp${added}`
+            return `${added}#${(currentPage - 1) * 10 + index + 1} - ${DBUser.username} lvl ${DBUser.level},  \`${DBUser.xp}\` xp${added}`
         }),
 
 
