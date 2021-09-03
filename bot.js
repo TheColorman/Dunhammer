@@ -511,6 +511,7 @@ client.on("guildUpdate", async (oldGuild, newGuild) => {
 
 client.on("guildMemberUpdate", async (oldMember, newMember) => {
     await sql.updateDBGuildMember(newMember);
+    await sql.updateDBUser(newMember.user);
 });
 
 client.on("guildMemberRemove", async (member) => {
