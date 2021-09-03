@@ -91,7 +91,7 @@ module.exports = {
     
     
         if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql);
-        if (newUserLevel > DBUser.level) this.globalLevelup(message, message.user, DBUser, newUserLevel, sql);
+        if (newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql);
     },
     /**
      * Levels up a guild member
@@ -103,7 +103,7 @@ module.exports = {
     async serverLevelup(message, DBGuildMember, level, sql) {
         const
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
-            levelupChannel = await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) || message.channel,
+            levelupChannel = DBGuildLevelsystem.levelupChannel ? await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) : message.channel,
             levelupMessage = DBGuildLevelsystem.levelupMessage
                 .replace("{username}", message.author.username)
                 .replace("{nickname}", message.member.displayName)
