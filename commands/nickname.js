@@ -43,7 +43,7 @@ module.exports = {
         if (clientHighestRole.position < memberHighestRole.position) return interaction.reply({
             embeds: [{
                 "color": 0xF14B46,
-                "description": `I can't change ${member}s nickname as their role ${memberHighestRole} is higher than my role, ${clientHighestRole}!`
+                "description": `❌ I can't change ${member}s nickname as their role ${memberHighestRole} is higher than my role, ${clientHighestRole}!`
             }]
         });
 
