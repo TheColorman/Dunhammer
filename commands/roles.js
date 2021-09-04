@@ -46,6 +46,14 @@ module.exports = {
      * @param {MySQL} sql MySQL custom object
      */
     async execute(interaction, sql) {
+        const hasPerms = interaction.member.permissionsIn(interaction.channel).has("BAN_MEMBERS");
+        if (!hasPerms) return interaction.reply({
+            embeds: [{
+                color: 0xad3737,
+                description: "You need the \"Ban members\" permission in this channel to use `ignore_channel`!"
+            }],
+            ephemeral: true
+        });
         const
             method = interaction.options.getString("method"),
             role = interaction.options.getRole("role"),
