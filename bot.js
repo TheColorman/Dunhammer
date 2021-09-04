@@ -87,7 +87,8 @@ const adminCommands = {
 __What does this mean for you?__
 It means a better looking bot that takes full advantage of Discords net Interactions, such as buttons!
 Sadly, this also means that Dunhammer no longer supports normal commands. All commands have to be accessed through Discords slash command menu (type "/" to see them).
-If you can't see the commands, try inviting Dunhammer again using [this](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands) link.
+If you can't see the commands, try inviting Dunhammer again using this link:
+https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands.
 
 And don't worry, your settings and xp hasn't been reset or anything.
 
