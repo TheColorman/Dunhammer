@@ -81,6 +81,7 @@ You can opt out of the global leaderboard by going to https://dunhammer.colorman
 
 \`/ping\` - Displays bot latency.`,
         `\`settings\` - Changes various bot settings (mostly related to the levelsystem).
+  • \`levelup_channel\`: Sets the levelup channel.
   • \`ignore_channel\`: Disables or enables xp gain in a channel (Server leaderboard only).
   • \`levelsystem_disabled\`: Disables or enables the levelsystem on this server.
   • \`public_leaderboard\`: Changes whether the leaderboard for this server is publicly visible on the Dunhammer website.
@@ -144,6 +145,8 @@ Reloads all level role of all users. Useful when adding new level roles, as peop
 Toggles whether roles are cumulative. If false, users can only have 1 level role at a time, and loose all previous level roles upon gaining a new one.`,
         `**__Changes several bot settings.__**
 The settings command is mostly used to change settings related to the levelsystem. The following settings can be changed:
+
+  • \`levelup_channel\`: Sets the levelup channel. If the current levelup channel is chosen, the levelup channel will be removed and levelups can be sent in any channel.
 
   • \`ignore_channel\`: Disables or enables xp gain in a channel (Server leaderboard only).
 

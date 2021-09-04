@@ -11,6 +11,10 @@ module.exports = {
         options: [
             {
                 type: "CHANNEL",
+                name: "levelup_channel",
+                description: "The channel levelups are shown in"
+            }, {
+                type: "CHANNEL",
                 name: "ignore_channel",
                 description: "Prevents xp gain in the specified channel"
             }, {
@@ -153,6 +157,23 @@ module.exports = {
                         tagMember: option.value
                     }, `id = ${interaction.guild.id}`);
                     break;
+                }
+                case "levelup_channel": {
+                    const hasPerms = interaction.member.permissionsIn(option.channel).has("MANAGE_CHANNELS");
+                    if (!hasPerms) return interaction.reply({
+                        embeds: [{
+                            color: 0xad3737,
+                            description: "You need the \"Manage channel\" permission in this channel to use `ignore_channel`!"
+                        }],
+                        ephemeral: true
+                    });
+                    const
+                        levelupChannel = DBGuildLevelsystem.levelupChannel,
+                        removeChannel = levelupChannel == option.channel.id;
+                    embed.description = embed.description.concat(`${removeChannel ? `❎ Removed the levelup channel.` : `✅ ${option.channel} set as the levelup channel.`}\n`);
+                    sql.update("guildlevelsystem", {
+                        levelupChannel: removeChannel ? null : option.channel.id
+                    }, `id = ${interaction.guild.id}`);
                 }
             }
         }
