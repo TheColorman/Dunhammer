@@ -98,7 +98,7 @@ Now on to the fun stuff:
 - Several rarely used commands have been removed (not really a feature though).
 - All the code for Dunhammer has been completely rewritten (this shouldn't affect you other than Dunhammer being slightly faster).
 **And the biggest feature:**
-- Global Leaderboards and custom profiles (TBD)!
+- Global Leaderboards and custom profiles (WIP)!
 Dunhammer now has a Global Leaderboard, so you can show off your level in all servers with Dunhammer on it!
 In the no-so-distant future Dunhammer will get a website with full support for custom profile backgrounds and a shop using the new Coins <:DunhammerCoin:878740195078463519>!
 
