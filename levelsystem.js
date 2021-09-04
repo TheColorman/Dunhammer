@@ -133,6 +133,7 @@ module.exports = {
             await member.roles.add(guildRoles[level], "Normal level roles");
             levelupChannel.send({
                 embeds: [{
+                    color: 0x7BA043,
                     description: newRoleMessage
                 }]
             });
