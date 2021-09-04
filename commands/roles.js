@@ -27,6 +27,9 @@ module.exports = {
                     }, {
                         name: "Reload",
                         value: "reload"
+                    }, {
+                        name: "Toggle cumulative",
+                        value: "cumulative"
                     }
                 ]
             }, {
@@ -184,6 +187,18 @@ module.exports = {
                     }]
                 });
                 break;
+            }
+            case "cumulative": {
+                const cum = DBGuildLevelsystem.rolesCumulative;
+                interaction.reply({
+                    embeds: [{
+                        color: 0x7BA043,
+                        description: cum ? `❎ Roles are no longer cumulative` : `✅ Roles are now cumulative`
+                    }]
+                });
+                await sql.update("guildlevelsystem", {
+                    rolesCumulative: !cum
+                }, `id = ${interaction.guild.id}`);
             }
         }
     }
