@@ -21,6 +21,18 @@ module.exports = {
                 type: "BOOLEAN",
                 name: "public_leaderboard",
                 description: "Makes the leaderboard public the Dunhammer website"
+            }, {
+                type: "STRING",
+                name: "levelup_message",
+                description: "Changes message displayed when leveling up. Can use {username}, {nickname}, {level} and {total_xp}"
+            }, {
+                type: "STRING",
+                name: "newrole_message",
+                description: "Changes message displayed when getting new role. Can use {username}, {nickname}, {role} and {level}",
+            }, {
+                type: "BOOLEAN",
+                name: "levelup_mention",
+                description: "Changes whether a user is mentioned when they level up"
             }
         ]
     },
@@ -95,6 +107,52 @@ module.exports = {
                     sql.update("guildlevelsystem", {
                         publicLeaderboard: option.value
                     }, `id = ${interaction.guild.id}`);
+                    break;
+                }
+                case "levelup_message": {
+                    const hasPerms = interaction.member.permissionsIn(interaction.channel).has("KICK_MEMBERS");
+                    if (!hasPerms) return interaction.reply({
+                        embeds: [{
+                            color: 0xad3737,
+                            description: "You need the \"Kick members\" permission to use `public-leaderboard`!"
+                        }],
+                        ephemeral: true
+                    });
+                    embed.description = embed.description.concat(`📝 New levelup message: \`${option.value}\`\n`);
+                    sql.update("guildlevelsystem", {
+                        levelupMessage: option.value
+                    }, `id = ${interaction.guild.id}`);
+                    break;
+                }
+                case "newrole_message": {
+                    const hasPerms = interaction.member.permissionsIn(interaction.channel).has("KICK_MEMBERS");
+                    if (!hasPerms) return interaction.reply({
+                        embeds: [{
+                            color: 0xad3737,
+                            description: "You need the \"Kick members\" permission to use `public-leaderboard`!"
+                        }],
+                        ephemeral: true
+                    });
+                    embed.description = embed.description.concat(`📝 New newrole message: \`${option.value}\`\n`);
+                    sql.update("guildlevelsystem", {
+                        newroleMessage: option.value
+                    }, `id = ${interaction.guild.id}`);
+                    break;
+                }
+                case "levelup_mention": {
+                    const hasPerms = interaction.member.permissionsIn(interaction.channel).has("MENTION_EVERYONE");
+                    if (!hasPerms) return interaction.reply({
+                        embeds: [{
+                            color: 0xad3737,
+                            description: "You need the \"Mention everyone\" permission to use `public-leaderboard`!"
+                        }],
+                        ephemeral: true
+                    });
+                    embed.description = embed.description.concat(`${option.value ? `✅ Enabled ` : `❎ Disabled `} levelup mention.\n`);
+                    sql.update("guildlevelsystem", {
+                        tagMember: option.value
+                    }, `id = ${interaction.guild.id}`);
+                    break;
                 }
             }
         }
