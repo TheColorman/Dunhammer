@@ -63,6 +63,47 @@ const adminCommands = {
      */
     debug: async (message) => {
         message.channel.send({ content: "welcome to the debug zone" });
+        
+        const guildPartials = await client.guilds.fetch();
+        guildPartials.forEach(async partial => {
+            const
+                guild = await partial.fetch(),
+                channels = await guild.channels.fetch(),
+                channel = channels.find(channel => channel.type == "GUILD_TEXT" && new RegExp("bot|command|console|cmd").test(channel.name));
+            console.log((channel || { id: null }).id);
+        });
+        return;
+        // eslint-disable-next-line no-unreachable
+        const ids = [];
+        ids.forEach(async channelId => {
+            const channel = await client.channels.fetch(channelId);
+            channel.send({
+                content: "Dunhammer is now under maintenance and will return in up to an hour. You will not receive any xp during this time."
+            });
+            channel.send({
+                content: `__**If you are reading this you have Dunhammer BETA on your server for some reason. Well, enjoy the early preview I guess.**__
+:wave: Hello!
+**Dunhammer just updated to version 3!**
+__What does this mean for you?__
+It means a better looking bot that takes full advantage of Discords net Interactions, such as buttons!
+Sadly, this also means that Dunhammer no longer supports normal commands. All commands have to be accessed through Discords slash command menu (type "/" to see them).
+If you can't see the commands, try inviting Dunhammer again using [this](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands) link.
+
+And don't worry, your settings and xp hasn't been reset or anything.
+
+Now on to the fun stuff:
+**New features!**
+- As mentioned, there are now Interactions such as Buttons on several messages.
+- Several rarely used commands have been removed (not really a feature though).
+- All the code for Dunhammer has been completely rewritten (this shouldn't affect you other than Dunhammer being slightly faster).
+**And the biggest feature:**
+- Global Leaderboards and custom profiles (TBD)!
+Dunhammer now has a Global Leaderboard, so you can show off your level in all servers with Dunhammer on it!
+In the no-so-distant future Dunhammer will get a website with full support for custom profile backgrounds and a shop using the new Coins <:DunhammerCoin:878740195078463519>!
+
+Thats about it, now go enjoy Dunhammer!`
+            });
+        });
     },
     /**
      * 
