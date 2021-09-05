@@ -117,6 +117,16 @@ module.exports = {
                             getString: (_filter) => data.filter
                         }
                         interaction.deferButton = true;
+                        const user = data.user ?
+                            data.type == "server" ?
+                                await interaction.guild.members.fetch(data.user) :
+                                await interaction.client.users.fetch(data.user) :
+                            undefined
+                        interaction.options = {
+                            getUser: (_user) => user,
+                            getRole: (_role) => data.role ? interaction.guild.roles.fetch(data.role) : undefined,
+                            getString: (_filter) => data.filter                    
+                        }                
                         if (data.type == "server") replyServer(interaction, sql, interaction.message, str);
                         else replyGlobal(interaction, sql, interaction.message, str);
 
