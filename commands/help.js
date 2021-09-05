@@ -16,29 +16,32 @@ module.exports = {
                 name: "/neko",
                 value: "0"
             }, {
-                name: "/roles",
+                name: "/profile",
                 value: "1"
             }, {
-                name: "/settings",
+                name: "/roles",
                 value: "2"
             }, {
-                name: "/leaderboard",
+                name: "/settings",
                 value: "3"
             }, {
-                name: "/level",
+                name: "/leaderboard",
                 value: "4"
             }, {
-                name: "/nickname",
+                name: "/level",
                 value: "5"
             }, {
-                name: "/ping",
+                name: "/nickname",
                 value: "6"
             }, {
-                name: "/help",
+                name: "/ping",
                 value: "7"
             }, {
-                name: "/badges",
+                name: "/help",
                 value: "8"
+            }, {
+                name: "/badges",
+                value: "9"
             }]
         }]
     },
@@ -72,7 +75,10 @@ You can opt out of the global leaderboard by going to https://dunhammer.colorman
   • \`filter\`: Type of role filter to use.
   • \`type\`: Type of leaderboard (Server or Global).
 
-\`/badges\` - Show information about your badges.`,
+\`/badges\` - Show information about your badges.
+
+\`profile\` - Change personal settings.
+  • \`level_mentions\`: Change whether you get mentioned when leveling up Globally.`,
         `\`/help\` - You're already here!
   • \`command\` - Shows help related to a specific command.
 
@@ -123,6 +129,10 @@ The type of picture can be specified with the arguments \`sfw\`, \`nsfw\` or \`n
 Clicking the "Report" button will remove the image. This is intended for the rare cases when an image is NSFW despite being in a SFW channel, and other cases where an image might be inappropriate.
 The image will then be sent to the Dunhammer creator with some information.
 Note: Anyone can report an image. Abuse will lead to a blacklist!`,
+        `**__Change personal settings__**
+This command is used to change settings on your profile.
+It supports the following options:
+\`level_mentions\`: Changes whether you get mentioned on a Global levelup.`,
         `**__Changes the roles received when reaching a specific level.__**
 This command allows you to select a role that all users will gain when they reach the specified level.
 
@@ -203,6 +213,7 @@ Badges are a form of achievements, and they can be gained in numerous ways.`
     ],
     helpCommandTitles: [
         "Neko",
+        "Profile",
         "Roles",
         "Settings",
         "Leaderboard",
