@@ -1,0 +1,39 @@
+{
+    "statuses": [
+        "what is the meaning of life?",
+        "press any key to continue...",
+        "HELP! I'M TRAPPED IN A DISCORD BOT!",
+        "Created by Colorman#8080",
+        "Hosted kindly by @ℌ𝔢𝔞𝔡9𝔵#4828",
+        "😎",
+        "🤣🤣🤣",
+        "undefined",
+        "Nice weather today",
+        "Back at it again",
+        "Send Colorman#8080 some presence ideas",
+        "Uncrashable",
+        "no",
+        "Database now 34.62% faster!",
+        "Fun fact: The sun radiates 384.6 septillion watts.",
+        "Also try Terraria!",
+        "No additives!",
+        "Now with webhooks! nevermind.",
+        "VR not supported",
+        "Mining bitcoins on your GPU...",
+        "Stealing code from Dyno...",
+        "Shutting down.",
+        "holy hell",
+        "who even uses discord?"
+    ],
+    "mysql_login": {
+        "host": "localhost",
+        "user": "Colorman",
+        "database": "colorman"
+    },
+    "admins": [
+        "298842558610800650",
+        "276675912693710849",
+        "411240035841474590",
+        "200309790562451467"
+    ]
+}

@@ -1,0 +1,4 @@
+{
+    "botToken": "Your Bot token here",
+    "mysqlPassword": "Password to MySQL server here"
+}

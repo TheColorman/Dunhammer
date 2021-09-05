@@ -1,0 +1,18 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "phpmyadmin.head9x.dk",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "Head9x Dunhammer Database",
+            "database": "colorman",
+            "username": "Colorman",
+            "password": "dmptgsfoyb1ihjzncxwe"
+        }
+    ],
+    "deepscan.enable": true
+}
