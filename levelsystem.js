@@ -54,6 +54,7 @@ module.exports = {
         if (minuteTimestamps.has(message.author.id)) {
             const xpThisMinute = minuteTimestamps.get(message.author.id);
             // Debug message to see xp gain
+            if (message.channel.id == "779374371831545906") console.log(`base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min\n\n`);
             //message.reply({ content: `base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
             if (xpThisMinute > maxxpPerMinute) return;
             minuteTimestamps.set(message.author.id, xpThisMinute + gainedxp);
