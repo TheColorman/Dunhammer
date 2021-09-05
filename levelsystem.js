@@ -389,7 +389,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
 
         //#region Nickname
         const
-            nickname = message.member.nickname,
+            nickname = message.member.displayName,
             nicknamePos = {
                 x: 250,
                 y: 100
@@ -684,7 +684,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
 
         //#region Nickname
         const
-            nickname = message.member.nickname,
+            nickname = message.author.username,
             nicknamePos = {
                 x: 250,
                 y: 100
