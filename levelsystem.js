@@ -24,7 +24,8 @@ module.exports = {
             streakDevisor = 10,
             linkEmbedAddition = 20,
             maxxpPerMinute = 40,
-        
+
+            // Check if streak should be reset/reduced
             minutesSinceStreakTimestamp = (Date.now() - DBChannel.streakTimestamp) / 60000;
         if (minutesSinceStreakTimestamp > streakTimeout) DBChannel.messageStreak = 0;
         else DBChannel.messageStreak -= Math.min(Math.floor(minutesSinceStreakTimestamp), DBChannel.messageStreak);
@@ -32,6 +33,7 @@ module.exports = {
     
             now = Date.now(),
             cooldownAmount = 60 * 1000;
+            // Check if streak should be increased (it increases when new person has sent a message)
         if (!newMessage) {
             if (levelTimestamps.has(message.author.id)) {
                 const expirationTime = levelTimestamps.get(message.author.id) + cooldownAmount;
@@ -39,20 +41,25 @@ module.exports = {
             }
         }
         levelTimestamps.set(message.author.id, now);
+        // Timeout for xp, only used if a user sends 2 messages after eachother
         setTimeout(() => levelTimestamps.delete(message.author.id), cooldownAmount);
     
+        // calculation for xp gained for the message
         const gainedxp = Math.round(
             basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor) +
             (newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0) + 
             (message.embeds.length ? linkEmbedAddition : 0)
         );
+        // Check for max xp this minute
         if (minuteTimestamps.has(message.author.id)) {
             const xpThisMinute = minuteTimestamps.get(message.author.id);
-            message.reply({ content: `base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
+            // Debug message to see xp gain
+            //message.reply({ content: `base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
             if (xpThisMinute > maxxpPerMinute) return;
             minuteTimestamps.set(message.author.id, xpThisMinute + gainedxp);
         } else minuteTimestamps.set(message.author.id, gainedxp);
     
+        // Update channel streak
         await sql.update("channels", {
             messageStreak: Math.min(DBChannel.messageStreak + (newMessage ? 1 : 0), maxStreak),
             streakTimestamp: Date.now(),
@@ -62,7 +69,7 @@ module.exports = {
         const newMemberxp = DBGuildMember.xp + gainedxp,
             newUserxp = DBUser.xp + gainedxp,
         
-            
+            // Calculate new level for xp
             calculateLevel = (xp) => {
                 let lower = 0,
                     upper = 10000000000;    // max xp. equivalent to sending 500 million messages, which would take 951 years at 1 message/minute.
@@ -76,7 +83,7 @@ module.exports = {
             },
             newMemberLevel = calculateLevel(newMemberxp),
             newUserLevel = calculateLevel(newUserxp);
-        if (
+        if (    // Add xp to Server Leaderboard if enabled and the channel isn't ignored
             DBGuildLevelsystem.enabled &&
             !DBGuildLevelsystem.ignoredChannels.includes(message.channel.id)
         ) {
@@ -84,13 +91,13 @@ module.exports = {
                 xp: newMemberxp,
                 level: newMemberLevel
             }, `guildid = ${message.guild.id} AND userid = ${message.member.id}`);
-        }
+        }   // Add xp to Global Leaderboard no matter what
         await sql.update("users", {
             xp: newUserxp,
             level: newUserLevel
         }, `id = ${message.member.id}`);
     
-    
+        // Now cause the actual levelups
         if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql);
         if (newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql);
     },
@@ -105,6 +112,7 @@ module.exports = {
         const
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
             levelupChannel = DBGuildLevelsystem.levelupChannel ? await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) : message.channel,
+            // Replace all custom text ingredients
             levelupMessage = DBGuildLevelsystem.levelupMessage
                 .replace("{username}", message.author.username)
                 .replace("{nickname}", message.member.displayName)
