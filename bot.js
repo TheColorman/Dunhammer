@@ -20,12 +20,12 @@ for (const file of commandFiles) {
 // this is stupid. im adding a property so i can keep track of all running collectors, because 2 collectors in the same channel is a bad idea
 client.collectors = [];
 
-// Yes im doing this again
+/* // Yes im doing this again
 process.on('uncaughtException', async (err) => {
     console.error("DUNHAMMER HAS CRASHED, PREVENTING SHUTDOWN. ERROR:");
     console.error(err);
 });
-
+ */
 
 // xp gain cooldown
 const levelTimestamps = new Collection(),
@@ -459,8 +459,8 @@ client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
 
     // Check if interaction user is in the database
-    sql.getDBGuildMember(interaction.member);
-    sql.getDBUser(interaction.user);
+    interaction.DBGuildMember = await sql.getDBGuildMember(interaction.member);
+    interaction.DBUser = await sql.getDBUser(interaction.user);
 
     const command = client.commands.get(interaction.commandName);
 
