@@ -173,7 +173,7 @@ module.exports = {
         await sql.update("users", { coins: DBUser.coins + level * 10 }, `id = ${user.id}`);
 
         levelupChannel.send({
-            content: `Congratulations ${user}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.`,
+            content: `Congratulations ${DBUser.levelMentions ? user : user.username}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.`,
             files: [attachment]
         });
     },
