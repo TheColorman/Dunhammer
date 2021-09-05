@@ -1,4 +1,12 @@
 {
+  "name": "dunhammer",
+  "version": "3.0.1",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Colorman",
+  "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
     "@mapbox/node-pre-gyp": "^1.0.5",
