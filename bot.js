@@ -46,7 +46,7 @@ function updateStatus() {
 
     client.user.setPresence({
         activities: [{
-            name: `V3.0.0 under development! | ${newStatus}`,
+            name: `V3.0.0 | ${newStatus}`,
             type: 'PLAYING'
         }]
     });
