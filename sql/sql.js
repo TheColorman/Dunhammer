@@ -103,6 +103,7 @@ class MySQL {
      * @property {String}   id                   - User ID
      * @property {String}   username             - Username without tag
      * @property {String}   tag                  - User tag
+     * @property {Boolean}  levelMentions        - Whether user gets mentioned when leveling up (global only)
      * @property {Number}   xp                   - User total xp
      * @property {Number}   level                - User level
      * @property {Number}   coins                - Users coins
