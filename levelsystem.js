@@ -195,6 +195,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             GuildMemberDB = await sql.get("guildusers", `guildid = ${message.guild.id} AND inGuild = 1`, "xp DESC"),
             rank = GuildMemberDB.findIndex(member => member.userid == message.author.id) + 1,
             nextDBGuildMember = GuildMemberDB.find((_member, index) => index == rank-2),
+            nextMember = await message.guild.members.fetch(nextDBGuildMember.userid),
             DBGuildMember = GuildMemberDB.find((member) => member.userid == message.author.id),
             DBUser = await sql.getDBUser(message.author),
             background = await Canvas.loadImage(`./data/levelupBackgrounds/${DBUser.currentBackground}.png`),
@@ -366,7 +367,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
         //#region xp behind
         const
             firstLine = rank > 1 ?`${nextDBGuildMember.xp - DBGuildMember.xp} xp behind` : "Congratulations:",
-            secondLine = rank > 1 ? nextDBGuildMember.nickname : "You're 1st place!",
+            secondLine = rank > 1 ? nextMember.displayName : "You're 1st place!",
             xpBehindColor = "#999999";
         let xpBehindFontSize = 50;
         
@@ -392,7 +393,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
 
         //#region Nickname
         const
-            nickname = message.member.nickname,
+            nickname = message.member.displayName,
             nicknamePos = {
                 x: 250,
                 y: 100
@@ -687,7 +688,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
 
         //#region Nickname
         const
-            nickname = message.member.nickname,
+            nickname = message.author.username,
             nicknamePos = {
                 x: 250,
                 y: 100
