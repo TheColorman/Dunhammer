@@ -32,7 +32,7 @@ const levelTimestamps = new Collection(),
     minuteTimestamps = new Collection(),
 
 // Start MySQL connection 🤣
-    sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword}));
+    sql = new MySQL(Object.assign({}, mysqlLogin, { password: mysqlPassword }));
 
 // Random status setter
 let statuses = [...config.statuses];
@@ -70,55 +70,15 @@ const adminCommands = {
     debug: async (message) => {
         message.channel.send({ content: "welcome to the debug zone" });
         
-        const guildPartials = await client.guilds.fetch();
-        guildPartials.forEach(async partial => {
-            const
-                guild = await partial.fetch(),
-                channels = await guild.channels.fetch(),
-                channel = channels.find(channel => channel.type == "GUILD_TEXT" && new RegExp("bot|command|console|cmd").test(channel.name));
-            console.log((channel || { id: null }).id);
-        });
-        // eslint-disable-next-line no-unreachable
-        const ids = [
-            "352395149332185088",
-            "842380335148433438",
-            "799590596284645376",
-            "872623224268144691",
-            "713156793039323158",
-            "573158831421521921",
-            "705698250833002576",
-            "404676729379225601",
-            "776203334692503602",
-            "671093018157121546",
-            "615996101501255875"
-        ];
-        ids.forEach(async channelId => {
-            const channel = await client.channels.fetch(channelId);
-            channel.send({
-                content: `
-:wave: Hello!
-**Dunhammer just updated to version 3!**
-__What does this mean for you?__
-It means a better looking bot that takes full advantage of Discords net Interactions, such as buttons!
-Sadly, this also means that Dunhammer no longer supports normal commands. All commands have to be accessed through Discords slash command menu (type "/" to see them).
-If you can't see the commands, try inviting Dunhammer again using this link:
-https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands.
-
-And don't worry, your settings and xp hasn't been reset or anything.
-
-Now on to the fun stuff:
-**New features!**
-- As mentioned, there are now Interactions such as Buttons on several messages.
-- Several rarely used commands have been removed (not really a feature though).
-- All the code for Dunhammer has been completely rewritten (this shouldn't affect you other than Dunhammer being slightly faster).
-**And the biggest feature:**
-- Global Leaderboards and custom profiles (WIP)!
-Dunhammer now has a Global Leaderboard, so you can show off your level in all servers with Dunhammer on it!
-In the no-so-distant future Dunhammer will get a website with full support for custom profile backgrounds and a shop using the new Coins <:DunhammerCoin:878740195078463519>!
-
-Thats about it, now go enjoy Dunhammer!`
-            });
-        });
+        //// const guildPartials = await client.guilds.fetch();
+        //// guildPartials.forEach(async partial => {
+        ////     const
+        ////         guild = await partial.fetch(),
+        ////         channels = await guild.channels.fetch(),
+        ////         channel = channels.find(channel => channel.type == "GUILD_TEXT" && new RegExp("bot|command|console|cmd").test(channel.name));
+        ////     console.log((channel || { id: null }).id);
+        //// });
+        //// eslint-disable-next-line no-unreachable
     },
     /**
      * 
@@ -481,7 +441,6 @@ Thats about it, now go enjoy Dunhammer!`
 
 
 client.on("messageCreate", async message => {
-    if (message.author.id != "298842558610800650") return;
     if (message.author.bot) return;
     levelsystem.xpGain(message, sql, levelTimestamps, minuteTimestamps);
 
