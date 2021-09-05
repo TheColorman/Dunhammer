@@ -352,32 +352,30 @@ module.exports = {
         //#endregion
 
         //#region xp behind
-        if (rank > 1) {
-            const
-                xpBehind = nextDBGuildMember.xp - DBGuildMember.xp,
-                xpBehindUserNickname = nextDBGuildMember.nickname,
-                xpBehindColor = "#999999";
-            let xpBehindFontSize = 50;
-            
-            ctx.font = `${xpBehindFontSize}px ${font}`;
-            while (ctx.measureText(xpBehindUserNickname).width > 550) {
-                ctx.font = `${xpBehindFontSize -= 2}px ${font}`;
-            }
-            
-            ctx.fillStyle = xpBehindColor;
-            ctx.textAlign = "left";
-            shadowText(
-                xpBehindUserNickname,
-                10, canvas.height - 40,
-                2, 2
-            );
-            ctx.font = `35px ${font}`;
-            shadowText(
-                `${xpBehind} xp behind`,
-                10, canvas.height - 55 - ctx.measureText(xpBehindUserNickname).actualBoundingBoxAscent,
-                2, 2
-            );
+        const
+            firstLine = rank > 1 ?`${nextDBGuildMember.xp - DBGuildMember.xp} xp behind` : "Congratulations:",
+            secondLine = rank > 1 ? nextDBGuildMember.nickname : "You're 1st place!",
+            xpBehindColor = "#999999";
+        let xpBehindFontSize = 50;
+        
+        ctx.font = `${xpBehindFontSize}px ${font}`;
+        while (ctx.measureText(secondLine).width > 550) {
+            ctx.font = `${xpBehindFontSize -= 2}px ${font}`;
         }
+        
+        ctx.fillStyle = xpBehindColor;
+        ctx.textAlign = "left";
+        shadowText(
+            secondLine,
+            10, canvas.height - 40,
+            2, 2
+        );
+        ctx.font = `35px ${font}`;
+        shadowText(
+            firstLine,
+            10, canvas.height - 55 - ctx.measureText(secondLine).actualBoundingBoxAscent,
+            2, 2
+        );
         //#endregion
 
         //#region Nickname
@@ -649,32 +647,30 @@ module.exports = {
         //#endregion
 
         //#region xp behind
-        if (rank > 1) {
-            const
-                xpBehind = nextDBUser.xp - DBUser.xp,
-                xpBehindUsername = `${nextDBUser.username}`,
-                xpBehindColor = "#999999";
-            let xpBehindFontSize = 50;
+        const
+            firstLine = rank > 1 ?`${nextDBUser.xp - DBUser.xp} xp behind` : "Congratulations:",
+            secondLine = rank > 1 ? nextDBUser.username : "You're 1st place!",
+            xpBehindColor = "#999999";
+        let xpBehindFontSize = 50;
 
-            ctx.font = `${xpBehindFontSize}px ${font}`;
-            while (ctx.measureText(xpBehindUsername).width > 550) {
-                ctx.font = `${xpBehindFontSize -= 2}px ${font}`;
-            }
-            
-            ctx.fillStyle = xpBehindColor;
-            ctx.textAlign = "left";
-            shadowText(
-                xpBehindUsername,
-                10, canvas.height - 36,
-                2, 2
-            );
-            ctx.font = `35px ${font}`;
-            shadowText(
-                `${xpBehind} xp behind`,
-                10, canvas.height - 55 - ctx.measureText(xpBehindUsername).actualBoundingBoxAscent,
-                2, 2
-            );
+        ctx.font = `${xpBehindFontSize}px ${font}`;
+        while (ctx.measureText(secondLine).width > 550) {
+            ctx.font = `${xpBehindFontSize -= 2}px ${font}`;
         }
+        
+        ctx.fillStyle = xpBehindColor;
+        ctx.textAlign = "left";
+        shadowText(
+            secondLine,
+            10, canvas.height - 36,
+            2, 2
+        );
+        ctx.font = `35px ${font}`;
+        shadowText(
+            firstLine,
+            10, canvas.height - 55 - ctx.measureText(secondLine).actualBoundingBoxAscent,
+            2, 2
+        );
         //#endregion
 
         //#region Nickname
