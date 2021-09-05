@@ -1,8 +1,0 @@
-node_modules/
-token.json
-imageData/
-audioData/
-.vscode/
-GCloudKey.json
-databases.backup/
-databases/
