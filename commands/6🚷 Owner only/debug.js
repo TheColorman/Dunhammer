@@ -705,7 +705,7 @@ module.exports = {
         //             levelupChannel: currentGuild.levelSystem.update_channel,
         //             levelupMessage: JSON.stringify(currentGuild.levelSystem.levelup_message),
         //             newroleMessage: JSON.stringify(currentGuild.levelSystem.newrole_message),
-        //             levelupImage: currentGuild.levelSystem.levelup_image,
+        //             levelupImage: currentGuild.levelSystem.levelup_image || true,
         //             rolesCumulative: currentGuild.levelSystem.roles.cumulative || false,
         //             roles: JSON.stringify(currentGuild.levelSystem.roles)
         //         }
@@ -730,26 +730,30 @@ module.exports = {
         //                 guildid: currentGuild.guild_id,
         //                 xp: user.xp,
         //                 level: user.level,
-        //                 levelRoles: JSON.stringify(user.levelroles),
+        //                 levelRoles: JSON.stringify(user.levelroles || []),
         //                 roles: JSON.stringify(user.roles),
         //                 inGuild: user.inGuild || true
-        //             },
-        //             DSUser = await client.users.fetch(user.user_id),
+        //             }
+        //             if (foundGuildUser) {
+        //                 sql.update("guild-users", guildUserObject, `guildid = ${guildUserObject.guildid} AND userid = ${guildUserObject.userid}`);
+        //             } else {
+        //                 await sql.insert("guild-users", guildUserObject);
+        //             }
+        //         try {
+        //             const DSUser = await client.users.fetch(user.user_id),
         //             userObject = {
         //                 id: user.user_id,
         //                 username: DSUser.username,
         //                 tag: DSUser.tag.slice(-4),
         //                 unsubscribed: false
         //             }
-        //         if (foundGuildUser) {
-        //             sql.update("guild-users", guildUserObject, `guildid = ${guildUserObject.guildid} AND userid = ${guildUserObject.userid}`);
-        //         } else {
-        //             await sql.insert("guild-users", guildUserObject);
-        //         }
-        //         if (foundUser) {
-        //             sql.update("users", userObject, `id = ${userObject.id}`);
-        //         } else {
-        //             await sql.insert("users", userObject);
+        //             if (foundUser) {
+        //                 sql.update("users", userObject, `id = ${userObject.id}`);
+        //             } else {
+        //                 await sql.insert("users", userObject);
+        //             }
+        //         } catch(err) {
+        //             console.error(err);
         //         }
         //     }
         // }

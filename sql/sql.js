@@ -16,7 +16,6 @@ class MySQL {
             if (err) throw err;
             console.log(`Established connection to MySQL server at ${login.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`${v}guilds\``, (error, result) => {
-                if (error) throw err;
                 console.log(`Number of guilds in database: ${result[0]["COUNT(*)"]}.`);
             });
         });
@@ -52,7 +51,7 @@ class MySQL {
             const query = `INSERT INTO \`${v+table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => this.escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Inserted ${result.affectedRows} rows.`);
+                ///console.log(`Inserted ${result.affectedRows} rows.`);
                 res(result);
             });
         });
@@ -69,7 +68,7 @@ class MySQL {
             const query = `UPDATE \`${v+table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Updated ${result.affectedRows} rows.`);
+                ///console.log(`Updated ${result.affectedRows} rows.`);
                 res(result);
             });
         });
@@ -85,7 +84,7 @@ class MySQL {
             const query = `DELETE FROM \`${v+table}\` WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Removed ${result.affectedRows} rows`);
+                ///console.log(`Removed ${result.affectedRows} rows`);
                 res(result);
             })
         });
@@ -126,12 +125,6 @@ class MySQL {
      * @property {Array<String>}  levelRoles - Stringified array of role IDs of users level roles
      * @property {Array<String>}  roles      - Stringified array of role IDs of user roles
      * @property {Boolean}        inGuild    - Whether or not the user is present in the guild
-     */
-    /**
-     * @typedef {Object} DBWebUser
-     * @property {String}  id          - User ID
-     * @property {String}  accessToken - User's Discord API access token
-     * @property {String}  state       - State as defined by Discord OAth2 docs
      */
 
     /**
@@ -227,6 +220,62 @@ class MySQL {
         }
         return DBGuildUserArr[0];
     }
+        /**
+     * Adds user to database if they don't exist and returns the database entry
+     * @param {Discord.User}  user - DiscordJS user
+     * @returns {DBUser} DBUser object
+     */
+    async getDBUser(user) {
+        const connection = this.con;
+        const escape = this.escape;
+        async function tGet(table, queryLogic, sortLogic, limit) {
+            return new Promise((res) => {
+                const query = `SELECT * FROM \`${table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}${limit ? ` LIMIT ${limit}` : ``}`;
+                connection.query(query, (err, result) => {
+                    if (err) throw err;
+                    res(result);
+                });
+            });
+        }
+        async function tInsert(table, object) {
+            return new Promise((res) => {
+                const query = `INSERT INTO \`${table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => escape(obj)).join(", ")})`;
+                connection.query(query, (err, result) => {
+                    if (err) throw err;
+                    console.log(`Inserted ${result.affectedRows} rows.`);
+                    res(result);
+                });
+            });
+        }
+        
+
+
+        const DBUserArr = await tGet("users", `id = ${user.id}`);
+        if (!DBUserArr.length) {
+            await tInsert("users", {
+                id: user.id,
+                username: user.username,
+                tag: user.tag.slice(-4),
+                xp: 0,
+                level: 0,
+                coins: 0
+            });
+            return (await tGet("users", `id = ${user.id}`))[0];
+        }
+        return DBUserArr[0];
+    }
+    async tUpdate(table, object, queryLogic) {
+        if (!queryLogic) throw new Error("Failed to update database. No selector parameter passed, aborting update.");
+        return new Promise((res) => {
+            const query = `UPDATE \`${table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
+            this.con.query(query, (err, result) => {
+                if (err) throw err;
+                console.log(`Updated ${result.affectedRows} rows.`);
+                res(result);
+            });
+        });
+    }
+
 }
 
 module.exports = MySQL;

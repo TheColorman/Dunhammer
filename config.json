@@ -1,5 +1,5 @@
 {
-    "dev": true,
+    "dev": false,
     "administrators": ["298842558610800650", "411240035841474590", "458207669778382849", "850106314650812456"],
     "statuses": [
         "what is the meaning of life?",
@@ -12,6 +12,7 @@
         "😎",
         "🤣🤣🤣",
         "undefined",
+        "V2.6.2",
         "loading .bashrc...",
         "Weather's nice today",
         "Back at it again",
