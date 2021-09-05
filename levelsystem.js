@@ -92,15 +92,17 @@ module.exports = {
                 xp: newMemberxp,
                 level: newMemberLevel
             }, `guildid = ${message.guild.id} AND userid = ${message.member.id}`);
-        }   // Add xp to Global Leaderboard no matter what
-        await sql.update("users", {
-            xp: newUserxp,
-            level: newUserLevel
-        }, `id = ${message.member.id}`);
+        }   // Add xp to Global Leaderboard if user is not opted out
+        if (!DBUser.disabled) {
+            await sql.update("users", {
+                xp: newUserxp,
+                level: newUserLevel
+            }, `id = ${message.member.id}`);
+        }
     
         // Now cause the actual levelups
         if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql);
-        if (newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql);
+        if (!DBUser.disabled && newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql);
     },
     /**
      * Levels up a guild member
