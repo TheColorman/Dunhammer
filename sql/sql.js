@@ -212,7 +212,7 @@ class MySQL {
      * @returns {DBGuildMember} DBGuildMember object
      */
     async getDBGuildMember(member) {
-        const DBGuildMemberArr = await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
+        const DBGuildMemberArr = await this.get("guildusers", `\`guildid\` = ${member.guild.id} AND \`userid\` = ${member.id}`);
         if (!DBGuildMemberArr.length) {
             await this.insert("guildusers", {
                 guildid: member.guild.id,
