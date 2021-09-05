@@ -3,12 +3,19 @@ const express = require('express'),
     cookieParser = require('cookie-parser'),
     { catchAsync, htmlEncode } = require('./utils'),
     fetch = require('node-fetch'),
+
+    Discord = require("discord.js"),
+    client = new Discord.Client({}),
 //const session = require('express-session');
     //{ guild_config } = require('./api/loki'),
 //const { token } = require('../token.json');
 
     app = express(),
-    client_id = "671681661296967680";
+    client_id = "671681661296967680",
+
+    MySQL = require("../sql/sql"),
+    { mysqlPassword } = require("../token.json"),
+    sql = new MySQL({ host: "phpmyadmin.head9x.dk", user: "Colorman", password: mysqlPassword, database: "colorman" })
 
 // Routes
 app.use('/api/discord', require('./api/discord'));
@@ -16,12 +23,17 @@ app.use('/api/discord', require('./api/discord'));
 app.use(cookieParser(client_id));
 app.set('etag', false);
 
+app.use('/images', express.static(__dirname + '/../data/levelupBackgrounds'));
+
 app.get('/', (req, res) => {
     res.status(200).sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/leaderboards', (req, res) => {
     return res.send("Leaderboards currently don't work because I'm a big dumb dumb who forgot to update it to MySQL.");
+});
+app.get('/disable', (req, res) => {
+    return res.send("The website is still Work In Progress, so I can't opt you out of the Global Leaderboard! Come back at a later date. (check Dunhammer for updates)");
 });
 //#region leaderboards
 /*
@@ -149,6 +161,67 @@ app.get('/leaderboards', catchAsync(async (req, res) => {
 }));
 */
 //#endregion
+
+app.get('/buy', catchAsync(async (req, res) => {
+    if (!req.signedCookies.access_token) return res.send(`<h3>Please <a href="/api/discord/login">log in</a> and try again.</h3>`);
+
+    const
+        apiUser = await (await fetch(`https://discord.com/api/users/@me`, {
+            headers: {
+                'authorization': `Bearer ${req.signedCookies.access_token}`
+            }
+        })).json(),
+        DBUser = await sql.getDBUser({
+            id: apiUser.id,
+            username: apiUser.username,
+            tag: `${apiUser.username}#${apiUser.discriminator}`
+        }),
+        coins = DBUser.coins,
+        purchased = DBUser.backgrounds & 1;
+
+    if (req.query.background) {
+        const background = req.query.background;
+        if (background != 1) return res.send(`<h3>You either already have this background or it doesn't exist.</h3>`);
+        if (coins < 1000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 1000 to buy this background!</h3>`);
+        await sql.tUpdate(`users`, {
+            coins: coins - 1000,
+            backgrounds: DBUser.backgrounds - - background
+        }, `id = ${apiUser.id}`);
+        return res.send(`<h2>Bought background "Player". Go <a href="/buy">here</a> to select it.</h2>`)
+    }    
+
+    return res.send(
+        `<h2>Coins: ${coins}</h2> <br>
+<h2>Your backgrounds:</h2> <br>
+<img src="images/0.png" width="300"> <br> <p>Deep Black  <a href="/select?background=0">Select</a></p>
+<br>${purchased ? `<img src="images/1.png" width="300"> <br> <p>Player  <a href="/select?background=1">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
+<br><img src="images/1.png" width="300"> <br> <p>Player  <a href="/buy?background=1">Purchase</a> for 1000 Coins</p>`}`
+    );
+}));
+
+app.get('/select', catchAsync(async (req, res) => {
+    if (!req.signedCookies.access_token) return res.send(`<h3>Please <a href="/api/discord/login">log in</a> and try again.</h3>`);
+    const
+        background = req.query.background,
+        apiUser = await (await fetch(`https://discord.com/api/users/@me`, {
+            headers: {
+                'authorization': `Bearer ${req.signedCookies.access_token}`
+            }
+        })).json(),
+        DBUser = await sql.getDBUser({
+            id: apiUser.id,
+            username: apiUser.username,
+            tag: `${apiUser.username}#${apiUser.discriminator}`
+        }),
+        purchased = background == 0 ? true : DBUser.backgrounds & background;
+    if (!purchased) return res.send(`<h3>You can't select a background that you haven't <a href="/buy">purchased</a>!`);
+    await sql.tUpdate(`users`, {
+        currentBackground: background
+    }, `id = ${apiUser.id}`);
+    const bgname = background == 0 ? `Deep Black` : `Player`;
+    return res.send(`<h2>Background ${bgname} selected.</h2>`)
+}));
+
 
 app.listen(8081, () => {
     console.info('Running on port 8081');

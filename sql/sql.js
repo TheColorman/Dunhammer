@@ -220,6 +220,61 @@ class MySQL {
         }
         return DBGuildUserArr[0];
     }
+        /**
+     * Adds user to database if they don't exist and returns the database entry
+     * @param {Discord.User}  user - DiscordJS user
+     * @returns {DBUser} DBUser object
+     */
+    async getDBUser(user) {
+        const connection = this.con;
+        const escape = this.escape;
+        async function tGet(table, queryLogic, sortLogic, limit) {
+            return new Promise((res) => {
+                const query = `SELECT * FROM \`${table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}${limit ? ` LIMIT ${limit}` : ``}`;
+                connection.query(query, (err, result) => {
+                    if (err) throw err;
+                    res(result);
+                });
+            });
+        }
+        async function tInsert(table, object) {
+            return new Promise((res) => {
+                const query = `INSERT INTO \`${table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => escape(obj)).join(", ")})`;
+                connection.query(query, (err, result) => {
+                    if (err) throw err;
+                    console.log(`Inserted ${result.affectedRows} rows.`);
+                    res(result);
+                });
+            });
+        }
+        
+
+
+        const DBUserArr = await tGet("users", `id = ${user.id}`);
+        if (!DBUserArr.length) {
+            await tInsert("users", {
+                id: user.id,
+                username: user.username,
+                tag: user.tag.slice(-4),
+                xp: 0,
+                level: 0,
+                coins: 0
+            });
+            return (await tGet("users", `id = ${user.id}`))[0];
+        }
+        return DBUserArr[0];
+    }
+    async tUpdate(table, object, queryLogic) {
+        if (!queryLogic) throw new Error("Failed to update database. No selector parameter passed, aborting update.");
+        return new Promise((res) => {
+            const query = `UPDATE \`${table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
+            this.con.query(query, (err, result) => {
+                if (err) throw err;
+                console.log(`Updated ${result.affectedRows} rows.`);
+                res(result);
+            });
+        });
+    }
 
 }
 

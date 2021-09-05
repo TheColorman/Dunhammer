@@ -92,18 +92,20 @@ router.get('/guilds', catchAsync(async (req, res) => {
                 'Authorization': `Bearer ${req.signedCookies.access_token}`
             }
         });
-        const json = await response.json();
-        const filtered = json.filter(element => {
-            return (parseInt(element.permissions) & 8) == 8;
+        const guilds = await response.json();
+        const filteredGuilds = guilds.filter(guild => {
+            return (parseInt(guild.permissions) & 8) == 8;
         });
-        const names = filtered.map(element => {
-            return element.name;
+        const guildNames = filteredGuilds.map(guild => {
+            return guild.name;
         });
-        res.end(`You are admin in the following servers:\n${names.join("\n")}`);
+        res.end(`You are admin in the following servers:\n${guildNames.join("\n")}`);
     } else {
         res.end(`<p>It would seems you're not <a href="/api/discord/login">logged in</a></p>`);
     }
 }));
+
+
 
 
 module.exports = router;
