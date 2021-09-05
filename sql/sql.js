@@ -22,7 +22,7 @@ class MySQL {
             }
             console.log(`Established connection to MySQL server at ${login.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`guilds\``, (error, result) => {
-                if (error) throw err;
+                if (error) throw error;
                 console.log(`Number of guilds in database: ${result[0]["COUNT(*)"]}.`);
             });
         });
