@@ -348,9 +348,9 @@ async function replyGlobal(interaction, sql, reply, page) {
         // Maximum amount of pages based on how many entries are in the database
     if (!page) {
         // Index of chosen member, used to automatically show the right page
-        const memberIndex = UserDB.findIndex(DBUser => DBUser.userid == user.id);
+        const memberIndex = UserDB.findIndex(DBUser => DBUser.id == user.id);
         page = Math.ceil((memberIndex + 1) / 10);
-    }    
+    }
     const
         maxPage = Math.ceil(UserDB.length / 10),
         currentPage = Math.min(maxPage, Math.max(page, 1)),
