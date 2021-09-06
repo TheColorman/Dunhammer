@@ -457,6 +457,9 @@ client.on("messageCreate", async message => {
 // Slash commands
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
+    if (interaction.channel.type == "DM") return interaction.reply({
+        content: "DM commands not currently supported, check back soon!"
+    });
 
     // Check if interaction user is in the database
     interaction.DBGuildMember = await sql.getDBGuildMember(interaction.member);
