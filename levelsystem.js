@@ -170,10 +170,11 @@ module.exports = {
                 DBGuildLevelsystem.levelupChannel ?
                     await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) : 
                     message.channel : 
-                await user.createDM(),
-            attachment = await this.createLevelupImageGlobal(message, level, sql);
-
+                await user.createDM();
+                
         await sql.update("users", { coins: DBUser.coins + level * 10 }, `id = ${user.id}`);
+        if (levelupChannel.type == "DM" && !DBUser.levelDm) return;
+        const attachment = await this.createLevelupImageGlobal(message, level, sql);
 
         levelupChannel.send({
             content: `Congratulations ${DBUser.levelMentions ? user : user.username}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.

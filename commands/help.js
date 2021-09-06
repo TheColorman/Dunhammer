@@ -78,7 +78,9 @@ You can opt out of the global leaderboard by going to https://dunhammer.colorman
 \`/badges\` - Show information about your badges.
 
 \`profile\` - Change personal settings.
-  • \`level_mentions\`: Change whether you get mentioned when leveling up Globally.`,
+  • \`level_mentions\`: Change whether you get mentioned when leveling up Globally.
+  • \`level_dm\`: Change whether you get a DM when you level up on a server where levelsystem is disabled.
+  • \`disabled\`: Changes whether you are part of the Global levelsystem`,
         `\`/help\` - You're already here!
   • \`command\` - Shows help related to a specific command.
 
@@ -132,7 +134,9 @@ Note: Anyone can report an image. Abuse will lead to a blacklist!`,
         `**__Change personal settings__**
 This command is used to change settings on your profile.
 It supports the following options:
-\`level_mentions\`: Changes whether you get mentioned on a Global levelup.`,
+\`level_mentions\`: Changes whether you get mentioned on a Global levelup.
+\`level_dm\`: Changes whether you get a DM if you level up Globally on a server that has disabled the levelsystem. If disabled you won't know when you level up if it happens on a server with levelsystem disabled.
+\`disabled\`: Changes whether you are part of the Global levelsystem. If disabled, you won't gain any xp for the Global levelsystem, but your existing profile will stay on the leaderboard, frozen. Go to [here](https://dunhammer.colorman.me/disable) to delete your profile.`,
         `**__Changes the roles received when reaching a specific level.__**
 This command allows you to select a role that all users will gain when they reach the specified level.
 

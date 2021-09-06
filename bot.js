@@ -20,12 +20,12 @@ for (const file of commandFiles) {
 // this is stupid. im adding a property so i can keep track of all running collectors, because 2 collectors in the same channel is a bad idea
 client.collectors = [];
 
-/* // Yes im doing this again
+// Yes im doing this again
 process.on('uncaughtException', async (err) => {
     console.error("DUNHAMMER HAS CRASHED, PREVENTING SHUTDOWN. ERROR:");
     console.error(err);
 });
- */
+
 
 // xp gain cooldown
 const levelTimestamps = new Collection(),
@@ -46,7 +46,7 @@ function updateStatus() {
 
     client.user.setPresence({
         activities: [{
-            name: `V3.0.2 | ${newStatus}`,
+            name: `V3.0.5 | ${newStatus}`,
             type: 'PLAYING'
         }]
     });
@@ -457,6 +457,9 @@ client.on("messageCreate", async message => {
 // Slash commands
 client.on('interactionCreate', async interaction => {
     if (!interaction.isCommand()) return;
+    if (interaction.channel.type == "DM") return interaction.reply({
+        content: "DM commands not currently supported, check back soon!"
+    });
 
     // Check if interaction user is in the database
     interaction.DBGuildMember = await sql.getDBGuildMember(interaction.member);
