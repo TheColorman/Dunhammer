@@ -8,14 +8,19 @@ module.exports = {
     ApplicationCommandData: {
         name: "profile",
         description: "Change any profile settings.",
-        options: [
-            {
-                type: "BOOLEAN",
-                name: "level_mentions",
-                description:
-                    "Changes whether you get mentioned on a global levelup",
-            },
-        ],
+        options: [ {
+            type: "BOOLEAN",
+            name: "level_mentions",
+            description: "Changes whether you get mentioned on a global levelup",
+        }, {
+            type: "BOOLEAN",
+            name: "level_dm",
+            description: "Changes whether you get a DM when you level up on a server without levelsystem"
+        }, {
+            type: "BOOLEAN",
+            name: "disabled",
+            description: "Disables the Global levelsystem for you"
+        }]
     },
     /**
      * Command execution
@@ -41,6 +46,20 @@ module.exports = {
                     embed.description = embed.description.concat(`${option.value ? "✅ Enabled" : "❎ Disabled"} mentions when leveling up (Global only).\n`);
                     sql.update("users", {
                         levelMentions: option.value
+                    }, `id = ${interaction.user.id}`);
+                    break;
+                }
+                case "level_dm": {
+                    embed.description = embed.description.concat(`${option.value ? "✅ Enabled" : "❎ Disabled"} DMs when leveling up on a server with levelsystem disabled (Global only).\n`);
+                    sql.update("users", {
+                        levelDm: option.value
+                    }, `id = ${interaction.user.id}`);
+                    break;
+                }
+                case "disabled": {
+                    embed.description = embed.description.concat(`${!option.value ? "✅ Enabled" : "❎ Disabled"} the Global levelsystem for you.\n`);
+                    sql.update("users", {
+                        disabled: option.value
                     }, `id = ${interaction.user.id}`);
                     break;
                 }
