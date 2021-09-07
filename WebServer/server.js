@@ -177,6 +177,7 @@ app.get('/buy', catchAsync(async (req, res) => {
                 'authorization': `Bearer ${req.signedCookies.access_token}`
             }
         })).json();
+    console.log(req.signedCookies);
     console.log(apiUser);
     if (!apiUser.id) return res.send(`<h3>Something went wrong :(</h3>`);
     const DBUser = await sql.getDBUser({
@@ -185,17 +186,28 @@ app.get('/buy', catchAsync(async (req, res) => {
             tag: `${apiUser.username}#${apiUser.discriminator}`
         }),
         coins = DBUser.coins,
-        purchased = DBUser.backgrounds & 1;
+        purchased = DBUser.backgrounds & 1,
+        purchased2 = DBUser.backgrounds & 16;
 
     if (req.query.background) {
         const background = req.query.background;
-        if (background != 1) return res.send(`<h3>You either already have this background or it doesn't exist.</h3>`);
-        if (coins < 1000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 1000 to buy this background!</h3>`);
-        await sql.update(`users`, {
-            coins: coins - 1000,
-            backgrounds: DBUser.backgrounds - - background
-        }, `id = ${apiUser.id}`);
-        return res.send(`<h2>Bought background "Player". Go <a href="/buy">here</a> to select it.</h2>`)
+        if ([1, 16].includes(background)) return res.send(`<h3>You either already have this background or it doesn't exist.</h3>`);
+        if (background == 1) {
+            if (coins < 1000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 1000 to buy this background!</h3>`);
+            await sql.update(`users`, {
+                coins: coins - 1000,
+                backgrounds: DBUser.backgrounds - - background
+            }, `id = ${apiUser.id}`);
+            return res.send(`<h2>Bought background "Player". Go <a href="/buy">here</a> to select it.</h2>`)
+        } else {
+            if (coins < 2000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 2000 to buy this background!</h3>`);
+            await sql.update(`users`, {
+                coins: coins - 2000,
+                backgrounds: DBUser.backgrounds - - background
+            }, `id = ${apiUser.id}`);
+            return res.send(`<h2>Bought background "Linus". Go <a href="/buy">here</a> to select it.</h2>`)
+
+        }
     }    
 
     return res.send(
@@ -203,7 +215,9 @@ app.get('/buy', catchAsync(async (req, res) => {
 <h2>Your backgrounds:</h2> <br>
 <img src="images/0.png" width="300"> <br> <p>Deep Black  <a href="/select?background=0">Select</a></p>
 <br>${purchased ? `<img src="images/1.png" width="300"> <br> <p>Player  <a href="/select?background=1">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
-<br><img src="images/1.png" width="300"> <br> <p>Player  <a href="/buy?background=1">Purchase</a> for 1000 Coins</p>`}`
+<br><img src="images/1.png" width="300"> <br> <p>Player  <a href="/buy?background=1">Purchase</a> for 1000 Coins</p>`}
+<br>${purchased2 ? `<img src="images/16.png" width="300"> <br> <p>Player  <a href="/select?background=16">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
+<br><img src="images/16.png" width="300"> <br> <p>Linus  <a href="/buy?background=16">Purchase</a> for 2000 Coins</p>`}`
     );
 }));
 
@@ -226,7 +240,12 @@ app.get('/select', catchAsync(async (req, res) => {
     await sql.update(`users`, {
         currentBackground: background
     }, `id = ${apiUser.id}`);
-    const bgname = background == 0 ? `Deep Black` : `Player`;
+    const names = {
+            0: "Deep Black",
+            1: "Player",
+            16: "Linus"
+        },
+        bgname = names[background];
     return res.send(`<h2>Background ${bgname} selected.</h2>`)
 }));
 
