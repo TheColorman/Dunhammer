@@ -200,7 +200,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             GuildMemberDB = await sql.get("guildusers", `guildid = ${message.guild.id} AND inGuild = 1`, "xp DESC"),
             rank = GuildMemberDB.findIndex(member => member.userid == message.author.id) + 1,
             nextDBGuildMember = GuildMemberDB.find((_member, index) => index == rank-2),
-            nextMember = await message.guild.members.fetch(nextDBGuildMember.userid),
+            nextMember = nextDBGuildMember ? await message.guild.members.fetch(nextDBGuildMember.userid) : undefined,
             DBGuildMember = GuildMemberDB.find((member) => member.userid == message.author.id),
             DBUser = await sql.getDBUser(message.author),
             background = await Canvas.loadImage(`./data/levelupBackgrounds/${DBUser.currentBackground}.png`),
