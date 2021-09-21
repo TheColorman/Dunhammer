@@ -113,8 +113,9 @@ async function createImage(interaction, sql) {
     const guildAvatar = await Canvas.loadImage(
             interaction.guild.iconURL({
                 format: "png",
-            })
+            }) || "./data/images/noicon.png"
         ),
+
         dunhammerAvatar = await Canvas.loadImage(
             "https://cdn.discordapp.com/avatars/671681661296967680/6ae7fd60617e8bd7388d239b450afad1.png"
         ),
@@ -130,6 +131,7 @@ async function createImage(interaction, sql) {
         barEndX = 760,
         barOffsetY = iconPosition.y + (iconSize - barRadius * 2) / 2 - 5,
         innerBarOffset = 2.5,
+
         font = 'Nyata FTR, Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif, Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace, Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif',
             // {    Discord fonts
             //     --font-primary: Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -333,6 +335,7 @@ async function createImage(interaction, sql) {
         xpMaxServ = 5*(118*nextLevelServ+2*nextLevelServ*nextLevelServ*nextLevelServ)/6 - 5*(118*currentLevelServ+2*currentLevelServ*currentLevelServ*currentLevelServ)/6,
         serverRank = guildMemberDB.findIndex(member => member.userid == memberID) + 1;
 
+
     drawIcon(0, guildAvatar);
     drawIcon(1, dunhammerAvatar);
 
@@ -383,6 +386,5 @@ async function createImage(interaction, sql) {
         62 + usernameHeight
     );
     //#endregion
-
     return new Discord.MessageAttachment(canvas.toBuffer(), "profile.png");
 }

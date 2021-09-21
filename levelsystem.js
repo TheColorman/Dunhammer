@@ -205,7 +205,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             DBUser = await sql.getDBUser(message.author),
             background = await Canvas.loadImage(`./data/levelupBackgrounds/${DBUser.currentBackground}.png`),
             avatar = await Canvas.loadImage(message.author.displayAvatarURL({ format: "png" })),
-            guildIcon = await Canvas.loadImage(message.guild.iconURL({ format: "png" })),
+            guildIcon = await Canvas.loadImage(message.guild.iconURL({ format: "png" }) || "./data/images/noicon.png"),
             font = 'Nyata FTR, Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif, Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace, Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif',
             // {    Discord fonts
             //     --font-primary: Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
