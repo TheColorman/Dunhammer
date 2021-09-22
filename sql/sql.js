@@ -12,6 +12,10 @@ class MySQL {
     constructor(login) {
         const config = login;
         config.charset = 'UTF8MB4_GENERAL_CI';
+
+        this.connect(config);
+    }
+    connect(config) {
         this.con = require("mysql").createConnection(config);
 
         console.log("Connecting to MySQL server...");
@@ -20,7 +24,7 @@ class MySQL {
                 console.error("Connection failed!");
                 throw err;
             }
-            console.log(`Established connection to MySQL server at ${login.host}`);
+            console.log(`Established connection to MySQL server at ${config.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`guilds\``, (error, result) => {
                 if (error) throw error;
                 console.log(`Number of guilds in database: ${result[0]["COUNT(*)"]}.`);
@@ -28,6 +32,15 @@ class MySQL {
         });
 
         this.escape = this.con.escape.bind(this.con);
+
+        this.con.on('error', (err) => {
+            console.log("Database Error: ", err);
+            if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+                this.connect(config);
+            } else {
+                throw err;
+            }
+        });
     }
     /**
      * Get rows from table.
@@ -58,7 +71,7 @@ class MySQL {
             const query = `INSERT INTO \`${table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => this.escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Inserted ${result.affectedRows} rows.`);
+                // console.log(`Inserted ${result.affectedRows} rows.`);
                 res(result);
             });
         });
@@ -76,7 +89,7 @@ class MySQL {
             const query = `UPDATE \`${table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Updated ${result.affectedRows} rows.`);
+                // console.log(`Updated ${result.affectedRows} rows.`);
                 res(result);
             });
         });
@@ -92,7 +105,7 @@ class MySQL {
             const query = `DELETE FROM \`${table}\` WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
                 if (err) throw err;
-                console.log(`Removed ${result.affectedRows} rows`);
+                // console.log(`Removed ${result.affectedRows} rows`);
                 res(result);
             })
         });
