@@ -251,7 +251,7 @@ app.get('/select', catchAsync(async (req, res) => {
 
 
 app.listen(8081, () => {
-    console.info('Running on port 8081');
+    console.info('Serving webserver on port 8081');
 });
 
 /* app.use((err, req, res) => {
