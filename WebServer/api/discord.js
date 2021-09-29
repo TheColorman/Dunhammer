@@ -38,7 +38,7 @@ router.get('/login', catchAsync(async (req, res) => {
         expires: new Date(30*60*1000 + Date.now()),
         secure: true,
     });
-    res.send(`<meta http-equiv="refresh" content="0; URL=https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirect}&response_type=code&scope=email%20guilds&state=${state}">`);
+    res.send(`<meta http-equiv="refresh" content="0; URL=https://discord.com/api/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirect}&response_type=code&scope=identify%20email%20guilds&state=${state}">`);
 }));
 
 router.get('/logout', (req, res) => {
@@ -49,7 +49,7 @@ router.get('/logout', (req, res) => {
         res.write("<p>You were never logged in to begin with!</p>");
         res.end(`<p><a href="/">go home and sleep button that takes you home</a></p>`);
     }
-})
+})  
 
 router.get('/callback', catchAsync(async (req, res) => {
     if (!req.query.code) throw new Error('NoCodeProvided');
@@ -64,7 +64,7 @@ router.get('/callback', catchAsync(async (req, res) => {
 
     const
         code = req.query.code,
-        data = `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&redirect_uri=${redirect}&scope=email%20guilds`,
+        data = `client_id=${CLIENT_ID}&client_secret=${CLIENT_SECRET}&grant_type=authorization_code&code=${code}&redirect_uri=${redirect}&scope=identify%20email%20guilds`,
 
         response = await fetch(`https://discord.com/api/oauth2/token`, {
             method: 'POST',
