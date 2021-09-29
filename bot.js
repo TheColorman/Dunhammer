@@ -46,7 +46,7 @@ function updateStatus() {
 
     client.user.setPresence({
         activities: [{
-            name: `V3.0.5 | ${newStatus}`,
+            name: `V${require('./package.json').version} | ${newStatus}`,
             type: 'PLAYING'
         }]
     });
