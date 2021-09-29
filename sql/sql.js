@@ -34,8 +34,8 @@ class MySQL {
         this.escape = this.con.escape.bind(this.con);
 
         this.con.on('error', (err) => {
-            console.log("Database Error: ", err);
             if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+                console.warn("Lost connection to MySQL Database, attempting reconnect");
                 this.connect(config);
             } else {
                 throw err;
