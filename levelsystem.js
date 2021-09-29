@@ -43,12 +43,15 @@ module.exports = {
         levelTimestamps.set(message.author.id, now);
         // Timeout for xp, only used if a user sends 2 messages after eachother
         setTimeout(() => levelTimestamps.delete(message.author.id), cooldownAmount);
-    
+
+        // Check for attachments / embeds
+                       // boolean baby
+        const hasEmbeds = !!(message.attachments.size || message.content.match(/(http(s)?:\/\/.)(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/g));
         // calculation for xp gained for the message
         let gainedxp = Math.round(
             basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor) +
             (newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0) + 
-            (message.embeds.length ? linkEmbedAddition : 0)
+            (hasEmbeds ? linkEmbedAddition : 0)
         );
         // Check for max xp this minute
         if (minuteTimestamps.has(message.author.id)) {
@@ -56,7 +59,7 @@ module.exports = {
             // Debug message to see xp gain
             //if (message.channel.id == "779374371831545906") console.log(`base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min\n\n`);
             //message.reply({ content: `base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`, allowedMentions: { repliedUser: false } });
-            console.log(`base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`);
+            //console.log(`base: ${basexp}\nlength: value ${message.content.replace(/\s+/g,' ').split(" ").length} xp ${Math.round(basexp * (message.content.replace(/\s+/g,' ').split(" ").length / messageLengthDevisor))}\nstreak: value ${DBChannel.messageStreak} xp ${Math.round(newMessage ? basexp * (DBChannel.messageStreak / streakDevisor) : 0)}\ntotal: ${gainedxp} xp\n${xpThisMinute}/${maxxpPerMinute} xp this min`);
             if (xpThisMinute > maxxpPerMinute) return;
             if (xpThisMinute + gainedxp > maxxpPerMinute) {
                 gainedxp = maxxpPerMinute - xpThisMinute;
