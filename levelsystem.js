@@ -44,7 +44,7 @@ module.exports = {
         // Timeout for xp, only used if a user sends 2 messages after eachother
         setTimeout(() => levelTimestamps.delete(message.author.id), cooldownAmount);
 
-        // Check for attachments / embeds
+        // Check for attachments / urls (aka. embeds but the message.embeds property is ass)
                        // boolean baby
         const hasEmbeds = !!(message.attachments.size || message.content.match(/(http(s)?:\/\/.)(www\.)?[-a-zA-Z0-9@:%._+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_+.~#?&/=]*)/g));
         // calculation for xp gained for the message
