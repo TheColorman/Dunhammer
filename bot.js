@@ -475,9 +475,9 @@ client.on('interactionCreate', async interaction => {
     } catch (err) {
         console.error(err);
         try {
-            await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+            await interaction.reply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
         } catch(e) {    // You may call it "shit code", I call it "*functional code*""
-            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
             else {
                 console.log("Aight, wtf just happened");
                 console.error(e);
