@@ -2,7 +2,8 @@
 const Discord = require("discord.js"),
     // eslint-disable-next-line no-unused-vars
     MySQL = require("../sql/sql"),
-    Canvas = require("canvas");
+    Canvas = require("canvas"),
+    imgDecoder = require("@nicklasbns/imagedecoder");
 
 module.exports = {
     name: "level",
@@ -338,8 +339,12 @@ async function createImage(interaction, sql) {
 
     drawIcon(0, guildAvatar);
     drawIcon(1, dunhammerAvatar);
-
-    drawxpBar(0, xpCurrServ, xpMaxServ, `#37393D`, serverRank);
+    
+    const guildIcon = interaction.guild.iconURL({
+            format: "png",
+        }),
+        averageColor = guildIcon ? `#${(await imgDecoder.mean(guildIcon)).map(e => e.toString(16)).join("")}` : "#37393D"
+    drawxpBar(0, xpCurrServ, xpMaxServ, averageColor, serverRank);
     drawxpBar(1, xpCurrGlob, xpMaxGlob, "#4D662A", globalRank);
 
     drawLevel(0, DBGuildMember.level);
