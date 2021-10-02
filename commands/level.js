@@ -341,10 +341,23 @@ async function createImage(interaction, sql) {
     drawIcon(1, dunhammerAvatar);
     
     const guildIcon = interaction.guild.iconURL({
-            format: "png",
-        }),
-        averageColor = guildIcon ? `#${(await imgDecoder.mean(guildIcon)).map(e => e.toString(16)).join("")}` : "#37393D"
-    drawxpBar(0, xpCurrServ, xpMaxServ, averageColor, serverRank);
+        format: "png",
+    });
+    let color = "#37393D";
+    if (guildIcon) {
+
+        const clrArr = await imgDecoder.mean(guildIcon);
+
+        while ((clrArr[0] + clrArr[1] + clrArr[2])/3 > 75) {
+            clrArr[0] = Math.max(clrArr[0] - 1, 1);
+            clrArr[1] = Math.max(clrArr[1] - 1, 1);
+            clrArr[2] = Math.max(clrArr[2] - 1, 1);
+        }
+        console.log(clrArr);
+        color = "#" + clrArr.map(e => e.toString(16)).join("");
+        console.log(color);
+    }
+    drawxpBar(0, xpCurrServ, xpMaxServ, color, serverRank);
     drawxpBar(1, xpCurrGlob, xpMaxGlob, "#4D662A", globalRank);
 
     drawLevel(0, DBGuildMember.level);
