@@ -13,7 +13,8 @@ const express = require('express'),
 
     MySQL = require("../sql/sql"),
     { mysqlPassword } = require("../token.json"),
-    sql = new MySQL({ host: "phpmyadmin.head9x.dk", user: "Colorman", password: mysqlPassword, database: "colorman" })
+    { mysql_login } = require("../config.json"),
+    sql = new MySQL({ host: mysql_login.host, user: mysql_login.user, password: mysqlPassword, database: mysql_login.database })
 
     
 // Yes im doing this again
