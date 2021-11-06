@@ -1,15 +1,18 @@
 // Start and stop MySQL server in run > services.msc > Apache2.4 + MySQL on localhost/phpmyadmin
 
-// eslint-disable-next-line no-unused-vars
-const Disord = require('discord.js');
+const
+    // eslint-disable-next-line no-unused-vars
+    Disord = require('discord.js'),
+    EventEmitter = require('events');
 
-class MySQL {
+class MySQL extends EventEmitter {
     /**
      * Creates a MySQL connection
      * @param {Object} login Login object in format:
      * { host, user, password, database }
      */
     constructor(login) {
+        super();
         const config = login;
         config.charset = 'UTF8MB4_GENERAL_CI';
 
@@ -21,12 +24,14 @@ class MySQL {
         console.log("Connecting to MySQL server...");
         this.con.connect(err => {
             if (err) {
+                this.emit("connectionFailed", err);
                 console.error("Connection failed!");
                 throw err;
             }
             console.log(`Established connection to MySQL server at ${config.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`guilds\``, (error, result) => {
                 if (error) throw error;
+                this.emit("connectionEstablished", result[0]["COUNT(*)"]);
                 console.log(`Number of guilds in database: ${result[0]["COUNT(*)"]}.`);
             });
         });
@@ -35,9 +40,11 @@ class MySQL {
 
         this.con.on('error', (err) => {
             if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+                this.emit("connectionLost");
                 console.warn("Lost connection to MySQL Database, attempting reconnect");
                 this.connect(config);
             } else {
+                this.emit("connectionError", err);
                 throw err;
             }
         });
