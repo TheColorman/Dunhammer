@@ -8,10 +8,11 @@ module.exports = {
     /**
      * @param {Message} message 
      * @param {MySQL} sql 
+     * @param {EventEmitter} badges
      * @param {Collection} levelTimestamps 
      * @param {Collection} minuteTimestamps 
      */
-    async xpGain(message, sql, levelTimestamps, minuteTimestamps) {
+    async xpGain(message, sql, badges, levelTimestamps, minuteTimestamps) {
         const DBChannel = await sql.getDBChannel(message.channel),
             DBGuildMember = await sql.getDBGuildMember(message.member),
             DBUser = await sql.getDBUser(message.author),
@@ -108,7 +109,7 @@ module.exports = {
         }
     
         // Now cause the actual levelups
-        if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql);
+        if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql, badges);
         if (!DBUser.disabled && newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql);
     },
     /**
@@ -118,7 +119,7 @@ module.exports = {
      * @param {Number} level New level
      * @param {MySQL} sql
      */
-    async serverLevelup(message, DBGuildMember, level, sql) {
+    async serverLevelup(message, DBGuildMember, level, sql, badges) {
         const
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
             levelupChannel = DBGuildLevelsystem.levelupChannel ? await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) : message.channel,
@@ -156,8 +157,15 @@ module.exports = {
                 }]
             });
         }
-        
 
+        // Gain badge
+        const
+            allBadges = await sql.get('badges'),
+            userBadges = (await sql.getDBUser(message.author)).badges;
+
+        badges.emit('gained', message.user, )
+
+        // Send message        
         levelupChannel.send({
             content: `${DBGuildLevelsystem.tagMember ? `${message.member}\n` : ""}${levelupMessage}`,
             files: [attachment]

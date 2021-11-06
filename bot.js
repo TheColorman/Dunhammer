@@ -1,3 +1,4 @@
+// Setup
 // eslint-disable-next-line no-unused-vars
 const { Client, Intents, Collection, Message } = require('discord.js'),
     { botToken, mysqlPassword } = require('./token.json'),
@@ -5,9 +6,19 @@ const { Client, Intents, Collection, Message } = require('discord.js'),
     { mysql_login: mysqlLogin, admins } = require('./config.json'),
     fs = require('fs'),
     MySQL = require('./sql/sql.js'),
+    EventEmitter = require('events'),
     levelsystem = require('./levelsystem'),
 
     client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
+
+// Badge event emitter
+const badges = new EventEmitter();
+badges.on('gained', async (user, badge) => {
+    const DBUser = sql.getDBUser(user);
+    await sql.update('users', {
+        badges: parseInt(DBUser.badges) + parseInt(badge.id)
+    }, `id = ${user.id}`);
+});
 
 // Load commands
 client.commands = new Collection();
@@ -442,7 +453,7 @@ const adminCommands = {
 
 client.on("messageCreate", async message => {
     if (message.author.bot) return;
-    levelsystem.xpGain(message, sql, levelTimestamps, minuteTimestamps);
+    levelsystem.xpGain(message, sql, badges, levelTimestamps, minuteTimestamps);
 
     if (!message.content.startsWith(".")) return;
     const command = message.content.split(" ")[0].substr(1);
@@ -470,7 +481,8 @@ client.on('interactionCreate', async interaction => {
     try {
         await command.execute(
             interaction,
-            sql
+            sql,
+            badges,
         )
     } catch (err) {
         console.error(err);
@@ -505,7 +517,7 @@ client.on('interactionCreate', async interaction => {
         // 2nd argument is always sql object for database function.
         // Further arguments are on a case-by-case basis if
         // further information is needed as a data store.
-        await command[interactionInfo[2]](interaction, sql, interactionInfo[3])
+        await command[interactionInfo[2]](interaction, sql, badges, interactionInfo[3])
     } catch(err) {
         console.error(err);
         await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
