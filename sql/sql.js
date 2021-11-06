@@ -161,6 +161,14 @@ class MySQL {
      * @property {Number}   streakTimestamp      - Date when streak was last updated in millisecond format
      * @property {String}   lastMessageMember    - ID of last user to send a message in channel
      */
+    /**
+     * @typedef {Object} DBBadge
+     * @property {Number}   id               - Badge ID
+     * @property {String}   idEmoji          - Discord Emoji ID
+     * @property {String}   name             - Badge name
+     * @property {String}   description      - Badge description
+     * @property {Number}   prerequisite     - Badge prerequisite
+     */
 
     /**
      * Adds user to database if they don't exist and returns the database entry
