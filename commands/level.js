@@ -353,9 +353,7 @@ async function createImage(interaction, sql) {
             clrArr[1] = Math.max(clrArr[1] - 1, 1);
             clrArr[2] = Math.max(clrArr[2] - 1, 1);
         }
-        console.log(clrArr);
         color = "#" + clrArr.map(e => e.toString(16)).join("");
-        console.log(color);
     }
     drawxpBar(0, xpCurrServ, xpMaxServ, color, serverRank);
     drawxpBar(1, xpCurrGlob, xpMaxGlob, "#4D662A", globalRank);
