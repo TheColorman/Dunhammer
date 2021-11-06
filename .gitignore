@@ -1,4 +1,4 @@
 node_modules/
 token.json
 data/dev
-.vscode
+.vscode/
