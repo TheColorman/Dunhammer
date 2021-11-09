@@ -670,11 +670,11 @@ client.on("guildCreate", async (guild) => {
 });
 
 //#region Update existing database entries
-client.on("guildUpdate", async (oldGuild, newGuild) => {
+client.on("guildUpdate", async (_oldGuild, newGuild) => {
     await sql.updateDBGuild(newGuild);
 });
 
-client.on("guildMemberUpdate", async (oldMember, newMember) => {
+client.on("guildMemberUpdate", async (_oldMember, newMember) => {
     await sql.updateDBGuildMember(newMember);
     await sql.updateDBUser(newMember.user);
 });
