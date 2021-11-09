@@ -297,6 +297,14 @@ class MySQL extends EventEmitter {
         return DBChannelArr[0];
     }
     /**
+     * Returns list of all badges in database
+     * @returns {DBBadge[]}
+     */
+    async getDBBadges() {
+        const DBBadgeArr = await this.get("badges");
+        return DBBadgeArr;
+    }
+    /**
      * Updates a DBUser with Discord information
      * @param {User} user - DiscordJS user
      * @returns {DBUser} DBUser object
