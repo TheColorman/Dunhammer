@@ -66,10 +66,10 @@ class MySQL extends EventEmitter {
      * Get rows from table.
      * If this doesnt work in the future, it might be because queryLogic isn't escaped.
      * @param {String} table Table name
-     * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
-     * @param {String} sortLogic Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
-     * @param {Number} limit Max number of results
-     * @returns {Promise<Array<import("../bot").DBGuildMember>>} Array of objects (found rows)
+     * @param {String} [queryLogic] Selector logic, e.g. "id = 12345678"
+     * @param {String} [sortLogic] Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
+     * @param {Number} [limit] Max number of results
+     * @returns {Promise<Object[]>} Array of objects (found rows)
      */
     async get(table, queryLogic, sortLogic, limit) {
         return new Promise((res) => {
