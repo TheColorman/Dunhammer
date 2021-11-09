@@ -31,16 +31,9 @@ module.exports = {
 
             // Fetch badges
             userBadgesField = DBUser.badges,
-            userBadgesList = [],
+            allBadges = await sql.get(`badges`),
+            userBadgesList = allBadges.filter(badge => userBadgesField & badge.bitId);
 
-            allBadges = await sql.get(`badges`);
-
-        // Get user badges
-        for (const badge of allBadges) {
-            if (userBadgesField & badge.id) {
-                userBadgesList.push(badge);
-            }
-        }
 
         // Send message
         let badgesText = userBadgesList.map(badge => `${badge.idEmoji}`).join(" ");
