@@ -305,6 +305,15 @@ class MySQL extends EventEmitter {
         return DBBadgeArr;
     }
     /**
+     * Returns list of GuildMembers with user ID
+     * @param {User} user 
+     * @returns {DBGuildMember[]}
+     */
+    async getDBUserGuilds(user) {
+        const DBUserGuildsArr = await this.get("guildusers", `userid = ${user.id}`);
+        return DBUserGuildsArr;
+    }
+    /**
      * Updates a DBUser with Discord information
      * @param {User} user - DiscordJS user
      * @returns {DBUser} DBUser object
