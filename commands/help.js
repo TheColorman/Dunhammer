@@ -47,7 +47,7 @@ module.exports = {
     },
     helpPages: [
         `Welcome to Dunhammer!
-(invite Dunhammer [here](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands))
+(invite Dunhammer [here](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=378091728064&scope=bot%20applications.commands))
 **Go to the next page for a list of commands**
 All Dunhammer commands are performed using Slash Commands (type / to see them).
 For easier setup, more features and profile settings, go to the website: https://dunhammer.colorman.me
