@@ -1,9 +1,8 @@
 // Start and stop MySQL server in run > services.msc > Apache2.4 + MySQL on localhost/phpmyadmin
-
-const
-    // eslint-disable-next-line no-unused-vars
-    Disord = require('discord.js'),
-    EventEmitter = require('events');
+    
+// eslint-disable-next-line no-unused-vars
+const { User, Guild, GuildMember, TextChannel } = require('discord.js');
+const EventEmitter = require('events');
 
 class MySQL extends EventEmitter {
     /**
