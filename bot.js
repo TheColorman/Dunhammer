@@ -191,6 +191,11 @@ const adminCommands = {
                         label: "Guild members",
                         customId: "admincommands.reloaddatabase.guildmembers",
                         style: "SECONDARY"
+                    }, {
+                        type: "BUTTON",
+                        label: "User badges",
+                        customId: "admincommands.reloaddatabase.userbadges",
+                        style: "SECONDARY",
                     }]
                 }]
             });
@@ -217,6 +222,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild members",
                             customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -248,6 +259,12 @@ const adminCommands = {
                                 customId: "admincommands.reloaddatabase.guildmembers",
                                 style: "SECONDARY",
                                 disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "User badges",
+                                customId: "admincommands.reloaddatabase.userbadges",
+                                style: "SECONDARY",
+                                disabled: true
                             }]
                         }]
                     });
@@ -275,6 +292,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild members",
                             customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -306,6 +329,12 @@ const adminCommands = {
                                 customId: "admincommands.reloaddatabase.guildmembers",
                                 style: "SECONDARY",
                                 disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "User badges",
+                                customId: "admincommands.reloaddatabase.userbadges",
+                                style: "SECONDARY",
+                                disabled: true
                             }]
                         }]
                     });
@@ -333,6 +362,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild members",
                             customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -370,10 +405,102 @@ const adminCommands = {
                             customId: "admincommands.reloaddatabase.guildmembers",
                             style: "SECONDARY",
                             disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
+                            style: "SECONDARY",
+                            disabled: true
                         }]
                     }]
                 });
                 break;
+            }
+            case "userbadges": {
+                message.update({
+                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                const guilds = await client.guilds.fetch();
+                let currentGuild = 0;
+                guilds.forEach(async guildPartial => {
+                    currentGuild++;
+                    message.message.edit({
+                        content: `Guild ${currentGuild}/${guilds.size}`
+                    });
+                    const
+                        guild = await guildPartial.fetch(),
+                        members = await guild.members.fetch();
+                    
+                    members.forEach(async member => {
+                        Events.emit("levelupServer", sql, member);
+                        Events.emit("command", sql, member, null);
+                    });
+                });
+                const users = await client.users.fetch();
+                users.forEach(async user => {
+                    Events.emit("levelupGlobal", sql, user);
+                    Events.emit("payment", sql, user.id, 0);
+                });
+                message.message.edit({
+                    content: `:white_check_mark: Done, updated badges for all members in all ${guilds.size} guilds.`,
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                break;            
             }
             default: {
                 message.message.reply({ content: "You find yourself in a mysterious place..." });
