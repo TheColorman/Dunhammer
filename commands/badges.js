@@ -23,8 +23,11 @@ module.exports = {
      */
     async execute(interaction, sql) {
         const
+            member = interaction.options.data[0] ? interaction.options.data[0].member : interaction.member,
+
+
             // Fetch DBUser
-            DBUser = await sql.getDBUser(interaction.user),
+            DBUser = await sql.getDBUser(member.user),
 
             // Fetch badges
             userBadgesField = DBUser.badges,
