@@ -294,7 +294,7 @@ Badges are a form of achievements, and they can be gained in numerous ways.`
     first(interaction) {
         interaction.update(this.createGeneral());
     },
-    previous(interaction, _sql, _badges, page) {
+    previous(interaction, _sql, _events, page) {
         interaction.update(this.createGeneral(page));
     },
     custom(interaction) {   // This code is mostly copied from /leaderboard
@@ -344,7 +344,7 @@ Badges are a form of achievements, and they can be gained in numerous ways.`
                     });
             });
     },
-    next(interaction, _sql, _badges, page) {
+    next(interaction, _sql, _events, page) {
         interaction.update(this.createGeneral(page));
     },
     last(interaction) {

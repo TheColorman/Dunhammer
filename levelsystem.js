@@ -2,17 +2,19 @@
 const { Message, Collection, User, MessageAttachment } = require('discord.js'),
     // eslint-disable-next-line no-unused-vars
     MySQL = require('./sql/sql'),
+    // eslint-disable-next-line no-unused-vars
+    DunhammerEvents = require('./dunhammerEvents'),
     Canvas = require("canvas");
 
 module.exports = {
     /**
      * @param {Message} message 
      * @param {MySQL} sql 
-     * @param {EventEmitter} badges
+     * @param {DunhammerEvents} events
      * @param {Collection} levelTimestamps 
      * @param {Collection} minuteTimestamps 
      */
-    async xpGain(message, sql, badges, levelTimestamps, minuteTimestamps) {
+    async xpGain(message, sql, events, levelTimestamps, minuteTimestamps) {
         const DBChannel = await sql.getDBChannel(message.channel),
             DBGuildMember = await sql.getDBGuildMember(message.member),
             DBUser = await sql.getDBUser(message.author),
@@ -109,8 +111,8 @@ module.exports = {
         }
     
         // Now cause the actual levelups
-        if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql, badges);
-        if (!DBUser.disabled && newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql);
+        if (DBGuildLevelsystem.enabled && newMemberLevel > DBGuildMember.level) this.serverLevelup(message, DBGuildMember, newMemberLevel, sql, events);
+        if (!DBUser.disabled && newUserLevel > DBUser.level) this.globalLevelup(message, message.author, DBUser, newUserLevel, sql, events);
     },
     /**
      * Levels up a guild member
@@ -118,8 +120,9 @@ module.exports = {
      * @param {MySQL.DBGuildMember} DBGuildMember DBGuildMember object
      * @param {Number} level New level
      * @param {MySQL} sql
+     * @param {DunhammerEvents} events
      */
-    async serverLevelup(message, DBGuildMember, level, sql, badges) {
+    async serverLevelup(message, DBGuildMember, level, sql, events) {
         const
             DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
             levelupChannel = DBGuildLevelsystem.levelupChannel ? await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) : message.channel,
@@ -157,19 +160,16 @@ module.exports = {
                 }]
             });
         }
-
-        // Gain badge
-        const
-            allBadges = await sql.get('badges'),
-            userBadges = (await sql.getDBUser(message.author)).badges;
-
-        badges.emit('gained', message.user, )
-
+    
         // Send message        
         levelupChannel.send({
             content: `${DBGuildLevelsystem.tagMember ? `${message.member}\n` : ""}${levelupMessage}`,
             files: [attachment]
         });
+
+        // Emit event
+        events.emit("levelupServer", sql, message.member);
+
     },
     /**
      * @param {Message} message 
@@ -177,8 +177,10 @@ module.exports = {
      * @param {DBUser} DBUser
      * @param {Number} level
      * @param {MySQL} sql 
+     * @param {DunhammerEvents} events
      */
-    async globalLevelup(message, user, DBUser, level, sql) {
+    async globalLevelup(message, user, DBUser, level, sql, events) {
+        // Get levelsystem from database
         const DBGuildLevelsystem = await sql.getDBGuildLevelsystem(message.member.guild),
             // If levelsystem is disabled, send a DM, if its enabled, check if it has a levelupchannel and send accordingly
             levelupChannel = DBGuildLevelsystem.enabled ?
@@ -186,16 +188,22 @@ module.exports = {
                     await message.client.channels.fetch(DBGuildLevelsystem.levelupChannel) : 
                     message.channel : 
                 await user.createDM();
-                
+
+        // Update user
         await sql.update("users", { coins: DBUser.coins + level * 10 }, `id = ${user.id}`);
+        // Decide channel
         if (levelupChannel.type == "DM" && !DBUser.levelDm) return;
         const attachment = await this.createLevelupImageGlobal(message, level, sql);
 
+        // Send message
         levelupChannel.send({
             content: `Congratulations ${DBUser.levelMentions ? user : user.username}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.
 ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using \`/profile level_mentions:False\`)` : ``}`,
             files: [attachment]
         });
+
+        // Emit event
+        events.emit("levelupGlobal", sql, user);
     },
     /**
      * @param {Message} message 

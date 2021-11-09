@@ -66,28 +66,28 @@ module.exports = {
         else await replyGlobal(interaction, sql, reply);
     },
     // Button functions
-    previous(interaction, sql, _badges, dataString) {
+    previous(interaction, sql, _events, dataString) {
 
         const data = JSON.parse(dataString);
         buttonHandler(interaction, sql, data, data.page - 1);
     },
-    next(interaction, sql, _badges, dataString) {
+    next(interaction, sql, _events, dataString) {
         const data = JSON.parse(dataString);
         //                                              ⬇ fuck javascript, all my homies hate javascript
         buttonHandler(interaction, sql, data, data.page - - 1);
     },
-    first(interaction, sql, _badges, dataString) {
+    first(interaction, sql, _events, dataString) {
         const data = JSON.parse(dataString);
         buttonHandler(interaction, sql, data, 1);        
     },
-    last(interaction, sql, _badges, dataString) {
+    last(interaction, sql, _events, dataString) {
         const data = JSON.parse(dataString);
         buttonHandler(interaction, sql, data, 999999);  // truly the best solution to jumping to the last page
     },
     /**
      * @param {Discord.ButtonInteraction} interaction 
      */
-    custom(interaction, sql, _badges, dataString) {
+    custom(interaction, sql, _events, dataString) {
         if (interaction.client.collectors.includes(interaction.channel.id)) {
             return interaction.reply({
                 content: "Please wait until the previous request has been complete.",
@@ -159,7 +159,7 @@ module.exports = {
      * @param {Discord.SelectMenuInteraction} interaction 
      * @param {MySQL} sql 
      */
-    select(interaction, sql, _badges, dataString) {
+    select(interaction, sql, _events, dataString) {
         const data = JSON.parse(dataString);
         data.type = interaction.values[0];
         buttonHandler(interaction, sql, data);
