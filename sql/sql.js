@@ -314,6 +314,27 @@ class MySQL extends EventEmitter {
         return DBUserGuildsArr;
     }
     /**
+     * Get rank of speicific user on global leaderboard
+     * @param {String} id User id
+     * @param {String} [guild_id] Guild id
+     * @returns {Number}
+     */
+    async getDBRank(id, guild_id) {
+        await this.query(`SET @row_number := 0;`);
+        const DBMemberRank = await this.query(`
+            SELECT w.\`row_number\`
+            FROM (
+                SELECT
+                    (@row_number:=@row_number + 1) AS \`row_number\`,
+                    t.*
+                FROM \`${guild_id ? 'guildusers' : 'users'}\` t ${guild_id ? `WHERE \`guildid\`='${guild_id}' ` : ''}ORDER BY \`xp\` DESC
+            ) w
+            WHERE
+                ${guild_id ? `w.\`userid\`='${id}' AND w.\`guildid\`='${guild_id}'` : `w.\`id\`='${id}'`}
+        `);
+        return DBMemberRank[0]["row_number"];
+    }
+    /**
      * Updates a DBUser with Discord information
      * @param {User} user - DiscordJS user
      * @returns {DBUser} DBUser object
