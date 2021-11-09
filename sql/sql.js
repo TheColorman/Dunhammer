@@ -49,6 +49,20 @@ class MySQL extends EventEmitter {
         });
     }
     /**
+     * Query MySQL directly
+     * @param {String} query MySQL query
+     * @returns {Promise<Object[]>} Array of objects (found rows)
+     */
+    async query(query) {
+        return new Promise((res) => {
+            this.con.query(query, (err, result) => {
+                if (err) throw err;
+                res(result);
+            });
+        });
+    }
+    // TODO: Change queryLogic to object
+    /**
      * Get rows from table.
      * If this doesnt work in the future, it might be because queryLogic isn't escaped.
      * @param {String} table Table name
