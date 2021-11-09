@@ -9,6 +9,12 @@ module.exports = {
     ApplicationCommandData: {
         name: "badges",
         description: "Displays information about badges",
+        options: [{
+            type: "USER",
+            name: "user",
+            description: "User to check badges for.",
+            required: false
+        }],
     },
     /**
      * Command execution
@@ -39,9 +45,12 @@ module.exports = {
 
         interaction.reply({ 
             embeds: [{
-                title: "Badges",
-                description: badgesText,
-            }],
-        })
+                description: `Badges for ${member}`,
+            }]
+        }).then(() => {
+            interaction.channel.send({
+                content: badgesText,
+            });
+        });
     }
 }
