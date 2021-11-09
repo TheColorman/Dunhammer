@@ -146,6 +146,10 @@ class MySQL extends EventEmitter {
      * @property {Number}   profileBadges        - Bitfield value of all badges displayed on profile
      * @property {Number}   backgrounds          - Bitfield value of all unlocked backgrounds
      * @property {Number}   currentBackground    - Current selected background
+     * @property {Number}   spentMoney           - Total spent money in USD
+     * @property {Number}   commandCount         - Total number of commands used
+     * @property {Number}   pingCount            - Total number of pings used
+     * @property {Number}   inviteCount          - Total number of times user has invited Dunhammer
      */
     /**
      * @typedef {Object} DBGuild
@@ -184,15 +188,19 @@ class MySQL extends EventEmitter {
     /**
      * @typedef {Object} DBBadge
      * @property {Number}   id               - Badge ID
+     * @property {Number}   bitId            - Bitfield value of badge
      * @property {String}   idEmoji          - Discord Emoji ID
      * @property {String}   name             - Badge name
      * @property {String}   description      - Badge description
      * @property {Number}   prerequisite     - Badge prerequisite
      */
+    /**
+     * @typedef {DBGuildMember[]} DBUserGuilds
+     */
 
     /**
      * Adds user to database if they don't exist and returns the database entry
-     * @param {Discord.User}  user - DiscordJS user
+     * @param {User}  user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
     async getDBUser(user) {
@@ -212,7 +220,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Adds guild to database if it doesn't exist and returns the database entry
-     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @param {Guild}  guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
     async getDBGuild(guild) {
@@ -228,7 +236,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Adds guild levelsystem to database if it doesn't exist and returns the database entry
-     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @param {Guild}  guild - DiscordJS guild
      * @returns {DBGuildLevelsystem} DBGuild object
      */
     async getDBGuildLevelsystem(guild) {
@@ -251,7 +259,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Adds guild user to database if they don't exist and returns the database entry
-     * @param {Discord.GuildMember}   member  - DiscordJS member
+     * @param {GuildMember}   member  - DiscordJS member
      * @returns {DBGuildMember} DBGuildMember object
      */
     async getDBGuildMember(member) {
@@ -272,7 +280,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Adds a channel to the database if it doesn't exist and returns the database entry
-     * @param {Discord.TextChannel} channel DiscordJS channel
+     * @param {TextChannel} channel DiscordJS channel
      * @returns {DBChannel}
      */
     async getDBChannel(channel) {
@@ -290,7 +298,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Updates a DBUser with Discord information
-     * @param {Discord.User} user - DiscordJS user
+     * @param {User} user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
     async updateDBUser(user) {
@@ -304,7 +312,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Updates a DBGuild with information from Discord
-     * @param {Discord.Guild} guild - DiscordJS guild
+     * @param {Guild} guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
     async updateDBGuild(guild) {
@@ -317,7 +325,7 @@ class MySQL extends EventEmitter {
     }
     /**
      * Updates a DBGuildMember with information from Discord
-     * @param {Discord.GuildMember} member DiscordJS GuildMember
+     * @param {GuildMember} member DiscordJS GuildMember
      * @returns {DBGuildMember|undefined} DBGuildMember object if Discord member is found in database
      */
     async updateDBGuildMember(member) {
