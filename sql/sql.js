@@ -319,7 +319,7 @@ class MySQL extends EventEmitter {
      * @param {String} [guild_id] Guild id
      * @returns {Number}
      */
-    async getDBRank(id, guild_id) {
+    async getGlobalRank(id, guild_id) {
         await this.query(`SET @row_number := 0;`);
         const DBMemberRank = await this.query(`
             SELECT w.\`row_number\`
