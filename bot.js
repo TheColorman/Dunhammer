@@ -646,7 +646,7 @@ client.on('interactionCreate', async interaction => {
     const command = client.commands.get(interactionInfo[1]);
     try {
         // -- Button event listeners. --
-        // 2nd argument is always sql object for database function.
+        // 2nd argument is always sql object for database function, 3rd is always Event object,
         // Further arguments are on a case-by-case basis if
         // further information is needed as a data store.
         await command[interactionInfo[2]](interaction, sql, Events, interactionInfo[3])
