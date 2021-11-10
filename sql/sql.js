@@ -192,7 +192,7 @@ class MySQL extends EventEmitter {
      * @property {String}   idEmoji          - Discord Emoji ID
      * @property {String}   name             - Badge name
      * @property {String}   description      - Badge description
-     * @property {Number}   prerequisite     - Badge prerequisite
+     * @property {Number}   prerequisite     - ID of prerequisite badge, null if no prerequisite required
      */
     /**
      * @typedef {DBGuildMember[]} DBUserGuilds
