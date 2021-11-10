@@ -225,6 +225,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             background = await Canvas.loadImage(`./data/levelupBackgrounds/${DBUser.currentBackground}.png`),
             avatar = await Canvas.loadImage(message.author.displayAvatarURL({ format: "png" })),
             guildIcon = await Canvas.loadImage(message.guild.iconURL({ format: "png" }) || "./data/images/noicon.png"),
+            badges = (await sql.getDBBadges()).filter(badge => badge.bitId & DBUser.currentBadges),
             font = 'Nyata FTR, Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif, Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace, Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif',
             // {    Discord fonts
             //     --font-primary: Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -468,40 +469,58 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
 
         //#endregion
 
-        //#region Badges
+        //#region No badges
         const
-            badges = DBUser.profileBadges,
-            badgesFontSize = 40,
+            badgeCount = badges.length,
+            badgeTextFontSize = 40,
             noBadgesFontSize = 30,
-            noBadgesColor = "#999999",
-            badgesPosition = {
+            noBadgesColor = "#3E3E3E",
+            badgeTextPosition = {
                 x: 20,
                 y: 245
-            },
-            badgeOffset = 80,
-            badgeSize = 70;
+            }
         ctx.textAlign = "left";
         ctx.fillStyle = "white";
-        ctx.font = `${badgesFontSize}px ${font}`;
-        shadowText(
-            `Badges:`,
-            badgesPosition.x, badgesPosition.y,
-            3, 3
-        );
-        if (badges) {
-            ctx.drawImage("coin", badgesPosition.x, badgesPosition.y + 20, badgeSize, badgeSize);
-            ctx.drawImage("coin", badgesPosition.x + badgeOffset, badgesPosition.y + 20, badgeSize, badgeSize);
-            ctx.drawImage("coin", badgesPosition.x + badgeOffset * 2, badgesPosition.y + 20, badgeSize, badgeSize);
-        } else {
+        ctx.font = `${badgeTextFontSize}px ${font}`;
+        if (!badgeCount) {
             ctx.font = `${noBadgesFontSize}px ${font}`;
             ctx.fillStyle = noBadgesColor;
             shadowText(
-                `Get badges\nwith /badges`,
-                badgesPosition.x, badgesPosition.y + 40,
+                `/badges`,
+                badgeTextPosition.x, badgeTextPosition.y,
                 4, 3
             );
         }
 
+        //#endregion
+
+        //#region Badges
+        const badgeSizeOffset = 7;
+        const badgeOffsetX = 75;
+        
+        // Iterate through badges
+        for (let i = 0; i < badges.length; i++) {
+            // Get badge
+            const badge = badges[i];
+            // Get badge image
+            const path = `./data/images/badges/${badge.id}/${badge.id}.png`
+            const badgeImg = await Canvas.loadImage(path);
+            // Set badge size and position
+            const badgeSizeY = badgeImg.height / badgeSizeOffset;
+            const badgeSizeX = badgeImg.width / badgeSizeOffset;
+            const badgePosition = {
+                x: 40 + i * badgeOffsetX,
+                y: 285,
+            };    
+
+            ctx.drawImage(
+                badgeImg,
+                badgePosition.x - badgeSizeX / 2,
+                badgePosition.y - badgeSizeY / 2,
+                badgeSizeX,
+                badgeSizeY
+            );
+        }
         //#endregion
 
         return new MessageAttachment(canvas.toBuffer(), "levelup.png");
@@ -524,6 +543,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             avatar = await Canvas.loadImage(message.author.displayAvatarURL({ format: "png" })),
             dunhammer = await Canvas.loadImage("https://cdn.discordapp.com/avatars/671681661296967680/6ae7fd60617e8bd7388d239b450afad1.png"),
             coin = await Canvas.loadImage("./data/images/DunhammerCoin.png"),
+            badges = (await sql.getDBBadges()).filter(badge => badge.bitId & DBUser.currentBadges),
             font = 'Nyata FTR, Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif, Consolas,"Andale Mono WT","Andale Mono","Lucida Console","Lucida Sans Typewriter","DejaVu Sans Mono","Bitstream Vera Sans Mono","Liberation Mono","Nimbus Mono L",Monaco,"Courier New",Courier,monospace, Whitney,"Apple SD Gothic Neo","NanumBarunGothic","맑은 고딕","Malgun Gothic",Gulim,굴림,Dotum,돋움,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,Hiragino Sans,"ヒラギノ角ゴ ProN W3","Hiragino Kaku Gothic ProN","メイリオ",Meiryo,Osaka,"MS PGothic","Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft YaHei New",微软雅黑,"Microsoft Yahei","Microsoft JhengHei",宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif, Whitney,"Microsoft JhengHei",微軟正黑體,"Microsoft JhengHei UI","Microsoft YaHei",微軟雅黑,宋体,SimSun,"Helvetica Neue",Helvetica,Arial,sans-serif',
             // {    Discord fonts
             //     --font-primary: Whitney,"Helvetica Neue",Helvetica,Arial,sans-serif;
@@ -785,41 +805,60 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
         ctx.drawImage(coin, coinPosition.x + 15, coinPosition.y - coinFontSize + 9, coinFontSize - 5, coinFontSize - 5);
         //#endregion
 
-        //#region Badges
+        //#region No badges
         const
-            badges = 0,
-            badgesFontSize = 40,
+            badgeCount = badges.length,
+            badgeTextFontSize = 40,
             noBadgesFontSize = 30,
-            noBadgesColor = "#999999",
-            badgesPosition = {
+            noBadgesColor = "#3E3E3E",
+            badgeTextPosition = {
                 x: 20,
                 y: 245
-            },
-            badgeOffset = 80,
-            badgeSize = 70;
+            }
         ctx.textAlign = "left";
         ctx.fillStyle = "white";
-        ctx.font = `${badgesFontSize}px ${font}`;
-        shadowText(
-            `Badges:`,
-            badgesPosition.x, badgesPosition.y,
-            3, 3
-        );
-        if (badges) {
-            ctx.drawImage(coin, badgesPosition.x, badgesPosition.y + 20, badgeSize, badgeSize);
-            ctx.drawImage(coin, badgesPosition.x + badgeOffset, badgesPosition.y + 20, badgeSize, badgeSize);
-            ctx.drawImage(coin, badgesPosition.x + badgeOffset * 2, badgesPosition.y + 20, badgeSize, badgeSize);
-        } else {
+        ctx.font = `${badgeTextFontSize}px ${font}`;
+        if (!badgeCount) {
             ctx.font = `${noBadgesFontSize}px ${font}`;
             ctx.fillStyle = noBadgesColor;
             shadowText(
-                `Get badges\nwith /badges`,
-                badgesPosition.x, badgesPosition.y + 40,
+                `/badges`,
+                badgeTextPosition.x, badgeTextPosition.y,
                 4, 3
             );
         }
 
         //#endregion
+
+        //#region Badges
+        const badgeSizeOffset = 7;
+        const badgeOffsetX = 75;
+        
+        // Iterate through badges
+        for (let i = 0; i < badges.length; i++) {
+            // Get badge
+            const badge = badges[i];
+            // Get badge image
+            const path = `./data/images/badges/${badge.id}/${badge.id}.png`
+            const badgeImg = await Canvas.loadImage(path);
+            // Set badge size and position
+            const badgeSizeY = badgeImg.height / badgeSizeOffset;
+            const badgeSizeX = badgeImg.width / badgeSizeOffset;
+            const badgePosition = {
+                x: 40 + i * badgeOffsetX,
+                y: 285,
+            };    
+
+            ctx.drawImage(
+                badgeImg,
+                badgePosition.x - badgeSizeX / 2,
+                badgePosition.y - badgeSizeY / 2,
+                badgeSizeX,
+                badgeSizeY
+            );
+        }
+        //#endregion
+
 
         return new MessageAttachment(canvas.toBuffer(), "levelup.png");
     }

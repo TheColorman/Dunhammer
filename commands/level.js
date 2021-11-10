@@ -49,6 +49,7 @@ async function createImage(interaction, sql) {
                     format: "png"
                 })
         ),
+        badges = (await sql.getDBBadges()).filter(badge => badge.bitId & DBUser.currentBadges),
     //#region Background image
         cornerCropSize = 200,
         bgCropRotationOffset = 30;
@@ -402,5 +403,35 @@ async function createImage(interaction, sql) {
         62 + usernameHeight
     );
     //#endregion
+    
+    //#region Badges
+    const badgeSizeOffset = 7;
+    const badgeOffsetX = 75;
+    
+    // Iterate through badges
+    for (let i = 0; i < badges.length; i++) {
+        // Get badge
+        const badge = badges[i];
+        // Get badge image
+        const path = `./data/images/badges/${badge.id}/${badge.id}.png`
+        const badgeImg = await Canvas.loadImage(path);
+        // Set badge size and position
+        const badgeSizeY = badgeImg.height / badgeSizeOffset;
+        const badgeSizeX = badgeImg.width / badgeSizeOffset;
+        const badgePosition = {
+            x: 40 + i * badgeOffsetX,
+            y: 225,
+        };    
+
+        ctx.drawImage(
+            badgeImg,
+            badgePosition.x - badgeSizeX / 2,
+            badgePosition.y - badgeSizeY / 2,
+            badgeSizeX,
+            badgeSizeY
+        );
+    }
+    //#endregion
+    
     return new Discord.MessageAttachment(canvas.toBuffer(), "profile.png");
 }
