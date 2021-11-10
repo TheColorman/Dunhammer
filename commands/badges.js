@@ -82,9 +82,9 @@ const sendDefault = async (interaction, sql) => {
     interaction.reply({ 
         content: badgesText,
         embeds: [{
-            description: `${interaction.member.user}s badges.\n\`/badges options:info\` | Info\n\`/badges options:set\` | Set displayed badges\n\`/badges options:progress\` | See badge progress`
+            description: `${interaction.member.user}s badges.\n\`/badges options:info\` | Info\n\`/badges options:set\` | Set displayed badges\n\`/badges options:progress\` | See badge progress`,
+            color: 0x7BA043,
         }],
-        color: 0x7BA043,
     });
 }
 /** 
