@@ -143,7 +143,7 @@ class MySQL extends EventEmitter {
      * @property {Number}   level                - User level
      * @property {Number}   coins                - Users coins
      * @property {Number}   badges               - Bitfield value of all unlocked badges
-     * @property {Number}   profileBadges        - Bitfield value of all badges displayed on profile
+     * @property {Number}   currentBadges        - Bitfield value of all badges displayed on profile
      * @property {Number}   backgrounds          - Bitfield value of all unlocked backgrounds
      * @property {Number}   currentBackground    - Current selected background
      * @property {Number}   spentMoney           - Total spent money in USD
