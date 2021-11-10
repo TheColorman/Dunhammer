@@ -450,24 +450,33 @@ const adminCommands = {
                 });
                 const guilds = await client.guilds.fetch();
                 let currentGuild = 0;
-                guilds.forEach(async guildPartial => {
+                const users = [];
+                // Loop through all guilds
+                for (const guildPartial of guilds.values()) {
                     currentGuild++;
                     message.message.edit({
                         content: `Guild ${currentGuild}/${guilds.size}`
                     });
+                    // Fetch members using guild partial
                     const
                         guild = await guildPartial.fetch(),
                         members = await guild.members.fetch();
-                    
-                    members.forEach(async member => {
+
+                    // Loop through all members
+                    for (const member of members.values()) {
+                        const user = member.user;
+                        if (users.indexOf(user) === -1) { users.push(user); }
+
                         Events.emit("levelupServer", sql, member);
                         Events.emit("command", sql, member, null);
-                    });
-                });
-                const users = await client.users.fetch();
-                users.forEach(async user => {
-                    Events.emit("levelupGlobal", sql, user);
-                    Events.emit("payment", sql, user.id, 0);
+                    }
+                }
+                Promise.all(users).then(() => {
+                    // Loop throug all users
+                    for (const user of users.values()) {
+                        Events.emit("levelupGlobal", sql, user);
+                        Events.emit("payment", sql, user.id, 0);
+                    }
                 });
                 message.message.edit({
                     content: `:white_check_mark: Done, updated badges for all members in all ${guilds.size} guilds.`,
