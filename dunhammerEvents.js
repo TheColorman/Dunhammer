@@ -238,7 +238,7 @@ DunhammerEvents.on( //! Requires audit log permissions to work (which are part o
 );
 // TODO: Add verification for issues
 DunhammerEvents.on(
-    "githubIssue",
+    "bugReport",
     async (sql, user, _issue) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(user);
