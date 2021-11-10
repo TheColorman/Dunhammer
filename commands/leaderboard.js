@@ -140,7 +140,7 @@ module.exports = {
                             } catch(e1) {
                                 // god this code is ass
                             } finally {
-                                interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id, 1));
+                                interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
                             }
                         }
                     })
@@ -150,7 +150,7 @@ module.exports = {
                         } catch(e) {
                             // bitch
                         } finally {
-                            interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id, 1));
+                            interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
                         }
                     });
             });
