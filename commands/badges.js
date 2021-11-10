@@ -15,6 +15,16 @@ module.exports = {
             name: "options",
             description: "Badge command options",
             required: false,
+            choices: [{
+                name: "info",
+                value: "info"
+            }, {
+                name: "set",
+                value: "set"
+            }, {
+                name: "progress",
+                value: "progress"
+            }]
         }, {
             type: "USER",
             name: "user",
@@ -33,6 +43,15 @@ module.exports = {
         interaction.member = await member || interaction.member;
 
         switch (option) {
+            case "info": {
+                sendInfo(interaction, sql);
+                break;
+            } case "set": {
+                sendSet(interaction, sql);
+                break;
+            } case "progress": {
+                sendProgress(interaction, sql);
+                break;
             } default: {
                 sendDefault(interaction, sql);
                 break;
@@ -68,15 +87,151 @@ const sendDefault = async (interaction, sql) => {
         color: 0x7BA043,
     });
 }
+/** 
+ * @param {Discord.CommandInteraction} interaction 
+ * @param {MySQL} sql
+ */
+const sendInfo = async (interaction, sql) => {
+    // Fetch DBUser
+    const DBUser = await sql.getDBUser(interaction.member.user);
 
-        interaction.reply({ 
-            embeds: [{
-                description: `Badges for ${member}`,
-            }]
-        }).then(() => {
-            interaction.channel.send({
-                content: badgesText,
-            });
+    // Fetch badges
+    const userBadgesField = DBUser.badges;
+    const allBadges = await sql.getDBBadges();
+    const badgesHas = allBadges.filter(badge => userBadgesField & badge.bitId);
+    const badgesMissing = allBadges
+        .filter(badge => !(userBadgesField & badge.bitId))
+        .filter(badge => badge.prerequisite == null ? true : badgesHas.map(badge => badge.id).includes(badge.prerequisite));
+
+    // Create text
+    // Unlocked badges
+    const unlockedText = badgesHas.map(badge => `\`${badge.id}\`${badge.idEmoji} **${badge.name}** | ${badge.description}`).join("\n");
+    const lockedText = badgesMissing.map(badge => `\`${badge.id}\`${badge.idEmoji} **${badge.name}** | ${badge.description}`).join("\n");
+
+    // Send message
+    interaction.reply({
+        embeds: [{
+            title: "Badge info",
+            description: `You have ${badgesHas.length} badges!\n\n**Unlocked badges:**\n${unlockedText}\n\n**Locked badges:**\n${lockedText}`,
+            footer: {
+                text: 'Note: Once you have unlocked a badge it will stay unlocked forever.'
+            },
+            color: 0x7BA043,
+        }]
+    });
+}
+/** 
+ * @param {Discord.CommandInteraction} interaction 
+ * @param {MySQL} sql
+ */
+const sendSet = async (interaction, sql) => {
+    // Check for running collectors
+    if (interaction.client.collectors.includes(interaction.channel.id)) {
+        return interaction.reply({
+            content: "Please wait until the previous request has been complete.",
+            ephemeral: true
         });
     }
+    // Check for correct user
+    if (interaction.member.id != interaction.user.id) {
+        return interaction.reply({
+            content: "You can't set someone elses badges!",
+            ephemeral: true
+        });
+    }
+    // Create collector
+    const filter = message => message.author.id == interaction.user.id && message.content.split(" ").length <= 3 && message.content.split(" ").every(word => !isNaN(word) && !isNaN(parseInt(word)));
+    interaction.reply({
+        content: `${interaction.member}, please send the badge IDs you want to display (max 3, e.g. \`0 12 5\`)`,
+        fetchReply: true,
+        deffered: true
+    })
+        .then((reply) => {
+            interaction.client.collectors.push(interaction.channel.id);
+            interaction.channel.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
+                .then(async collected => {
+                    const message = collected.first();
+                    // Remove duplicates
+                    const badgeIds = [... new Set(message.content.split(" ").map(id => parseInt(id)))];
+                    // Fetch badges
+                    const DBUser = await sql.getDBUser(interaction.user);
+                    const allBadges = await sql.getDBBadges();
+                    const badges = badgeIds.map(id => allBadges.find(badge => badge.id == id));
+                    // Check for valid badges
+                    const unlockedBadges = badges.filter(badge => badge.bitId & DBUser.badges);
+                    const lockedBadges = badges.filter(badge => !(badge.bitId & DBUser.badges));
+
+                    // Sent text
+                    let sendText = "";
+                    // Set valid badges on profile
+                    if (unlockedBadges.length > 0) {
+                        const unlockedBadgeBitIds = unlockedBadges.map(badge => badge.bitId);
+                        DBUser.currentBadges = unlockedBadgeBitIds.reduce((a, b) => a + b);
+                        await sql.update('users', { currentBadges: DBUser.currentBadges }, `id = ${DBUser.id}`);
+                        sendText += `Set the following badges on your profile:\n${unlockedBadges.map(badge => badge.idEmoji).join(" ")}\n\n`;
+                    }
+                    // Notify of invalid badges
+                    if (lockedBadges.length > 0) {
+                        sendText += `Failed to set the following badges as you haven't unlocked them:\n${lockedBadges.map(badge => badge.idEmoji).join(" ")}\n\n`;
+                    }
+
+                    // Clear collector
+                    interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
+
+                    // Send message
+                    interaction.channel.send({
+                        embeds: [{
+                            description: sendText,
+                            color: 0x7BA043,
+                        }]
+                    });
+                })
+                .catch(async _collected => {
+                    // Delete messages
+                    try { await reply.delete(); } catch (e) { /* Ignore */ }
+                    interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
+                });
+        });
+
+}
+
+/**
+ * @param {Discord.CommandInteraction} interaction 
+ * @param {MySQL} sql 
+ */
+const sendProgress = async (interaction, sql) => {
+    // Fetch DBUser and DBGuildMember
+    const DBUser = await sql.getDBUser(interaction.member.user);
+    const DBGuildMember = await sql.getDBGuildMember(interaction.member);
+
+    // Fetch relevant data
+    const globalRank = await sql.getGlobalRank(DBUser.id);
+    const globalLevel = DBUser.level;
+    const serverLevel = DBGuildMember.level;
+    const level20Servers = (await sql.getDBUserGuilds(interaction.member.user)).filter(DBGuildMember => DBGuildMember.level >= 20).length;
+    const pingCount = DBUser.pingCount;
+    const commandCount = DBUser.commandCount;
+    const spentMoney = DBUser.spentMoney / 100;
+    const serversAdded = DBUser.inviteCount;
+    const bugReports = "Not tracked yet!";
+
+    const sendText = `
+    Global rank: \`#${globalRank}\`
+    Global level: \`${globalLevel}\`
+    Server level: \`${serverLevel}\`
+    Servers with level 20: \`${level20Servers}\`
+    /ping uses: \`${pingCount}\`
+    Command uses: \`${commandCount}\`
+    Spent money: \`$${spentMoney}\`
+    Added to servers: \`${serversAdded}\`
+    Bugs reported: \`${bugReports}\`
+    `;
+
+    interaction.reply({
+        embeds: [{
+            title: "Badge progress",
+            description: sendText,
+            color: 0x7BA043,
+        }]
+    });
 }
