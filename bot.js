@@ -649,7 +649,8 @@ client.on('interactionCreate', async interaction => {
         // 2nd argument is always sql object for database function, 3rd is always Event object,
         // Further arguments are on a case-by-case basis if
         // further information is needed as a data store.
-        await command[interactionInfo[2]](interaction, sql, Events, interactionInfo[3])
+        //! ^ Storing information in the button ID is a terrible idea
+        await command[interactionInfo[2]](interaction, sql, Events, interactionInfo[3]);
     } catch(err) {
         console.error(err);
         try {
