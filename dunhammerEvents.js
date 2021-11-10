@@ -204,15 +204,26 @@ DunhammerEvents.on(
 );
 DunhammerEvents.on( //! Requires audit log permissions to work
     "newGuild",
+DunhammerEvents.on(
+    "ping",
     /**
      * @param {MySQL} sql MySQL instance
-     * @param {GuildMember} [member] Discord GuildMember
+     * @param {GuildMember} member Discord GuildMember
+     * @param {Boolean} button Whether ping was measured from button press
      */
-    async (sql, member) => {
-        if (!member) return;
+    async (sql, member, button) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
         // Update database entry
+        if (button) {
+            DBUser.pingCount++
+            await sql.update('users', { pingCount: DBUser.pingCount }, `id = ${DBUser.id}`);
+        }
+
+        // Add relevant badges - The definition of insanity
+        await processBadges(sql, [12], { DBUser });
+    }
+);
         DBUser.inviteCount++;
         await sql.update('users', { inviteCount: DBUser.inviteCount }, `id = ${DBUser.id}`);
 
