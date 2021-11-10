@@ -682,10 +682,10 @@ client.on("guildCreate", async (guild) => {
     const permissions = guild.me.permissions.has("VIEW_AUDIT_LOG");
     if (!permissions) return;
     const log = await guild.fetchAuditLogs({ type: "BOT_ADD" });
-    const member = log.entries.first().executor;
+    const user = log.entries.first().executor;
 
     // Emit event
-    Events.emit("newGuild", sql, member);
+    Events.emit("newGuild", sql, user);
 });
 
 //#region Update existing database entries
