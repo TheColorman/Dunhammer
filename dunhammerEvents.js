@@ -28,34 +28,28 @@ const unlocked = {
         // Check for money
         return DBUser.spentMoney >= 2000;
     },
-    async "6"({ sql, DBUser }) { // Top 1000 on Global Leaderboard
+    "6"({ rank }) { // Top 1000 on Global Leaderboard
         // Get rank
-        const rank = await getRank(sql, DBUser.id);
         return rank <= 1000;
     },
-    async "7"({ sql, DBUser }) { // Top 100 on Server Leaderboard
+    "7"({ rank }) { // Top 100 on Server Leaderboard
         // Get rank
-        const rank = await getRank(sql, DBUser.id);
         return rank <= 100;
     },
-    async "8"({ sql, DBUser }) { // Top 10 on Server Leaderboard
+    "8"({ rank }) { // Top 10 on Server Leaderboard
         // Get rank
-        const rank = await getRank(sql, DBUser.id);
         return rank <= 10;
     },
-    async "9"({ sql, DBUser }) { // Top 3 on Global Leaderboard
+    "9"({ rank }) { // Top 3 on Global Leaderboard
         // Get rank
-        const rank = await getRank(sql, DBUser.id);
         return rank <= 3;
     },
-    async "10"({ sql, DBUser }) { // Top 2 on Global Leaderboard
+    "10"({ rank }) { // Top 2 on Global Leaderboard
         // Get rank
-        const rank = await getRank(sql, DBUser.id);
         return rank <= 2;
     },
-    async "11"({ sql, DBUser }) { // Top 1 on Global Leaderboard
+    "11"({ rank }) { // Top 1 on Global Leaderboard
         // Get rank
-        const rank = await getRank(sql, DBUser.id);
         return rank <= 1;
     },
     "12"({ DBUser }) { // Use /ping 100 times
@@ -115,21 +109,22 @@ const processBadges = async (sql, relevantIds, properties) => {
 
     // Check if user has any of the relevant badges
     // Add badges if they don't have them and conditions are met
-    const badgesToAdd = badgesRelated.filter(async badge => {
+    const badgesToAdd = badgesRelated.filter(badge => {
         if (DBUser.badges & badge.bitId) return false;
         // Not all unlock conditions require the same properties, so they are all sent.
         // Return true if the condition is met
-        const unlock = await unlocked[badge.id](properties);
-        console.log(unlock, badge.name, DBUser.username);
+        const unlock = unlocked[badge.id](properties);
         return unlock;
     });
-
-    // Add badges
-    if (badgesToAdd.length > 0) {
-        const badgesToAddIds = badgesToAdd.map(badge => badge.bitId);
-        DBUser.badges += badgesToAddIds.reduce((a, b) => a + b);
-        await sql.update('users', { badges: DBUser.badges }, `id = ${DBUser.id}`);
-    }
+    Promise.all(badgesToAdd).then(async () => {
+        
+        // Add badges
+        if (badgesToAdd.length > 0) {
+            const badgesToAddBitIds = badgesToAdd.map(badge => badge.bitId);
+            DBUser.badges += badgesToAddBitIds.reduce((a, b) => a + b);
+            await sql.update('users', { badges: DBUser.badges }, `id = ${DBUser.id}`);
+        }
+    });
 }
 
 DunhammerEvents.on(
@@ -146,7 +141,7 @@ DunhammerEvents.on(
         const DBUserGuilds = await sql.getDBUserGuilds(member.user);
 
         // Add relevant badges - Server grinder, Socialite I, II, III
-        processBadges(sql, [2, 13, 14, 15], { DBUser, DBGuildMember, DBUserGuilds });
+        await processBadges(sql, [2, 13, 14, 15], { DBUser, DBGuildMember, DBUserGuilds });
     }
 );
 DunhammerEvents.on(
@@ -159,9 +154,10 @@ DunhammerEvents.on(
             // Badges
         // Get relevant database entries
         const DBUser = await sql.getDBUser(user);
+        const rank = await getRank(sql, user.id);
 
         // Add relevant badges - Global grinder, Top 1000, 100, 10, 3, 2, 1
-        processBadges(sql, [3, 6, 7, 8, 9, 10, 11], { DBUser, sql });
+        await processBadges(sql, [3, 6, 7, 8, 9, 10, 11], { DBUser, rank });
     }
 );
 DunhammerEvents.on(
@@ -180,7 +176,7 @@ DunhammerEvents.on(
         await sql.update('users', { spentMoney: DBUser.spentMoney }, `id = ${DBUser.id}`);
 
         // Add relevant badges - Supporter, Grand supporter
-        processBadges(sql, [4, 5], { DBUser, sql });
+        await processBadges(sql, [4, 5], { DBUser, sql });
     }
 );
 DunhammerEvents.on(
@@ -199,11 +195,9 @@ DunhammerEvents.on(
         await sql.update('users', { commandCount: DBUser.commandCount, pingCount: DBUser.pingCount }, `id = ${DBUser.id}`);
 
         // Add relevant badges - The definition of insanity, Addict I, II, III
-        processBadges(sql, [12, 16, 17, 18], { DBUser });
+        await processBadges(sql, [12, 16, 17, 18], { DBUser });
     }
 );
-DunhammerEvents.on( //! Requires audit log permissions to work
-    "newGuild",
 DunhammerEvents.on(
     "ping",
     /**
@@ -224,11 +218,22 @@ DunhammerEvents.on(
         await processBadges(sql, [12], { DBUser });
     }
 );
+DunhammerEvents.on( //! Requires audit log permissions to work (which are part of the invite link anyway)
+    "newGuild",
+    /**
+     * @param {MySQL} sql MySQL instance
+     * @param {User} [user] Discord GuildMember
+     */
+    async (sql, user) => {
+        if (!user) return;
+        // Get relevant database entries
+        const DBUser = await sql.getDBUser(user);
+        // Update database entry
         DBUser.inviteCount++;
         await sql.update('users', { inviteCount: DBUser.inviteCount }, `id = ${DBUser.id}`);
 
         // Add relevant badges - Invitational
-        processBadges(sql, [19], { DBUser });
+        await processBadges(sql, [19], { DBUser });
     }
 );
 // TODO: Add verification for issues
@@ -239,7 +244,7 @@ DunhammerEvents.on(
         const DBUser = await sql.getDBUser(user);
 
         // Add relevant badges - Bug hunter
-        processBadges(sql, [20], { DBUser });
+        await processBadges(sql, [20], { DBUser });
     }
 );
 
