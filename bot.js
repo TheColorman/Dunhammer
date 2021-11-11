@@ -1,3 +1,4 @@
+// Setup
 // eslint-disable-next-line no-unused-vars
 const { Client, Intents, Collection, Message } = require('discord.js'),
     { botToken, mysqlPassword } = require('./token.json'),
@@ -5,9 +6,13 @@ const { Client, Intents, Collection, Message } = require('discord.js'),
     { mysql_login: mysqlLogin, admins } = require('./config.json'),
     fs = require('fs'),
     MySQL = require('./sql/sql.js'),
+    DunhammerEvents = require('./dunhammerEvents'),
     levelsystem = require('./levelsystem'),
 
     client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
+
+// Event emitter
+const Events = DunhammerEvents;
 
 // Load commands
 client.commands = new Collection();
@@ -186,6 +191,11 @@ const adminCommands = {
                         label: "Guild members",
                         customId: "admincommands.reloaddatabase.guildmembers",
                         style: "SECONDARY"
+                    }, {
+                        type: "BUTTON",
+                        label: "User badges",
+                        customId: "admincommands.reloaddatabase.userbadges",
+                        style: "SECONDARY",
                     }]
                 }]
             });
@@ -212,6 +222,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild members",
                             customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -243,6 +259,12 @@ const adminCommands = {
                                 customId: "admincommands.reloaddatabase.guildmembers",
                                 style: "SECONDARY",
                                 disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "User badges",
+                                customId: "admincommands.reloaddatabase.userbadges",
+                                style: "SECONDARY",
+                                disabled: true
                             }]
                         }]
                     });
@@ -270,6 +292,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild members",
                             customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -301,6 +329,12 @@ const adminCommands = {
                                 customId: "admincommands.reloaddatabase.guildmembers",
                                 style: "SECONDARY",
                                 disabled: true
+                            }, {
+                                type: "BUTTON",
+                                label: "User badges",
+                                customId: "admincommands.reloaddatabase.userbadges",
+                                style: "SECONDARY",
+                                disabled: true
                             }]
                         }]
                     });
@@ -328,6 +362,12 @@ const adminCommands = {
                             type: "BUTTON",
                             label: "Guild members",
                             customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
                             style: "SECONDARY",
                             disabled: true
                         }]
@@ -365,10 +405,111 @@ const adminCommands = {
                             customId: "admincommands.reloaddatabase.guildmembers",
                             style: "SECONDARY",
                             disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
+                            style: "SECONDARY",
+                            disabled: true
                         }]
                     }]
                 });
                 break;
+            }
+            case "userbadges": {
+                message.update({
+                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                const guilds = await client.guilds.fetch();
+                let currentGuild = 0;
+                const users = [];
+                // Loop through all guilds
+                for (const guildPartial of guilds.values()) {
+                    currentGuild++;
+                    message.message.edit({
+                        content: `Guild ${currentGuild}/${guilds.size}`
+                    });
+                    // Fetch members using guild partial
+                    const
+                        guild = await guildPartial.fetch(),
+                        members = await guild.members.fetch();
+
+                    // Loop through all members
+                    for (const member of members.values()) {
+                        const user = member.user;
+                        if (users.indexOf(user) === -1) { users.push(user); }
+
+                        Events.emit("levelupServer", sql, member);
+                        Events.emit("command", sql, member, null);
+                    }
+                }
+                Promise.all(users).then(() => {
+                    // Loop throug all users
+                    for (const user of users.values()) {
+                        Events.emit("levelupGlobal", sql, user);
+                        Events.emit("payment", sql, user.id, 0);
+                    }
+                });
+                message.message.edit({
+                    content: `:white_check_mark: Done, updated badges for all members in all ${guilds.size} guilds.`,
+                    components: [{
+                        type: "ACTION_ROW",
+                        components: [{
+                            type: "BUTTON",
+                            label: "Guilds",
+                            customId: "admincommands.reloaddatabase.guilds",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild levelsystems",
+                            customId: "admincommands.reloaddatabase.guildlevelsystem",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "Guild members",
+                            customId: "admincommands.reloaddatabase.guildmembers",
+                            style: "SECONDARY",
+                            disabled: true
+                        }, {
+                            type: "BUTTON",
+                            label: "User badges",
+                            customId: "admincommands.reloaddatabase.userbadges",
+                            style: "SECONDARY",
+                            disabled: true
+                        }]
+                    }]
+                });
+                break;            
             }
             default: {
                 message.message.reply({ content: "You find yourself in a mysterious place..." });
@@ -442,7 +583,7 @@ const adminCommands = {
 
 client.on("messageCreate", async message => {
     if (message.author.bot) return;
-    levelsystem.xpGain(message, sql, levelTimestamps, minuteTimestamps);
+    levelsystem.xpGain(message, sql, Events, levelTimestamps, minuteTimestamps);
 
     if (!message.content.startsWith(".")) return;
     const command = message.content.split(" ")[0].substr(1);
@@ -470,14 +611,17 @@ client.on('interactionCreate', async interaction => {
     try {
         await command.execute(
             interaction,
-            sql
+            sql,
+            Events,
         )
+        Events.emit("command", sql, interaction.member, interaction.commandName);
     } catch (err) {
         console.error(err);
         try {
-            await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+            await interaction.reply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
         } catch(e) {    // You may call it "shit code", I call it "*functional code*""
-            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
+            else if (e.name == "Unknown interaction") console.log("Timed out");
             else {
                 console.log("Aight, wtf just happened");
                 console.error(e);
@@ -502,13 +646,23 @@ client.on('interactionCreate', async interaction => {
     const command = client.commands.get(interactionInfo[1]);
     try {
         // -- Button event listeners. --
-        // 2nd argument is always sql object for database function.
+        // 2nd argument is always sql object for database function, 3rd is always Event object,
         // Further arguments are on a case-by-case basis if
         // further information is needed as a data store.
-        await command[interactionInfo[2]](interaction, sql, interactionInfo[3])
+        //! ^ Storing information in the button ID is a terrible idea
+        await command[interactionInfo[2]](interaction, sql, Events, interactionInfo[3]);
     } catch(err) {
         console.error(err);
-        await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+        try {
+            await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+        } catch(e) {
+            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+            else if (e.name == "Unknown interaction") console.log("Timed out");
+            else {
+                console.log("Aight, wtf just happened");
+                console.error(e);
+            }
+        }
     }
     
 });
@@ -521,16 +675,26 @@ setInterval(() => {
 
 // Add new guilds to database
 client.on("guildCreate", async (guild) => {
+    // Add new guild to database
     await sql.getDBGuild(guild);
     await sql.getDBGuildLevelsystem(guild);
+
+    // Find member that invited bot
+    const permissions = guild.me.permissions.has("VIEW_AUDIT_LOG");
+    if (!permissions) return;
+    const log = await guild.fetchAuditLogs({ type: "BOT_ADD" });
+    const user = log.entries.first().executor;
+
+    // Emit event
+    Events.emit("newGuild", sql, user);
 });
 
 //#region Update existing database entries
-client.on("guildUpdate", async (oldGuild, newGuild) => {
+client.on("guildUpdate", async (_oldGuild, newGuild) => {
     await sql.updateDBGuild(newGuild);
 });
 
-client.on("guildMemberUpdate", async (oldMember, newMember) => {
+client.on("guildMemberUpdate", async (_oldMember, newMember) => {
     await sql.updateDBGuildMember(newMember);
     await sql.updateDBUser(newMember.user);
 });

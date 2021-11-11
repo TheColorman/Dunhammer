@@ -49,6 +49,7 @@ async function createImage(interaction, sql) {
                     format: "png"
                 })
         ),
+        badges = (await sql.getDBBadges()).filter(badge => badge.bitId & DBUser.currentBadges),
     //#region Background image
         cornerCropSize = 200,
         bgCropRotationOffset = 30;
@@ -341,10 +342,21 @@ async function createImage(interaction, sql) {
     drawIcon(1, dunhammerAvatar);
     
     const guildIcon = interaction.guild.iconURL({
-            format: "png",
-        }),
-        averageColor = guildIcon ? `#${(await imgDecoder.mean(guildIcon)).map(e => e.toString(16)).join("")}` : "#37393D"
-    drawxpBar(0, xpCurrServ, xpMaxServ, averageColor, serverRank);
+        format: "png",
+    });
+    let color = "#37393D";
+    if (guildIcon) {
+
+        const clrArr = await imgDecoder.mean(guildIcon);
+
+        while ((clrArr[0] + clrArr[1] + clrArr[2])/3 > 75) {
+            clrArr[0] = Math.max(clrArr[0] - 1, 1);
+            clrArr[1] = Math.max(clrArr[1] - 1, 1);
+            clrArr[2] = Math.max(clrArr[2] - 1, 1);
+        }
+        color = "#" + clrArr.map(e => e.toString(16)).join("");
+    }
+    drawxpBar(0, xpCurrServ, xpMaxServ, color, serverRank);
     drawxpBar(1, xpCurrGlob, xpMaxGlob, "#4D662A", globalRank);
 
     drawLevel(0, DBGuildMember.level);
@@ -391,5 +403,39 @@ async function createImage(interaction, sql) {
         62 + usernameHeight
     );
     //#endregion
+    
+    //#region Badges
+    const badgeSizeOffset = 7;
+    const badgeOffsetX = 75;
+    // Offset to center badges
+    let badgeStartOffsetX = 0;
+    if (badges.length === 1) { badgeStartOffsetX = 70; }
+    if (badges.length === 2) { badgeStartOffsetX = 32; }
+    
+    // Iterate through badges
+    for (let i = 0; i < badges.length; i++) {
+        // Get badge
+        const badge = badges[i];
+        // Get badge image
+        const path = `./data/images/badges/${badge.id}/${badge.id}.png`
+        const badgeImg = await Canvas.loadImage(path);
+        // Set badge size and position
+        const badgeSizeY = badgeImg.height / badgeSizeOffset;
+        const badgeSizeX = badgeImg.width / badgeSizeOffset;
+        const badgePosition = {
+            x: 30 + i * badgeOffsetX + badgeStartOffsetX,
+            y: 225,
+        };    
+
+        ctx.drawImage(
+            badgeImg,
+            badgePosition.x - badgeSizeX / 2,
+            badgePosition.y - badgeSizeY / 2,
+            badgeSizeX,
+            badgeSizeY
+        );
+    }
+    //#endregion
+    
     return new Discord.MessageAttachment(canvas.toBuffer(), "profile.png");
 }

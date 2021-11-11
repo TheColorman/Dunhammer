@@ -14,7 +14,8 @@ module.exports = {
      * @param {Discord.CommandInteraction} interaction Interaction object
      * @param {MySQL} sql MySQL custom object
      */
-    async execute(interaction) {
+    async execute(interaction, _sql, Events) {
+        Events.emit("ping", _sql, interaction.member, false);
         interaction.reply({
             embeds: [{
                 "color": 0x2F3136,
@@ -39,7 +40,8 @@ module.exports = {
             });
         });
     },
-    async repeat(interaction) {
+    async repeat(interaction, _sql, Events) {
+        Events.emit("ping", _sql, interaction.member, true);
         interaction.update({
             embeds: [{
                 "color": 0x2F3136,

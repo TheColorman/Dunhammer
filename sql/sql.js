@@ -1,15 +1,17 @@
 // Start and stop MySQL server in run > services.msc > Apache2.4 + MySQL on localhost/phpmyadmin
-
+    
 // eslint-disable-next-line no-unused-vars
-const Disord = require('discord.js');
+const { User, Guild, GuildMember, TextChannel } = require('discord.js');
+const EventEmitter = require('events');
 
-class MySQL {
+class MySQL extends EventEmitter {
     /**
      * Creates a MySQL connection
      * @param {Object} login Login object in format:
      * { host, user, password, database }
      */
     constructor(login) {
+        super();
         const config = login;
         config.charset = 'UTF8MB4_GENERAL_CI';
 
@@ -21,12 +23,14 @@ class MySQL {
         console.log("Connecting to MySQL server...");
         this.con.connect(err => {
             if (err) {
+                this.emit("connectionFailed", err);
                 console.error("Connection failed!");
                 throw err;
             }
             console.log(`Established connection to MySQL server at ${config.host}`);
             this.con.query(`SELECT COUNT(*) FROM \`guilds\``, (error, result) => {
                 if (error) throw error;
+                this.emit("connectionEstablished", result[0]["COUNT(*)"]);
                 console.log(`Number of guilds in database: ${result[0]["COUNT(*)"]}.`);
             });
         });
@@ -35,21 +39,37 @@ class MySQL {
 
         this.con.on('error', (err) => {
             if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+                this.emit("connectionLost");
                 console.warn("Lost connection to MySQL Database, attempting reconnect");
                 this.connect(config);
             } else {
+                this.emit("connectionError", err);
                 throw err;
             }
         });
     }
     /**
+     * Query MySQL directly
+     * @param {String} query MySQL query
+     * @returns {Promise<Object[]>} Array of objects (found rows)
+     */
+    async query(query) {
+        return new Promise((res) => {
+            this.con.query(query, (err, result) => {
+                if (err) throw err;
+                res(result);
+            });
+        });
+    }
+    // TODO: Change queryLogic to object
+    /**
      * Get rows from table.
      * If this doesnt work in the future, it might be because queryLogic isn't escaped.
      * @param {String} table Table name
-     * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
-     * @param {String} sortLogic Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
-     * @param {Number} limit Max number of results
-     * @returns {Promise<Array<import("../bot").DBGuildMember>>} Array of objects (found rows)
+     * @param {String} [queryLogic] Selector logic, e.g. "id = 12345678"
+     * @param {String} [sortLogic] Ordering logic, e.g. "column_name". Optionally add "DESC" to change order, e.g. "column_name DESC"
+     * @param {Number} [limit] Max number of results
+     * @returns {Promise<Object[]>} Array of objects (found rows)
      */
     async get(table, queryLogic, sortLogic, limit) {
         return new Promise((res) => {
@@ -123,9 +143,13 @@ class MySQL {
      * @property {Number}   level                - User level
      * @property {Number}   coins                - Users coins
      * @property {Number}   badges               - Bitfield value of all unlocked badges
-     * @property {Number}   profileBadges        - Bitfield value of all badges displayed on profile
+     * @property {Number}   currentBadges        - Bitfield value of all badges displayed on profile
      * @property {Number}   backgrounds          - Bitfield value of all unlocked backgrounds
      * @property {Number}   currentBackground    - Current selected background
+     * @property {Number}   spentMoney           - Total spent money in USD
+     * @property {Number}   commandCount         - Total number of commands used
+     * @property {Number}   pingCount            - Total number of pings used
+     * @property {Number}   inviteCount          - Total number of times user has invited Dunhammer
      */
     /**
      * @typedef {Object} DBGuild
@@ -161,10 +185,22 @@ class MySQL {
      * @property {Number}   streakTimestamp      - Date when streak was last updated in millisecond format
      * @property {String}   lastMessageMember    - ID of last user to send a message in channel
      */
+    /**
+     * @typedef {Object} DBBadge
+     * @property {Number}   id               - Badge ID
+     * @property {Number}   bitId            - Bitfield value of badge
+     * @property {String}   idEmoji          - Discord Emoji ID
+     * @property {String}   name             - Badge name
+     * @property {String}   description      - Badge description
+     * @property {Number}   prerequisite     - ID of prerequisite badge, null if no prerequisite required
+     */
+    /**
+     * @typedef {DBGuildMember[]} DBUserGuilds
+     */
 
     /**
      * Adds user to database if they don't exist and returns the database entry
-     * @param {Discord.User}  user - DiscordJS user
+     * @param {User}  user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
     async getDBUser(user) {
@@ -184,7 +220,7 @@ class MySQL {
     }
     /**
      * Adds guild to database if it doesn't exist and returns the database entry
-     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @param {Guild}  guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
     async getDBGuild(guild) {
@@ -200,7 +236,7 @@ class MySQL {
     }
     /**
      * Adds guild levelsystem to database if it doesn't exist and returns the database entry
-     * @param {Discord.Guild}  guild - DiscordJS guild
+     * @param {Guild}  guild - DiscordJS guild
      * @returns {DBGuildLevelsystem} DBGuild object
      */
     async getDBGuildLevelsystem(guild) {
@@ -223,7 +259,7 @@ class MySQL {
     }
     /**
      * Adds guild user to database if they don't exist and returns the database entry
-     * @param {Discord.GuildMember}   member  - DiscordJS member
+     * @param {GuildMember}   member  - DiscordJS member
      * @returns {DBGuildMember} DBGuildMember object
      */
     async getDBGuildMember(member) {
@@ -244,7 +280,7 @@ class MySQL {
     }
     /**
      * Adds a channel to the database if it doesn't exist and returns the database entry
-     * @param {Discord.TextChannel} channel DiscordJS channel
+     * @param {TextChannel} channel DiscordJS channel
      * @returns {DBChannel}
      */
     async getDBChannel(channel) {
@@ -261,8 +297,46 @@ class MySQL {
         return DBChannelArr[0];
     }
     /**
+     * Returns list of all badges in database
+     * @returns {DBBadge[]}
+     */
+    async getDBBadges() {
+        const DBBadgeArr = await this.get("badges");
+        return DBBadgeArr;
+    }
+    /**
+     * Returns list of GuildMembers with user ID
+     * @param {User} user 
+     * @returns {DBGuildMember[]}
+     */
+    async getDBUserGuilds(user) {
+        const DBUserGuildsArr = await this.get("guildusers", `userid = ${user.id}`);
+        return DBUserGuildsArr;
+    }
+    /**
+     * Get rank of speicific user on global leaderboard
+     * @param {String} id User id
+     * @param {String} [guild_id] Guild id
+     * @returns {Number}
+     */
+    async getGlobalRank(id, guild_id) {
+        await this.query(`SET @row_number := 0;`);
+        const DBMemberRank = await this.query(`
+            SELECT w.\`row_number\`
+            FROM (
+                SELECT
+                    (@row_number:=@row_number + 1) AS \`row_number\`,
+                    t.*
+                FROM \`${guild_id ? 'guildusers' : 'users'}\` t ${guild_id ? `WHERE \`guildid\`='${guild_id}' ` : ''}ORDER BY \`xp\` DESC
+            ) w
+            WHERE
+                ${guild_id ? `w.\`userid\`='${id}' AND w.\`guildid\`='${guild_id}'` : `w.\`id\`='${id}'`}
+        `);
+        return DBMemberRank[0]["row_number"];
+    }
+    /**
      * Updates a DBUser with Discord information
-     * @param {Discord.User} user - DiscordJS user
+     * @param {User} user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
     async updateDBUser(user) {
@@ -276,7 +350,7 @@ class MySQL {
     }
     /**
      * Updates a DBGuild with information from Discord
-     * @param {Discord.Guild} guild - DiscordJS guild
+     * @param {Guild} guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
     async updateDBGuild(guild) {
@@ -289,7 +363,7 @@ class MySQL {
     }
     /**
      * Updates a DBGuildMember with information from Discord
-     * @param {Discord.GuildMember} member DiscordJS GuildMember
+     * @param {GuildMember} member DiscordJS GuildMember
      * @returns {DBGuildMember|undefined} DBGuildMember object if Discord member is found in database
      */
     async updateDBGuildMember(member) {

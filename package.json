@@ -16,8 +16,10 @@
     "discord-api-types": "^0.22.0",
     "discord.js": "^13.1.0",
     "express": "^4.17.1",
+    "github-api": "^3.4.0",
     "mysql": "^2.18.1",
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "stripe": "^8.184.0"
   },
   "devDependencies": {
     "eslint": "^7.32.0"

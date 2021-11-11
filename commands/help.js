@@ -47,7 +47,7 @@ module.exports = {
     },
     helpPages: [
         `Welcome to Dunhammer!
-(invite Dunhammer [here](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=1812327488&scope=bot%20applications.commands))
+(invite Dunhammer [here](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=378091728064&scope=bot%20applications.commands))
 **Go to the next page for a list of commands**
 All Dunhammer commands are performed using Slash Commands (type / to see them).
 For easier setup, more features and profile settings, go to the website: https://dunhammer.colorman.me
@@ -294,7 +294,7 @@ Badges are a form of achievements, and they can be gained in numerous ways.`
     first(interaction) {
         interaction.update(this.createGeneral());
     },
-    previous(interaction, _sql, page) {
+    previous(interaction, _sql, _events, page) {
         interaction.update(this.createGeneral(page));
     },
     custom(interaction) {   // This code is mostly copied from /leaderboard
@@ -344,7 +344,7 @@ Badges are a form of achievements, and they can be gained in numerous ways.`
                     });
             });
     },
-    next(interaction, _sql, page) {
+    next(interaction, _sql, _events, page) {
         interaction.update(this.createGeneral(page));
     },
     last(interaction) {

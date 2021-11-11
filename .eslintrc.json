@@ -21,7 +21,6 @@
         "prefer-const": "error",
         "no-unused-vars": ["error", { "argsIgnorePattern": "^_", "varsIgnorePattern": "^_" }],
         "operator-assignment": "error",
-        "one-var": ["error", "consecutive"],
         "no-unreachable": "warn"
     }
 }
