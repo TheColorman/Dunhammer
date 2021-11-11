@@ -178,9 +178,13 @@ const sendSet = async (interaction, sql) => {
 
                     // Clear collector
                     interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
+                    // Edit message
+                    try {
+                        await reply.edit({ content: `~~${interaction.member}, please send a message with the badge IDs you want to display (max 3, e.g. \`0 12 5\`)~~` });
+                    } catch (e) { /* Ignore */ }
 
                     // Send message
-                    interaction.channel.send({
+                    message.reply({
                         embeds: [{
                             description: sendText,
                             color: 0x7BA043,
