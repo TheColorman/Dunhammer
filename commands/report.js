@@ -91,7 +91,6 @@ module.exports = {
             body: `${reportMessage}`,
             labels: ['discord report']
         }).then(response => {
-            console.log(response);
             if (response.status !== 201) {
                 return interaction.update({
                     embeds: [{
