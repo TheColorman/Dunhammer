@@ -190,6 +190,7 @@ class MySQL extends EventEmitter {
      * @property {Number}   id               - Badge ID
      * @property {Number}   bitId            - Bitfield value of badge
      * @property {String}   idEmoji          - Discord Emoji ID
+     * @property {String}   idGreyEmoji      - Discord Emoji ID for grey version
      * @property {String}   name             - Badge name
      * @property {String}   description      - Badge description
      * @property {Number}   prerequisite     - ID of prerequisite badge, null if no prerequisite required
