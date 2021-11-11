@@ -107,7 +107,7 @@ const sendInfo = async (interaction, sql) => {
     // Create text
     // Unlocked badges
     const unlockedText = badgesHas.map(badge => `\`${badge.id}\`${badge.idEmoji} **${badge.name}** | ${badge.description}`).join("\n");
-    const lockedText = badgesMissing.map(badge => `\`${badge.id}\`${badge.idEmoji} **${badge.name}** | ${badge.description}`).join("\n");
+    const lockedText = badgesMissing.map(badge => `\`${badge.id}\`${badge.idGreyEmoji} **${badge.name}** | ${badge.description}`).join("\n");
 
     // Send message
     interaction.reply({
@@ -173,7 +173,7 @@ const sendSet = async (interaction, sql) => {
                     }
                     // Notify of invalid badges
                     if (lockedBadges.length > 0) {
-                        sendText += `Failed to set the following badges as you haven't unlocked them:\n${lockedBadges.map(badge => badge.idEmoji).join(" ")}\n\n`;
+                        sendText += `Failed to set the following badges as you haven't unlocked them:\n${lockedBadges.map(badge => badge.idGreyEmoji).join(" ")}\n\n`;
                     }
 
                     // Clear collector
