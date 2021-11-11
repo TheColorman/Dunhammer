@@ -113,7 +113,7 @@ const sendInfo = async (interaction, sql) => {
     interaction.reply({
         embeds: [{
             title: "Badge info",
-            description: `You have ${badgesHas.length} badges!\n\n**Unlocked badges:**\n${unlockedText}\n\n**Locked badges:**\n${lockedText}`,
+            description: `${differentUser ? `${interaction.member} has` : `You have`} ${badgesHas.length} badges!\n\n**Unlocked badges:**\n${unlockedText}\n\n**Locked badges:**\n${lockedText}`,
             footer: {
                 text: 'Note: Once you have unlocked a badge it will stay unlocked forever.'
             },
@@ -218,7 +218,7 @@ const sendProgress = async (interaction, sql) => {
     const commandCount = DBUser.commandCount;
     const spentMoney = DBUser.spentMoney / 100;
     const serversAdded = DBUser.inviteCount;
-    const bugReports = "Not tracked yet!";
+    const bugReports = "Bug reports are currently not tracked.";
 
     const sendText = `
     Global rank: \`#${globalRank}\`
