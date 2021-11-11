@@ -143,7 +143,7 @@ const sendSet = async (interaction, sql) => {
     // Create collector
     const filter = message => message.author.id == interaction.user.id && message.content.split(" ").length <= 3 && message.content.split(" ").every(word => !isNaN(word) && !isNaN(parseInt(word)));
     interaction.reply({
-        content: `${interaction.member}, please send the badge IDs you want to display (max 3, e.g. \`0 12 5\`)`,
+        content: `${interaction.member}, please send a message with the badge IDs you want to display (max 3, e.g. \`0 12 5\`)`,
         fetchReply: true,
         deffered: true
     })
