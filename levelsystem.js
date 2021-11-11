@@ -195,12 +195,27 @@ module.exports = {
         if (levelupChannel.type == "DM" && !DBUser.levelDm) return;
         const attachment = await this.createLevelupImageGlobal(message, level, sql);
 
-        // Send message
-        levelupChannel.send({
-            content: `Congratulations ${DBUser.levelMentions ? user : user.username}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.
+        if (DBUser.currentBackground == 0 && Math.random() < 0.2) {
+            levelupChannel.send({
+                content: `Congratulations ${DBUser.levelMentions ? user : user.username}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.
 ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using \`/profile level_mentions:False\`)` : ``}`,
-            files: [attachment]
-        });
+                files: [attachment],
+                embeds: [{
+                    author: {
+                        name: "Hint: Click here to change your background on the Dunhammer website.",
+                        url: "https://dunhammer.colorman.me/buy"
+                    }
+                }],
+                title: "",
+                description: ""
+            });
+        } else {
+            levelupChannel.send({
+                content: `Congratulations ${DBUser.levelMentions ? user : user.username}! You reached level ${level} on the Global Dunhammer Leaderboard and gained ${level * 10} <:DunhammerCoin:878740195078463519>.
+${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using \`/profile level_mentions:False\`)` : ``}`,
+                files: [attachment],
+            });
+        }
 
         // Emit event
         events.emit("levelupGlobal", sql, user);
