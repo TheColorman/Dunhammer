@@ -157,7 +157,7 @@ const sendSet = async (interaction, sql) => {
                     // Fetch badges
                     const DBUser = await sql.getDBUser(interaction.user);
                     const allBadges = await sql.getDBBadges();
-                    const badges = badgeIds.map(id => allBadges.find(badge => badge.id == id));
+                    const badges = allBadges.filter(badge => badgeIds.includes(badge.id));
                     // Check for valid badges
                     const unlockedBadges = badges.filter(badge => badge.bitId & DBUser.badges);
                     const lockedBadges = badges.filter(badge => !(badge.bitId & DBUser.badges));
