@@ -24,10 +24,26 @@ module.exports = {
      * @param {MySQL} sql MySQL custom object
      */
     async execute(interaction, sql) {
-        const attachment = await createImage(interaction, sql);
-        interaction.reply({
-            files: [attachment],
-        });
+        const
+            attachment = await createImage(interaction, sql),
+            DBUser = await sql.getDBUser(interaction.user);
+        if (DBUser.currentBackground == 0 && Math.random() < 0.2) {
+            interaction.reply({
+                files: [attachment],
+                embeds: [{
+                    author: {
+                        name: "Hint: Click here to change your background on the Dunhammer website.",
+                        url: "https://dunhammer.colorman.me/buy"
+                    }
+                }],
+                title: "",
+                description: ""
+            });
+        } else {
+            interaction.reply({
+                files: [attachment],
+            });
+        }
     },
 };
 
