@@ -178,8 +178,6 @@ app.get('/buy', catchAsync(async (req, res) => {
                 'authorization': `Bearer ${req.signedCookies.access_token}`
             }
         })).json();
-    console.log(req.signedCookies);
-    console.log(apiUser);
     if (!apiUser.id) return res.send(`<h3>Something went wrong :(</h3>`);
     const DBUser = await sql.getDBUser({
             id: apiUser.id,
@@ -188,7 +186,9 @@ app.get('/buy', catchAsync(async (req, res) => {
         }),
         coins = DBUser.coins,
         purchased = DBUser.backgrounds & 1,
-        purchased2 = DBUser.backgrounds & 16;
+        purchased2 = DBUser.backgrounds & 16,
+        purchased3 = DBUser.backgrounds & 32,
+        purchased4 = DBUser.backgrounds & 64;
 
     if (req.query.background) {
         const background = req.query.background;
@@ -200,7 +200,7 @@ app.get('/buy', catchAsync(async (req, res) => {
                 backgrounds: DBUser.backgrounds - - background
             }, `id = ${apiUser.id}`);
             return res.send(`<h2>Bought background "Player". Go <a href="/buy">here</a> to select it.</h2>`)
-        } else {
+        } else if (background == 16) {
             if (coins < 2000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 2000 to buy this background!</h3>`);
             await sql.update(`users`, {
                 coins: coins - 2000,
@@ -208,17 +208,36 @@ app.get('/buy', catchAsync(async (req, res) => {
             }, `id = ${apiUser.id}`);
             return res.send(`<h2>Bought background "Linus". Go <a href="/buy">here</a> to select it.</h2>`)
 
+        } else if (background == 32) {
+            if (coins < 2000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 2000 to buy this background!</h3>`);
+            await sql.update(`users`, {
+                coins: coins - 2000,
+                backgrounds: DBUser.backgrounds - - background
+            }, `id = ${apiUser.id}`);
+            return res.send(`<h2>Bought background "Violet". Go <a href="/buy">here</a> to select it.</h2>`)
+
+        } else if (background == 64) {
+            if (coins < 2000) return res.send(`<h3>You only have ${coins} Coins, but you need at least 3000 to buy this background!</h3>`);
+            await sql.update(`users`, {
+                coins: coins - 3000,
+                backgrounds: DBUser.backgrounds - - background
+            }, `id = ${apiUser.id}`);
+            return res.send(`<h2>Bought background "Approaching". Go <a href="/buy">here</a> to select it.</h2>`)
         }
     }    
 
     return res.send(
-        `<h2>Coins: ${coins}</h2> <br>
+        `<h2>Coins: ${coins}</h2> <a href="/buy-coins">Buy coins</a> <br> <a href="/">Home</a> <br>
 <h2>Your backgrounds:</h2> <br>
 <img src="images/0.png" width="300"> <br> <p>Deep Black  <a href="/select?background=0">Select</a></p>
 <br>${purchased ? `<img src="images/1.png" width="300"> <br> <p>Player  <a href="/select?background=1">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
 <br><img src="images/1.png" width="300"> <br> <p>Player  <a href="/buy?background=1">Purchase</a> for 1000 Coins</p>`}
-<br>${purchased2 ? `<img src="images/16.png" width="300"> <br> <p>Player  <a href="/select?background=16">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
-<br><img src="images/16.png" width="300"> <br> <p>Linus  <a href="/buy?background=16">Purchase</a> for 2000 Coins</p>`}`
+<br>${purchased2 ? `<img src="images/16.png" width="300"> <br> <p>Linus  <a href="/select?background=16">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
+<br><img src="images/16.png" width="300"> <br> <p>Linus  <a href="/buy?background=16">Purchase</a> for 2000 Coins</p>`}
+<br>${purchased3 ? `<img src="images/32.png" width="300"> <br> <p>Violet  <a href="/select?background=32">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
+<br><img src="images/32.png" width="300"> <br> <p>Violet  <a href="/buy?background=32">Purchase</a> for 2000 Coins</p>`}
+<br>${purchased4 ? `<img src="images/64.png" width="300"> <br> <p>Approaching  <a href="/select?background=64">Select</a></p>` : `<h2>Purchase backgrounds:</h2>
+<br><img src="images/64.png" width="300"> <br> <p>Approaching  <a href="/buy?background=64">Purchase</a> for 3000 Coins</p>`}`
     );
 }));
 
@@ -244,11 +263,145 @@ app.get('/select', catchAsync(async (req, res) => {
     const names = {
             0: "Deep Black",
             1: "Player",
-            16: "Linus"
+            16: "Linus",
+            32: "Violet",
+            64: "Approaching"
         },
         bgname = names[background];
     return res.send(`<h2>Background ${bgname} selected.</h2>`)
 }));
+
+const StripeKey =
+        "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", // dont fucking change this i cant get it back
+    stripe = require("stripe")(StripeKey);
+
+app.get(
+    "/buy-coins",
+    catchAsync(async (req, res) => {
+        if (!req.signedCookies.access_token)
+            return res.send(
+                `<h3>Please <a href="/api/discord/login">log in</a> and try again.</h3>`
+            );
+        if (!req.query.amount) {
+            return res.send(`
+            <a href="/buy-coins?amount=500">500 coins - 10 DKK</a>
+        `);
+        }
+
+        return res.send(`
+    <script>
+        fetch('https://dunhammer.colorman.me/checkout', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ hello: "world" }),
+        }).then(async response => {
+            const json = await response.json();
+            window.location.href = json.url;
+        });
+    </script>
+    `);
+    })
+);
+
+app.post(
+    "/checkout",
+    catchAsync(async (req, res) => {
+        if (!req.signedCookies.access_token)
+            return res.send(
+                `<h3>Please <a href="/api/discord/login">log in</a> and try again.</h3>`
+            );
+
+        const session = await stripe.checkout.sessions.create({
+            mode: "payment",
+            payment_method_types: ["card"],
+            line_items: [
+                {
+                    price: "price_1Jq5G1DIIUixlAyCqAZx0nLE",
+                    quantity: 1,
+                },
+            ],
+            success_url:
+                "https://dunhammer.colorman.me/success?session_id={CHECKOUT_SESSION_ID}",
+            cancel_url: "https://dunhammer.colorman.me/buy",
+        });
+
+        res.send(session);
+    })
+);
+
+app.get(
+    "/success",
+    catchAsync(async (req, res) => {
+        if (!req.query.session_id) return res.send(`<script> window.location.href="/buy"</script>`);
+        if (!req.signedCookies.access_token) return res.send(`Something went wrong and you've been logged out before I could send you the coins! Please copy the website URL and <a href="/api/discord/login">log in</a>. Then go back to this URL to receive your coins. (contact me if it still doesnt work).`);
+
+        const DBStripeEvent = (await sql.get(`stripe_events`, `id = "${req.query.session_id}"`))[0];
+        if (DBStripeEvent.processed) return res.send(`This transaction ID has already received their coins!<br><a href="/buy">Home</a>`);
+
+        const
+            apiUser = await (
+                await fetch(`https://discord.com/api/users/@me`, {
+                    headers: {
+                        authorization: `Bearer ${req.signedCookies.access_token}`,
+                    }
+                })
+            ).json(),
+            DBUser = await sql.getDBUser({
+                id: apiUser.id,
+                username: apiUser.username,
+                tag: `${apiUser.username}#${apiUser.discriminator}`,
+            });
+        
+        await sql.update(`users`, { coins: parseInt(DBUser.coins) + 500 }, `id = ${apiUser.id}`);
+        await sql.update(`stripe_events`, { processed: true }, `id = "${req.query.session_id}"`);
+
+        console.log(`User with ID "${apiUser.id}"" and username "${apiUser.username}#${apiUser.discriminator}" just spent 10 DKK in the shop.`);
+
+        return res.send(`
+    Thank you for your purchase. <br>
+    <a href="/buy">Home</a>
+    `);
+    })
+);
+
+const endpointSecret = 'whsec_LR4YSGpegBJplvr1X4Hoge31miTueY1y';
+app.post(
+    '/stripe-webhook',
+    express.raw({type: 'application/json'}),
+    catchAsync(async (req, res) => {
+        const sig = req.headers['stripe-signature'];
+
+        let event;
+
+        try {
+            event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
+        }
+        catch (err) {
+            console.log(err);
+            res.status(400).send(`Webhook Error: ${err.message}`);
+            return;
+        }
+
+        res.json({ received: true });
+
+        switch (event.type) {
+            case "checkout.session.completed": {
+                const
+                    session = event.data.object,
+                    DBStripeEvent = await sql.get(`stripe_events`, `id = "${session.id}"`);
+                if (!DBStripeEvent.length) {
+                    await sql.insert(`stripe_events`, { id: session.id });
+                }
+                break;
+            }
+            default: {
+                console.log(`Unhandled event type ${event.type}`);
+            }
+        }
+    })
+);
 
 
 app.listen(8081, () => {
