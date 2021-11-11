@@ -94,6 +94,7 @@ const sendDefault = async (interaction, sql) => {
 const sendInfo = async (interaction, sql) => {
     // Fetch DBUser
     const DBUser = await sql.getDBUser(interaction.member.user);
+    const differentUser = interaction.member.id !== interaction.user.id;
 
     // Fetch badges
     const userBadgesField = DBUser.badges;
