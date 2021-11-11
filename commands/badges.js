@@ -149,7 +149,7 @@ const sendSet = async (interaction, sql) => {
     })
         .then((reply) => {
             interaction.client.collectors.push(interaction.channel.id);
-            interaction.channel.awaitMessages({ filter, max: 1, time: 15000, errors: ['time'] })
+            interaction.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
                 .then(async collected => {
                     const message = collected.first();
                     // Remove duplicates
