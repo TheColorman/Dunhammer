@@ -407,6 +407,10 @@ async function createImage(interaction, sql) {
     //#region Badges
     const badgeSizeOffset = 7;
     const badgeOffsetX = 75;
+    // Offset to center badges
+    let badgeStartOffsetX = 0;
+    if (badges.length === 1) { badgeStartOffsetX = 70; }
+    if (badges.length === 2) { badgeStartOffsetX = 32; }
     
     // Iterate through badges
     for (let i = 0; i < badges.length; i++) {
@@ -419,7 +423,7 @@ async function createImage(interaction, sql) {
         const badgeSizeY = badgeImg.height / badgeSizeOffset;
         const badgeSizeX = badgeImg.width / badgeSizeOffset;
         const badgePosition = {
-            x: 40 + i * badgeOffsetX,
+            x: 30 + i * badgeOffsetX + badgeStartOffsetX,
             y: 225,
         };    
 

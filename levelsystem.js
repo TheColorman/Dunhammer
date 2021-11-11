@@ -498,6 +498,12 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
         const badgeSizeOffset = 7;
         const badgeOffsetX = 75;
         
+        // Offset to center badges
+        let badgeStartOffsetX = 0;
+        if (badges.length === 1) { badgeStartOffsetX = 70; }
+        if (badges.length === 2) { badgeStartOffsetX = 32; }
+
+        
         // Iterate through badges
         for (let i = 0; i < badges.length; i++) {
             // Get badge
@@ -509,7 +515,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             const badgeSizeY = badgeImg.height / badgeSizeOffset;
             const badgeSizeX = badgeImg.width / badgeSizeOffset;
             const badgePosition = {
-                x: 40 + i * badgeOffsetX,
+                x: 40 + i * badgeOffsetX + badgeStartOffsetX,
                 y: 285,
             };    
 
@@ -834,6 +840,12 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
         const badgeSizeOffset = 7;
         const badgeOffsetX = 75;
         
+        // Offset to center badges
+        let badgeStartOffsetX = 0;
+        if (badges.length === 1) { badgeStartOffsetX = 70; }
+        if (badges.length === 2) { badgeStartOffsetX = 32; }
+
+        
         // Iterate through badges
         for (let i = 0; i < badges.length; i++) {
             // Get badge
@@ -845,7 +857,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
             const badgeSizeY = badgeImg.height / badgeSizeOffset;
             const badgeSizeX = badgeImg.width / badgeSizeOffset;
             const badgePosition = {
-                x: 40 + i * badgeOffsetX,
+                x: 40 + i * badgeOffsetX + badgeStartOffsetX,
                 y: 285,
             };    
 
