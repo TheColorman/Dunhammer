@@ -63,6 +63,18 @@ module.exports = {
      * @param {MySQL} sql 
      */
     async confirm(interaction, sql, Events) {
+        // Block if the user didn't start the command
+        if (interaction.message.interaction.user.id !== interaction.user.id) {
+            return interaction.reply({
+                embeds: [{
+                    title: "Error",
+                    description: `You can't submit a bug report if you didn't start it!`,
+                    color: 0xF14B46,
+                }],
+                ephemeral: true,
+            });
+        }
+
         // Get message
         const reportMessage = interaction.message.embeds[0].fields[0].value.slice(3, -3);
 
@@ -148,6 +160,18 @@ module.exports = {
      * @param {MySQL} sql 
      */
     async cancel(interaction, _sql, _Events) {
+        // Block if the user didn't start the command
+        if (interaction.message.interaction.user.id !== interaction.user.id) {
+            return interaction.reply({
+                embeds: [{
+                    title: "Error",
+                    description: `You can't cancel a bug report if you didn't start it!`,
+                    color: 0xF14B46,
+                }],
+                ephemeral: true,
+            });
+        }
+        
         // Update message
         interaction.update({
             embeds: [{
