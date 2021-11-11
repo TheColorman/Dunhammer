@@ -160,6 +160,7 @@ DunhammerEvents.on(
         await processBadges(sql, [3, 6, 7, 8, 9, 10, 11], { DBUser, rank });
     }
 );
+// TODO: Automatically delete rows from `stripe_events` older than 7 days
 DunhammerEvents.on(
     "payment",
     /**
