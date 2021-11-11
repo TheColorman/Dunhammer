@@ -614,7 +614,7 @@ client.on('interactionCreate', async interaction => {
             sql,
             Events,
         )
-        Events.emit("command", sql, interaction.member, interaction.commandName);
+        Events.emit("command", sql, interaction.member, interaction.commandName, interaction.channel);
     } catch (err) {
         console.error(err);
         try {

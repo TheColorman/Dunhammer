@@ -168,7 +168,7 @@ module.exports = {
         });
 
         // Emit event
-        events.emit("levelupServer", sql, message.member);
+        events.emit("levelupServer", sql, message.member, levelupChannel);
 
     },
     /**
@@ -218,7 +218,7 @@ ${DBUser.levelMentions && level < 5 ? `(**Hint:** you can disable mentions using
         }
 
         // Emit event
-        events.emit("levelupGlobal", sql, user);
+        events.emit("levelupGlobal", sql, user, levelupChannel);
     },
     /**
      * @param {Message} message 

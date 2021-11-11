@@ -15,7 +15,7 @@ module.exports = {
      * @param {MySQL} sql MySQL custom object
      */
     async execute(interaction, _sql, Events) {
-        Events.emit("ping", _sql, interaction.member, false);
+        Events.emit("ping", _sql, interaction.member, false, interaction.channel);
         interaction.reply({
             embeds: [{
                 "color": 0x2F3136,
@@ -41,7 +41,7 @@ module.exports = {
         });
     },
     async repeat(interaction, _sql, Events) {
-        Events.emit("ping", _sql, interaction.member, true);
+        Events.emit("ping", _sql, interaction.member, true, interaction.channel);
         interaction.update({
             embeds: [{
                 "color": 0x2F3136,

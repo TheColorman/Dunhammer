@@ -151,7 +151,7 @@ module.exports = {
             });
     
             // Emit event
-            Events.emit('bugReport', sql, interaction.user, reportMessage.content);
+            Events.emit('bugReport', sql, interaction.user, reportMessage.content, interaction.channel);
         });
         
     },

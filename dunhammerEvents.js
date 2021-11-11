@@ -4,7 +4,7 @@ const DunhammerEvents = new EventEmitter();
     // eslint-disable-next-line no-unused-vars
 const MySQL = require("./sql/sql");
     // eslint-disable-next-line no-unused-vars
-const { GuildMember, User } = require("discord.js");
+const { GuildMember, User, Channel, TextChannel } = require("discord.js");
 
 //#region Helpers
 const getRank = async (sql, userId) => await sql.get(`users`, null, `xp DESC`).then(users => users.indexOf(users.find(user => user.id === userId)) + 1);
@@ -100,6 +100,7 @@ const unlocked = {
  * @param {MySQL} sql 
  * @param {Number[]} relevantIds 
  * @param {Object} properties 
+ * @returns {Promise<DBBadge[]>}
  */
 const processBadges = async (sql, relevantIds, properties) => {
     const { DBUser } = properties;
@@ -116,14 +117,17 @@ const processBadges = async (sql, relevantIds, properties) => {
         const unlock = unlocked[badge.id](properties);
         return unlock;
     });
-    Promise.all(badgesToAdd).then(async () => {
-        
-        // Add badges
-        if (badgesToAdd.length > 0) {
-            const badgesToAddBitIds = badgesToAdd.map(badge => badge.bitId);
-            DBUser.badges += badgesToAddBitIds.reduce((a, b) => a + b);
-            await sql.update('users', { badges: DBUser.badges }, `id = ${DBUser.id}`);
-        }
+    return await new Promise((resolve, _reject) => {
+        Promise.all(badgesToAdd).then(async () => {
+            
+            // Add badges
+            if (badgesToAdd.length > 0) {
+                const badgesToAddBitIds = badgesToAdd.map(badge => badge.bitId);
+                DBUser.badges += badgesToAddBitIds.reduce((a, b) => a + b);
+                await sql.update('users', { badges: DBUser.badges }, `id = ${DBUser.id}`);
+            }
+            resolve(badgesToAdd);
+        });
     });
 }
 
@@ -132,8 +136,9 @@ DunhammerEvents.on(
     /**
      * @param {MySQL} sql MySQL instance
      * @param {GuildMember} member Discord member
+     * @param {TextChannel} levelupChannel Discord channel
      */
-    async (sql, member) => {
+    async (sql, member, levelupChannel) => {
             // Badges
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
@@ -141,7 +146,20 @@ DunhammerEvents.on(
         const DBUserGuilds = await sql.getDBUserGuilds(member.user);
 
         // Add relevant badges - Server grinder, Socialite I, II, III
-        await processBadges(sql, [2, 13, 14, 15], { DBUser, DBGuildMember, DBUserGuilds });
+        const addedBadges = await processBadges(sql, [2, 13, 14, 15], { DBUser, DBGuildMember, DBUserGuilds });
+        if (addedBadges.length > 0) {
+            // Send message
+            await levelupChannel.send({
+                embeds: [{
+                    title: `Badges unlocked!`,
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    color: 0x7BA043,
+                    footer: {
+                        text: `/badges`
+                    }
+                }]
+            });
+        }
     }
 );
 DunhammerEvents.on(
@@ -150,14 +168,27 @@ DunhammerEvents.on(
      * @param {MySQL} sql MySQL instance
      * @param {User} user Discord user
      */
-    async (sql, user) => {
+    async (sql, user, levelupChannel) => {
             // Badges
         // Get relevant database entries
         const DBUser = await sql.getDBUser(user);
         const rank = await getRank(sql, user.id);
 
         // Add relevant badges - Global grinder, Top 1000, 100, 10, 3, 2, 1
-        await processBadges(sql, [3, 6, 7, 8, 9, 10, 11], { DBUser, rank });
+        const addedBadges = await processBadges(sql, [3, 6, 7, 8, 9, 10, 11], { DBUser, rank });
+        if (addedBadges.length > 0) {
+            // Send message
+            await levelupChannel.send({
+                embeds: [{
+                    title: `Badges unlocked!`,
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    color: 0x7BA043,
+                    footer: {
+                        text: `/badges`
+                    }
+                }]
+            });
+        }
     }
 );
 // TODO: Automatically delete rows from `stripe_events` older than 7 days
@@ -186,8 +217,9 @@ DunhammerEvents.on(
      * @param {MySQL} sql MySQL instance
      * @param {GuildMember} member Discord GuildMember
      * @param {String} commandName Command used
+     * @param {TextChannel} channel Discord channel
      */
-    async (sql, member, commandName) => {
+    async (sql, member, commandName, channel) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
         // Update database entry
@@ -196,7 +228,20 @@ DunhammerEvents.on(
         await sql.update('users', { commandCount: DBUser.commandCount, pingCount: DBUser.pingCount }, `id = ${DBUser.id}`);
 
         // Add relevant badges - The definition of insanity, Addict I, II, III
-        await processBadges(sql, [12, 16, 17, 18], { DBUser });
+        const addedBadges = await processBadges(sql, [12, 16, 17, 18], { DBUser });
+        if (addedBadges.length > 0) {
+            // Send message
+            await channel.send({
+                embeds: [{
+                    title: `Badges unlocked!`,
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    color: 0x7BA043,
+                    footer: {
+                        text: `/badges`
+                    }
+                }]
+            });
+        }
     }
 );
 DunhammerEvents.on(
@@ -205,8 +250,9 @@ DunhammerEvents.on(
      * @param {MySQL} sql MySQL instance
      * @param {GuildMember} member Discord GuildMember
      * @param {Boolean} button Whether ping was measured from button press
+     * @param {TextChannel} channel Discord channel
      */
-    async (sql, member, button) => {
+    async (sql, member, button, channel) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
         // Update database entry
@@ -216,7 +262,20 @@ DunhammerEvents.on(
         }
 
         // Add relevant badges - The definition of insanity
-        await processBadges(sql, [12], { DBUser });
+        const addedBadges = await processBadges(sql, [12], { DBUser });
+        if (addedBadges.length > 0) {
+            // Send message
+            await channel.send({
+                embeds: [{
+                    title: `Badges unlocked!`,
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    color: 0x7BA043,
+                    footer: {
+                        text: `/badges`
+                    }
+                }]
+            });
+        }
     }
 );
 DunhammerEvents.on( //! Requires audit log permissions to work (which are part of the invite link anyway)
@@ -240,12 +299,25 @@ DunhammerEvents.on( //! Requires audit log permissions to work (which are part o
 // TODO: Add verification for issues
 DunhammerEvents.on(
     "bugReport",
-    async (sql, user, _issue) => {
+    async (sql, user, _issue, channel) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(user);
 
         // Add relevant badges - Bug hunter
-        await processBadges(sql, [20], { DBUser });
+        const addedBadges = await processBadges(sql, [20], { DBUser });
+        if (addedBadges.length > 0) {
+            // Send message
+            await channel.send({
+                embeds: [{
+                    title: `Badges unlocked!`,
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    color: 0x7BA043,
+                    footer: {
+                        text: `/badges`
+                    }
+                }]
+            });
+        }
     }
 );
 
