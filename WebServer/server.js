@@ -10,7 +10,7 @@ const express = require('express'),
 //const { token } = require('../token.json');
 
     app = express(),
-    client_id = "671681661296967680",
+    { clientId: client_id } = require('../token.json'),
     limiter = rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
         max: 100, // limit each IP to 100 requests per windowMs
