@@ -392,7 +392,9 @@ app.post(
         }
         catch (err) {
             console.log(err);
-            res.status(400).send(`Webhook Error: ${err.message}`);
+            // Sanitize error message for HTML
+            const sanitizedError = err.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            res.status(400).send(`Webhook Error: ${sanitizedError}`);
             return;
         }
 
