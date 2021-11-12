@@ -7,7 +7,7 @@ const
 
     router = express.Router(),
 
-    CLIENT_ID = "671681661296967680",
+    { clientId: CLIENT_ID } = require('../../token.json'),
     CLIENT_SECRET = require('../../token.json').secret,
     redirect = encodeURIComponent('https://dunhammer.colorman.me/api/discord/callback');
 

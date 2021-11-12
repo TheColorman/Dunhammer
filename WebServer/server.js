@@ -1,6 +1,7 @@
 const express = require('express'),
     path = require('path'),
     cookieParser = require('cookie-parser'),
+    rateLimit = require('express-rate-limit'),
     { catchAsync } = require('./utils'),
     fetch = require('node-fetch'),
 
@@ -9,7 +10,12 @@ const express = require('express'),
 //const { token } = require('../token.json');
 
     app = express(),
-    client_id = "671681661296967680",
+    { clientId: client_id } = require('../token.json'),
+    limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // limit each IP to 100 requests per windowMs
+        message: "Too many requests from this IP, please try again after 15 minutes"
+    }),
 
     MySQL = require("../sql/sql"),
     { mysqlPassword } = require("../token.json"),
@@ -26,6 +32,8 @@ process.on('uncaughtException', async (err) => {
 
 // Routes
 app.use('/api/discord', require('./api/discord'));
+
+app.use(limiter);
 
 app.use(cookieParser(client_id));
 app.set('etag', false);
@@ -337,7 +345,11 @@ app.get(
         if (!req.query.session_id) return res.send(`<script> window.location.href="/buy"</script>`);
         if (!req.signedCookies.access_token) return res.send(`Something went wrong and you've been logged out before I could send you the coins! Please copy the website URL and <a href="/api/discord/login">log in</a>. Then go back to this URL to receive your coins. (contact me if it still doesnt work).`);
 
-        const DBStripeEvent = (await sql.get(`stripe_events`, `id = "${req.query.session_id}"`))[0];
+        // Santize the session ID
+        const sessionIdSanitized = sql.escape(req.query.session_id);
+
+
+        const DBStripeEvent = (await sql.get(`stripe_events`, `id = "${sessionIdSanitized}"`))[0];
         if (DBStripeEvent.processed) return res.send(`This transaction ID has already received their coins!<br><a href="/buy">Home</a>`);
 
         const
@@ -355,7 +367,7 @@ app.get(
             });
         
         await sql.update(`users`, { coins: parseInt(DBUser.coins) + 500 }, `id = ${apiUser.id}`);
-        await sql.update(`stripe_events`, { processed: true }, `id = "${req.query.session_id}"`);
+        await sql.update(`stripe_events`, { processed: true }, `id = "${sessionIdSanitized}"`);
 
         console.log(`User with ID "${apiUser.id}"" and username "${apiUser.username}#${apiUser.discriminator}" just spent 10 DKK in the shop.`);
 
@@ -380,7 +392,9 @@ app.post(
         }
         catch (err) {
             console.log(err);
-            res.status(400).send(`Webhook Error: ${err.message}`);
+            // Sanitize error message for HTML
+            const sanitizedError = err.toString().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            res.status(400).send(`Webhook Error: ${sanitizedError}`);
             return;
         }
 

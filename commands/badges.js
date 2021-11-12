@@ -208,6 +208,8 @@ const sendProgress = async (interaction, sql) => {
     // Fetch DBUser and DBGuildMember
     const DBUser = await sql.getDBUser(interaction.member.user);
     const DBGuildMember = await sql.getDBGuildMember(interaction.member);
+    // Check if different user
+    const differentUser = interaction.member.id !== interaction.user.id;
 
     // Fetch relevant data
     const globalRank = await sql.getGlobalRank(DBUser.id);
@@ -221,6 +223,8 @@ const sendProgress = async (interaction, sql) => {
     const bugReports = "Bug reports are currently not tracked.";
 
     const sendText = `
+    ${differentUser ? `${interaction.member}'s` : `Your`} progress:
+
     Global rank: \`#${globalRank}\`
     Global level: \`${globalLevel}\`
     Server level: \`${serverLevel}\`

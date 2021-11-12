@@ -130,6 +130,29 @@ const processBadges = async (sql, relevantIds, properties) => {
         });
     });
 }
+// Send a message saying the user has unlocked a badge
+const notifyForBadge = async (channel, badges) => {
+    // Select random text hint
+    const textHints = [
+        "/badges",
+        "/badges options:set to show the badge on your profile",
+        "/badges options:info for badge info",
+        "/badges options:progress for badge progress"
+    ];
+    const textHint = textHints[Math.floor(Math.random() * textHints.length)];
+
+    // Send message
+    await channel.send({
+        embeds: [{
+            title: `Badges unlocked!`,
+            description: badges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
+            color: 0x7BA043,
+            footer: {
+                text: `${textHint}`
+            }
+        }]
+    });
+}
 
 DunhammerEvents.on(
     "levelupServer",
@@ -147,19 +170,8 @@ DunhammerEvents.on(
 
         // Add relevant badges - Server grinder, Socialite I, II, III
         const addedBadges = await processBadges(sql, [2, 13, 14, 15], { DBUser, DBGuildMember, DBUserGuilds });
-        if (addedBadges.length > 0) {
-            // Send message
-            await levelupChannel.send({
-                embeds: [{
-                    title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
-                    color: 0x7BA043,
-                    footer: {
-                        text: `/badges`
-                    }
-                }]
-            });
-        }
+        // Notify user
+        if (addedBadges.length > 0) { await notifyForBadge(levelupChannel, addedBadges); }
     }
 );
 DunhammerEvents.on(
@@ -176,19 +188,7 @@ DunhammerEvents.on(
 
         // Add relevant badges - Global grinder, Top 1000, 100, 10, 3, 2, 1
         const addedBadges = await processBadges(sql, [3, 6, 7, 8, 9, 10, 11], { DBUser, rank });
-        if (addedBadges.length > 0) {
-            // Send message
-            await levelupChannel.send({
-                embeds: [{
-                    title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
-                    color: 0x7BA043,
-                    footer: {
-                        text: `/badges`
-                    }
-                }]
-            });
-        }
+        if (addedBadges.length > 0) { await notifyForBadge(levelupChannel, addedBadges); }
     }
 );
 // TODO: Automatically delete rows from `stripe_events` older than 7 days
@@ -229,19 +229,7 @@ DunhammerEvents.on(
 
         // Add relevant badges - The definition of insanity, Addict I, II, III
         const addedBadges = await processBadges(sql, [12, 16, 17, 18], { DBUser });
-        if (addedBadges.length > 0) {
-            // Send message
-            await channel.send({
-                embeds: [{
-                    title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
-                    color: 0x7BA043,
-                    footer: {
-                        text: `/badges`
-                    }
-                }]
-            });
-        }
+        if (addedBadges.length > 0) { await notifyForBadge(channel, addedBadges); }
     }
 );
 DunhammerEvents.on(
@@ -263,19 +251,7 @@ DunhammerEvents.on(
 
         // Add relevant badges - The definition of insanity
         const addedBadges = await processBadges(sql, [12], { DBUser });
-        if (addedBadges.length > 0) {
-            // Send message
-            await channel.send({
-                embeds: [{
-                    title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
-                    color: 0x7BA043,
-                    footer: {
-                        text: `/badges`
-                    }
-                }]
-            });
-        }
+        if (addedBadges.length > 0) { await notifyForBadge(channel, addedBadges); }
     }
 );
 DunhammerEvents.on( //! Requires audit log permissions to work (which are part of the invite link anyway)
@@ -305,19 +281,7 @@ DunhammerEvents.on(
 
         // Add relevant badges - Bug hunter
         const addedBadges = await processBadges(sql, [20], { DBUser });
-        if (addedBadges.length > 0) {
-            // Send message
-            await channel.send({
-                embeds: [{
-                    title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
-                    color: 0x7BA043,
-                    footer: {
-                        text: `/badges`
-                    }
-                }]
-            });
-        }
+        if (addedBadges.length > 0) { await notifyForBadge(channel, addedBadges); }
     }
 );
 
