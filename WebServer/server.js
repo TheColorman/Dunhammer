@@ -337,7 +337,11 @@ app.get(
         if (!req.query.session_id) return res.send(`<script> window.location.href="/buy"</script>`);
         if (!req.signedCookies.access_token) return res.send(`Something went wrong and you've been logged out before I could send you the coins! Please copy the website URL and <a href="/api/discord/login">log in</a>. Then go back to this URL to receive your coins. (contact me if it still doesnt work).`);
 
-        const DBStripeEvent = (await sql.get(`stripe_events`, `id = "${req.query.session_id}"`))[0];
+        // Santize the session ID
+        const sessionIdSanitized = sql.escape(req.query.session_id);
+
+
+        const DBStripeEvent = (await sql.get(`stripe_events`, `id = "${sessionIdSanitized}"`))[0];
         if (DBStripeEvent.processed) return res.send(`This transaction ID has already received their coins!<br><a href="/buy">Home</a>`);
 
         const
@@ -355,7 +359,7 @@ app.get(
             });
         
         await sql.update(`users`, { coins: parseInt(DBUser.coins) + 500 }, `id = ${apiUser.id}`);
-        await sql.update(`stripe_events`, { processed: true }, `id = "${req.query.session_id}"`);
+        await sql.update(`stripe_events`, { processed: true }, `id = "${sessionIdSanitized}"`);
 
         console.log(`User with ID "${apiUser.id}"" and username "${apiUser.username}#${apiUser.discriminator}" just spent 10 DKK in the shop.`);
 
