@@ -132,6 +132,15 @@ const processBadges = async (sql, relevantIds, properties) => {
 }
 // Send a message saying the user has unlocked a badge
 const notifyForBadge = async (channel, badges) => {
+    // Select random text hint
+    const textHints = [
+        "/badges",
+        "/badges options:set to show the badge on your profile",
+        "/badges options:info for badge info",
+        "/badges options:progress for badge progress"
+    ];
+    const textHint = textHints[Math.floor(Math.random() * textHints.length)];
+
     // Send message
     await channel.send({
         embeds: [{
@@ -139,7 +148,7 @@ const notifyForBadge = async (channel, badges) => {
             description: badges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
             color: 0x7BA043,
             footer: {
-                text: `/badges`
+                text: `${textHint}`
             }
         }]
     });
