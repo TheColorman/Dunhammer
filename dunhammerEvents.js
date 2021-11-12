@@ -152,7 +152,7 @@ DunhammerEvents.on(
             await levelupChannel.send({
                 embeds: [{
                     title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
                     color: 0x7BA043,
                     footer: {
                         text: `/badges`
@@ -181,7 +181,7 @@ DunhammerEvents.on(
             await levelupChannel.send({
                 embeds: [{
                     title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
                     color: 0x7BA043,
                     footer: {
                         text: `/badges`
@@ -234,7 +234,7 @@ DunhammerEvents.on(
             await channel.send({
                 embeds: [{
                     title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
                     color: 0x7BA043,
                     footer: {
                         text: `/badges`
@@ -268,7 +268,7 @@ DunhammerEvents.on(
             await channel.send({
                 embeds: [{
                     title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
                     color: 0x7BA043,
                     footer: {
                         text: `/badges`
@@ -310,7 +310,7 @@ DunhammerEvents.on(
             await channel.send({
                 embeds: [{
                     title: `Badges unlocked!`,
-                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name}`).join("\n"),
+                    description: addedBadges.map(badge => `${badge.idEmoji} ${badge.name} | ${badge.description}`).join("\n"),
                     color: 0x7BA043,
                     footer: {
                         text: `/badges`
