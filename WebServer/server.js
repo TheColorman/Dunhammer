@@ -1,6 +1,7 @@
 const express = require('express'),
     path = require('path'),
     cookieParser = require('cookie-parser'),
+    rateLimit = require('express-rate-limit'),
     { catchAsync } = require('./utils'),
     fetch = require('node-fetch'),
 
@@ -10,6 +11,11 @@ const express = require('express'),
 
     app = express(),
     client_id = "671681661296967680",
+    limiter = rateLimit({
+        windowMs: 15 * 60 * 1000, // 15 minutes
+        max: 100, // limit each IP to 100 requests per windowMs
+        message: "Too many requests from this IP, please try again after 15 minutes"
+    }),
 
     MySQL = require("../sql/sql"),
     { mysqlPassword } = require("../token.json"),
@@ -26,6 +32,8 @@ process.on('uncaughtException', async (err) => {
 
 // Routes
 app.use('/api/discord', require('./api/discord'));
+
+app.use(limiter);
 
 app.use(cookieParser(client_id));
 app.set('etag', false);
