@@ -298,13 +298,14 @@ Badges are a form of achievements, and they can be gained in numerous ways.`
         interaction.update(this.createGeneral(page));
     },
     custom(interaction) {   // This code is mostly copied from /leaderboard
-        if (interaction.client.collectors.includes(interaction.channel.id)) {
+        if (interaction.client.collectors.includes(interaction.channel.id) || interaction.client.collectors.includes(interaction.user.id)) {
             return interaction.reply({
                 content: "Please wait until the previous request has been complete.",
                 ephemeral: true
             });
         }
-        const filter = message => message.author.id == interaction.user.id && !isNaN(message.content) && !isNaN(parseFloat(message.content));
+        // Only accept numbers, and ignore messages from users that already have their own collector.
+        const filter = message => !interaction.client.collectors.includes(message.author.id) && !isNaN(message.content) && !isNaN(parseFloat(message.content));
         
         interaction.reply({
             content: `${interaction.member}, what page would you like to go to?`,

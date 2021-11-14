@@ -88,7 +88,7 @@ module.exports = {
      * @param {Discord.ButtonInteraction} interaction 
      */
     custom(interaction, sql, _events, dataString) {
-        if (interaction.client.collectors.includes(interaction.channel.id)) {
+        if (interaction.client.collectors.includes(interaction.channel.id) || interaction.client.collectors.includes(interaction.user.id)) {
             return interaction.reply({
                 content: "Please wait until the previous request has been complete.",
                 ephemeral: true
@@ -96,7 +96,8 @@ module.exports = {
         }
         const
             data = JSON.parse(dataString),
-            filter = message => message.author.id == interaction.user.id && !isNaN(message.content) && !isNaN(parseFloat(message.content));
+            // Only accept numbers, and ignore messages from users that already have their own collector.
+            filter = message => !interaction.client.collectors.includes(message.author.id) && !isNaN(message.content) && !isNaN(parseFloat(message.content));
         
         interaction.reply({
             content: `${interaction.member}, what page would you like to go to?`,
