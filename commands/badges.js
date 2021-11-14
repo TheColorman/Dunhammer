@@ -127,7 +127,7 @@ const sendInfo = async (interaction, sql) => {
  */
 const sendSet = async (interaction, sql) => {
     // Check for running collectors
-    if (interaction.client.collectors.includes(interaction.channel.id)) {
+    if (interaction.client.collectors.includes(interaction.user.id)) {
         return interaction.reply({
             content: "Please wait until the previous request has been complete.",
             ephemeral: true
@@ -148,7 +148,7 @@ const sendSet = async (interaction, sql) => {
         deffered: true
     })
         .then((reply) => {
-            interaction.client.collectors.push(interaction.channel.id);
+            interaction.client.collectors.push(interaction.user.id);
             interaction.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ['time'] })
                 .then(async collected => {
                     const message = collected.first();
@@ -177,7 +177,7 @@ const sendSet = async (interaction, sql) => {
                     }
 
                     // Clear collector
-                    interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
+                    interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.user.id), 1);
                     // Edit message
                     try {
                         await reply.edit({ content: `~~${interaction.member}, please send a message with the badge IDs you want to display (max 3, e.g. \`0 12 5\`)~~` });
@@ -194,7 +194,7 @@ const sendSet = async (interaction, sql) => {
                 .catch(async _collected => {
                     // Delete messages
                     try { await reply.delete(); } catch (e) { /* Ignore */ }
-                    interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.channel.id), 1);
+                    interaction.client.collectors.splice(interaction.client.collectors.indexOf(interaction.user.id), 1);
                 });
         });
 
