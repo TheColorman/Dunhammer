@@ -212,7 +212,7 @@ async function replyServer(interaction, sql, reply, page) {
         role = interaction.options ? await interaction.options.getRole('role') : undefined,
         filter = interaction.options ? interaction.options.getString('filter') : undefined,
 
-        GuildMemberDB = await sql.get("guildusers", `guildid = ${interaction.guild.id}`, `xp DESC`),
+        GuildMemberDB = await sql.get("guildusers", `guildid = ${interaction.guild.id} AND inGuild = ${true}`, `xp DESC`),
         // Filter by role, check if filter is blacklist and continue accordingly
         GuildMemberDBFiltered = role ?
             GuildMemberDB.filter(DBGuildMember => filter && filter == "blacklist" ?
