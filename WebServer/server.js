@@ -402,11 +402,11 @@ app.post(
 
         switch (event.type) {
             case "checkout.session.completed": {
-                const
-                    session = event.data.object,
-                    DBStripeEvent = await sql.get(`stripe_events`, `id = "${session.id}"`);
+                const session = event.data.object;
+                const escapedSessionId = sql.escape(session.id);
+                const DBStripeEvent = await sql.get(`stripe_events`, `id = "${escapedSessionId}"`);
                 if (!DBStripeEvent.length) {
-                    await sql.insert(`stripe_events`, { id: session.id });
+                    await sql.insert(`stripe_events`, { id: escapedSessionId });
                 }
                 break;
             }
