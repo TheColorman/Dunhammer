@@ -576,6 +576,26 @@ const adminCommands = {
                 });
             }
         }
+    },
+    // This is either the worst idea ever, or the best idea ever.
+    // Admin command that executes a string as code, and returns the result.
+    execute: async (message) => {
+        // Remove command name from message content
+        const content = message.content.split(" ").slice(1).join(" ");
+        try {
+            let result = await eval(content);
+            // Stringify result if object
+            if (typeof result === "object") {
+                result = JSON.stringify(result);
+            }
+            message.reply({
+                content: "```js\n" + content + "\n```\n```\n" + result + "\n```"
+            });
+        } catch (e) {
+            message.reply({
+                content: "```js\n" + content + "\n```\n```\n" + e + "\n```"
+            });
+        }
     }
 }
 
