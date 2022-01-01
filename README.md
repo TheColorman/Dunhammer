@@ -3,4 +3,9 @@ Dunhammer is a Discord bot, and a hobby project, which means that the code proba
 
 Invite Dunhammer to your Discord server:  
 [Full access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=2088234238&scope=bot%20applications.commands).  
-[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=378091728064&scope=bot%20applications.commands).
+[Limited access](https://discord.com/api/oauth2/authorize?client_id=671681661296967680&permissions=378091728064&scope=bot%20applications.commands).  
+  
+___  
+  
+### Related
+[Dunhammer frontend](https://github.com/TheColorman/DunhammerFrontend) - The frontend web interface found at https://dunhammer.colorman.me
