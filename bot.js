@@ -1,6 +1,6 @@
 // Setup
 // eslint-disable-next-line no-unused-vars
-const { Client, Intents, Collection, Message } = require('discord.js'),
+const { Client, Intents, Collection, Message, MessageAttachment } = require('discord.js'),
     { botToken, mysqlPassword } = require('./token.json'),
     config = require('./config.json'),
     { mysql_login: mysqlLogin, admins } = require('./config.json'),
@@ -580,20 +580,32 @@ const adminCommands = {
     // This is either the worst idea ever, or the best idea ever.
     // Admin command that executes a string as code, and returns the result.
     execute: async (message) => {
+        const sendMessage = (content, result) => message.reply({ content: "```js\n" + content + "\n```\n```\n" + result + "\n```" });
         // Remove command name from message content
-        const content = message.content.split(" ").slice(1).join(" ");
+        const content = message.content.slice(".execute".length);
         try {
-            let result = await eval(content);
-            // Stringify result if object
-            if (typeof result === "object") {
-                result = JSON.stringify(result);
-            }
-            message.reply({
-                content: "```js\n" + content + "\n```\n```\n" + result + "\n```"
+            const result = await eval(content);
+            
+            sendMessage(content, result).catch(() => {
+                let stringed = JSON.stringify(result);
+                if (!stringed) stringed = "No output.";
+                const buffer = Buffer.from(stringed, 'utf-8');
+                const attachment = new MessageAttachment(buffer, "result.txt");
+                message.channel.send({
+                    content: "Result:", 
+                    files: [attachment]
+                });
             });
         } catch (e) {
-            message.reply({
-                content: "```js\n" + content + "\n```\n```\n" + e + "\n```"
+            sendMessage(content, e).catch(() => {
+                let stringed = JSON.stringify(e);
+                if (!stringed) stringed = "No output.";
+                const buffer = Buffer.from(stringed, 'utf-8');
+                const attachment = new MessageAttachment(buffer, "result.txt");
+                message.channel.send({
+                    content: "Error:",
+                    files: [attachment]
+                });
             });
         }
     }
