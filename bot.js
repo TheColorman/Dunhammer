@@ -1,6 +1,8 @@
 // Setup
 // eslint-disable-next-line no-unused-vars
-const { Client, Intents, Collection, Message } = require('discord.js'),
+const { Client, Intents, Collection, Message, MessageAttachment } = require('discord.js'),
+    { REST } = require('@discordjs/rest'),
+    { Routes } = require('discord-api-types/v9'),
     { botToken, mysqlPassword } = require('./token.json'),
     config = require('./config.json'),
     { mysql_login: mysqlLogin, admins } = require('./config.json'),
@@ -133,10 +135,30 @@ const adminCommands = {
                     }]    
                 });
         
-                client.commands.each(command => {
-                    message.channel.send({ content: `Registering ${command.name}`});
-                    client.application.commands.create(command.ApplicationCommandData, guildID);
-                });        
+                const rest = new REST({ version: '9' }).setToken(botToken);
+
+                const commands = [];
+                
+                for (const command of client.commands.values()) {
+                    commands.push(command.ApplicationCommandData);
+                }
+
+                (async () => {
+                    try {
+                        console.log('Started refreshing application (/) commands.');
+                
+                        await rest.put(
+                            Routes.applicationGuildCommands(client.user.id, guildID),
+                            { body: commands },
+                        );
+                
+                        console.log('Successfully reloaded application (/) commands.');
+                        message.channel.send("Successfully reloaded application (/) commands.");
+                    } catch (error) {
+                        console.error(error);
+                        message.channel.send("Failed to reload application (/) commands.");
+                    }
+                })();
                 break;
             }
             case "global": {
@@ -160,10 +182,30 @@ const adminCommands = {
                     }]    
                 });
         
-                client.commands.each(command => {
-                    message.channel.send({ content: `Registering ${command.name}`});
-                    client.application.commands.create(command.ApplicationCommandData);
-                });        
+                const rest = new REST({ version: '9' }).setToken(botToken);
+
+                const commands = [];
+                
+                for (const command of client.commands.values()) {
+                    commands.push(command.ApplicationCommandData);
+                }
+
+                (async () => {
+                    try {
+                        console.log('Started refreshing application (/) commands.');
+                
+                        await rest.put(
+                            Routes.applicationCommands(client.user.id),
+                            { body: commands },
+                        );
+                
+                        console.log('Successfully reloaded application (/) commands.');
+                        message.channel.send("Successfully reloaded application (/) commands.");
+                    } catch (error) {
+                        console.error(error);
+                        message.channel.send("Failed to reload application (/) commands.");
+                    }
+                })();
                 break;
             }
         }
