@@ -20,6 +20,7 @@
     "express-rate-limit": "^5.5.1",
     "ffmpeg-static": "^4.4.0",
     "github-api": "^3.4.0",
+    "libsodium-wrappers": "^0.7.9",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.1",
     "stripe": "^8.184.0"
