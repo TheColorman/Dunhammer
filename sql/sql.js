@@ -155,6 +155,7 @@ class MySQL extends EventEmitter {
      * @typedef {Object} DBGuild
      * @property {String}   id         - Guild ID
      * @property {String}   name       - Guild name
+     * @property {Number}   modules    - Bitfield value of all command modules
      */
     /**
      * @typedef {Object} DBGuildLevelsystem
