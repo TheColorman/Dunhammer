@@ -27,6 +27,9 @@ for (const file of commandFiles) {
 // this is stupid. im adding a property so i can keep track of all running collectors, because 2 collectors in the same channel is a bad idea
 client.collectors = [];
 
+// Songqueue
+client.songQueue = new Collection();
+
 // Yes im doing this again
 process.on('uncaughtException', async (err) => {
     console.error("DUNHAMMER HAS CRASHED, PREVENTING SHUTDOWN. ERROR:");
