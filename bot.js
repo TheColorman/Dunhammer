@@ -807,11 +807,11 @@ client.on("guildMemberUpdate", async (_oldMember, newMember) => {
 });
 
 client.on("guildMemberRemove", async (member) => {
-    const DBGuildMembers = await sql.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
+    const DBGuildMembers = await sql.get("guildusers", `\`guildid\` = "${member.guild.id}" AND \`userid\` = "${member.id}"`);
     if (DBGuildMembers.length) {
         await sql.update("guildusers", {
             inGuild: false
-        }, `guildid = ${member.guild.id} AND userid = ${member.id}`);
+        }, `\`guildid\` = "${member.guild.id}" AND \`userid\` = "${member.id}"`);
     }
 });
 
