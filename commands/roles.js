@@ -10,7 +10,7 @@ module.exports = {
         description: "Update level roles.",
         options: [
             {
-                type: "STRING",
+                type: 3,
                 name: "method",
                 description: "Choose to add, remove, view or reload current level roles.",
                 required: true,
@@ -33,11 +33,11 @@ module.exports = {
                     }
                 ]
             }, {
-                type: "ROLE",
+                type: 8,
                 name: "role",
                 description: "Choose a role to perform the method on."
             }, {
-                type: "INTEGER",
+                type: 4,
                 name: "level",
                 description: "Choose the level to perform the method on."
             }

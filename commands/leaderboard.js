@@ -10,15 +10,15 @@ module.exports = {
         description: "View xp leaderboard.",
         options: [
             {
-                type: "USER",
+                type: 6,
                 name: "user",
                 description: "User to search for"
             }, {
-                type: "ROLE",
+                type: 8,
                 name: "role",
                 description: "Role to filter by"
             }, {
-                type: "STRING",
+                type: 3,
                 name: "filter",
                 description: "Filter type",
                 choices: [
@@ -31,7 +31,7 @@ module.exports = {
                     }
                 ]
             }, {
-                type: "STRING",
+                type: 3,
                 name: "type",
                 description: "Type of leaderboard to show",
                 choices: [

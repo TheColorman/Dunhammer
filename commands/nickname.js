@@ -8,14 +8,14 @@ module.exports = {
     ApplicationCommandData: {
         name: "nickname",
         description: "Changes a users nickname",
-        type: "CHAT_INPUT",
+        type: 1,
         options: [{
-            type: "USER",
+            type: 6,
             name: "user",
             description: "User to change nickname for.",
             required: true
         }, {
-            type: "STRING",
+            type: 3,
             name: "nickname",
             description: "Users new nickname",
             required: true

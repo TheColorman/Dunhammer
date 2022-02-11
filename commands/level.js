@@ -12,7 +12,7 @@ module.exports = {
         description: "Displays your level",
         options: [
             {
-                type: "USER",
+                type: 6,
                 name: "user",
                 description: "A user whose level to show",
             },

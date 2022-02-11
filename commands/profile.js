@@ -9,15 +9,15 @@ module.exports = {
         name: "profile",
         description: "Change any profile settings.",
         options: [ {
-            type: "BOOLEAN",
+            type: 5,
             name: "level_mentions",
             description: "Changes whether you get mentioned on a global levelup",
         }, {
-            type: "BOOLEAN",
+            type: 5,
             name: "level_dm",
             description: "Changes whether you get a DM when you level up on a server without levelsystem"
         }, {
-            type: "BOOLEAN",
+            type: 5,
             name: "disabled",
             description: "Disables the Global levelsystem for you"
         }]
