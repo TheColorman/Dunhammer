@@ -1,24 +1,28 @@
 // Start and stop MySQL server in run > services.msc > Apache2.4 + MySQL on localhost/phpmyadmin
-    
-// eslint-disable-next-line no-unused-vars
-const { User, Guild, GuildMember, TextChannel } = require('discord.js');
-const EventEmitter = require('events');
 
-class MySQL extends EventEmitter {
+import { dbBadge, dbChannel, dbGuild, dbGuildLevelsystem, dbGuildMember, dbUser, Login } from "./sqlTypes";
+import EventEmitter from 'events';
+import { createConnection, Connection, OkPacket } from 'mysql';
+import { Guild, GuildMember, TextChannel, User } from "discord.js";
+import { OAuth2Guild } from "discord.js";
+
+export default class MySQL extends EventEmitter {
     /**
      * Creates a MySQL connection
      * @param {Object} login Login object in format:
      * { host, user, password, database }
      */
-    constructor(login) {
+    constructor(login: Login) {
         super();
         const config = login;
         config.charset = 'UTF8MB4_GENERAL_CI';
 
         this.connect(config);
     }
-    connect(config) {
-        this.con = require("mysql").createConnection(config);
+    con: Connection;
+    escape: Function;
+    connect(config: Login) {
+        this.con = createConnection(config);
 
         console.log("Connecting to MySQL server...");
         this.con.connect(err => {
@@ -53,7 +57,7 @@ class MySQL extends EventEmitter {
      * @param {String} query MySQL query
      * @returns {Promise<Object[]>} Array of objects (found rows)
      */
-    async query(query) {
+    async query(query: string): Promise<object[]> {
         return new Promise((res) => {
             this.con.query(query, (err, result) => {
                 if (err) throw err;
@@ -71,7 +75,7 @@ class MySQL extends EventEmitter {
      * @param {Number} [limit] Max number of results
      * @returns {Promise<Object[]>} Array of objects (found rows)
      */
-    async get(table, queryLogic, sortLogic, limit) {
+    async get(table: string, queryLogic?: string, sortLogic?: string, limit?: number): Promise<object[]> {
         return new Promise((res) => {
             const query = `SELECT * FROM \`${table}\`${queryLogic ? ` WHERE ( ${queryLogic} )` : ``}${sortLogic ? ` ORDER BY \`${sortLogic.split(" ")[0]}\` ${sortLogic.split(" ")[1] || ``}` : ``}${limit ? ` LIMIT ${limit}` : ``}`;
             this.con.query(query, (err, result) => {
@@ -86,7 +90,7 @@ class MySQL extends EventEmitter {
      * @param {Object|Array<object>} object Inserted data where `key = collumn` and `value = value`. If an array is passed every object must contain the same keys
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    async insert(table, object) {
+    async insert(table: string, object: object | Array<object>): Promise<OkPacket> {
         return new Promise((res) => {
             const query = `INSERT INTO \`${table}\` (\`${Array.isArray(object) ? Object.keys(object[0]).join("`, `") : Object.keys(object).join("`, `")}\`) VALUES (${Array.isArray(object) ? object.map(element => Object.values(element).map(val => this.escape(val)).join(", ")).join("), (") : Object.values(object).map(obj => this.escape(obj)).join(", ")})`;
             this.con.query(query, (err, result) => {
@@ -103,7 +107,7 @@ class MySQL extends EventEmitter {
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    async update(table, object, queryLogic) {
+    async update(table: string, object: object, queryLogic: string): Promise<OkPacket> {
         if (!queryLogic) throw new Error("Failed to update database. No selector parameter passed, aborting update.");
         return new Promise((res) => {
             const query = `UPDATE \`${table}\` SET ${Object.keys(object).map((key) => `\`${key}\` = ${this.escape(object[key])}`).join(", ")} WHERE (${queryLogic})`;
@@ -120,7 +124,7 @@ class MySQL extends EventEmitter {
      * @param {String} queryLogic Selector logic, e.g. "id = 12345678"
      * @returns {Promise<OkPacket>} OkPacket, object with status information
      */
-    async delete(table, queryLogic) {
+    async delete(table: string, queryLogic: string): Promise<OkPacket> {
         return new Promise((res) => {
             const query = `DELETE FROM \`${table}\` WHERE (${queryLogic})`;
             this.con.query(query, (err, result) => {
@@ -132,79 +136,11 @@ class MySQL extends EventEmitter {
     }
     //  Specified functions
     /**
-     * @typedef {Object} DBUser
-     * @property {String}   id                   - User ID
-     * @property {String}   username             - Username without tag
-     * @property {String}   tag                  - User tag
-     * @property {Boolean}  levelMentions        - Whether user gets mentioned when leveling up (global only)
-     * @property {Boolean}  levelDm              - Whether user gets a DM when leveling up on a server with disabled levelsystem
-     * @property {Boolean}  disabled             - Whether user has opted out of Global leaderboard
-     * @property {Number}   xp                   - User total xp
-     * @property {Number}   level                - User level
-     * @property {Number}   coins                - Users coins
-     * @property {Number}   badges               - Bitfield value of all unlocked badges
-     * @property {Number}   currentBadges        - Bitfield value of all badges displayed on profile
-     * @property {Number}   backgrounds          - Bitfield value of all unlocked backgrounds
-     * @property {Number}   currentBackground    - Current selected background
-     * @property {Number}   spentMoney           - Total spent money in USD
-     * @property {Number}   commandCount         - Total number of commands used
-     * @property {Number}   pingCount            - Total number of pings used
-     * @property {Number}   inviteCount          - Total number of times user has invited Dunhammer
-     */
-    /**
-     * @typedef {Object} DBGuild
-     * @property {String}   id         - Guild ID
-     * @property {String}   name       - Guild name
-     */
-    /**
-     * @typedef {Object} DBGuildLevelsystem
-     * @property {String}           id                   - Guild id
-     * @property {Boolean}          enabled              - Whether levelsystem is enabled
-     * @property {Array<String>}    ignoredChannels      - Stringified array of ignord channel IDs
-     * @property {String|null}      levelupChannel       - Channel ID where levelup messages are sent
-     * @property {String}           levelupMessage       - Stringified embed object for levelup
-     * @property {String}           newroleMessage       - Stringified embed object for newrole
-     * @property {Boolean}          tagMember            - Whether to tag the member who leveled up
-     * @property {Boolean}          rolesCumulative      - Whether levelup roles are cumulative
-     * @property {{Level: String}}  roles                - Stringified object of roles where `key = level` and `value = role ID`
-     * @property {Boolean}          publicLeaderboard    - Whether leaderboard is public
-     */
-    /**
-     * @typedef {Object} DBGuildMember
-     * @property {String}         guildid    - Guild ID
-     * @property {String}         userid     - Member ID
-     * @property {String}         nickname   - Member nickname
-     * @property {Number}         xp         - Total XP
-     * @property {Number}         level      - Current level
-     * @property {String[]}       roles      - Stringified list of member roles
-     */
-    /**
-     * @typedef {Object} DBChannel
-     * @property {String}   id                   - Channel ID
-     * @property {Number}   messageStreak        - Current channel message streak
-     * @property {Number}   streakTimestamp      - Date when streak was last updated in millisecond format
-     * @property {String}   lastMessageMember    - ID of last user to send a message in channel
-     */
-    /**
-     * @typedef {Object} DBBadge
-     * @property {Number}   id               - Badge ID
-     * @property {Number}   bitId            - Bitfield value of badge
-     * @property {String}   idEmoji          - Discord Emoji ID
-     * @property {String}   idGreyEmoji      - Discord Emoji ID for grey version
-     * @property {String}   name             - Badge name
-     * @property {String}   description      - Badge description
-     * @property {Number}   prerequisite     - ID of prerequisite badge, null if no prerequisite required
-     */
-    /**
-     * @typedef {DBGuildMember[]} DBUserGuilds
-     */
-
-    /**
      * Adds user to database if they don't exist and returns the database entry
      * @param {User}  user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
-    async getDBUser(user) {
+    async getDBUser(user: User): Promise<dbUser> {
         const DBUserArr = await this.get("users", `id = ${user.id}`);
         if (!DBUserArr.length) {
             await this.insert("users", {
@@ -215,32 +151,32 @@ class MySQL extends EventEmitter {
                 level: 0,
                 coins: 0
             });
-            return (await this.get("users", `id = ${user.id}`))[0];
+            return (await this.get("users", `id = ${user.id}`))[0] as dbUser;
         }
-        return DBUserArr[0];
+        return DBUserArr[0] as dbUser;
     }
     /**
      * Adds guild to database if it doesn't exist and returns the database entry
      * @param {Guild}  guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
-    async getDBGuild(guild) {
+    async getDBGuild(guild: Guild | OAuth2Guild): Promise<dbGuild> {
         const DBGuildArr = await this.get("guilds", `id = ${guild.id}`);
         if (!DBGuildArr.length) {
             await this.insert("guilds", {
                 id: guild.id,
                 name: guild.name,
             });
-            return (await this.get("guilds", `id = ${guild.id}`))[0];
+            return (await this.get("guilds", `id = ${guild.id}`))[0] as dbGuild;
         }
-        return DBGuildArr[0];
+        return DBGuildArr[0] as dbGuild;
     }
     /**
      * Adds guild levelsystem to database if it doesn't exist and returns the database entry
      * @param {Guild}  guild - DiscordJS guild
      * @returns {DBGuildLevelsystem} DBGuild object
      */
-    async getDBGuildLevelsystem(guild) {
+    async getDBGuildLevelsystem(guild: Guild | OAuth2Guild): Promise<dbGuildLevelsystem> {
         const DBGuildLevelsystemArr = await this.get("guildlevelsystem", `id = ${guild.id}`);
         if (!DBGuildLevelsystemArr.length) {
             await this.insert("guildlevelsystem", {
@@ -254,16 +190,16 @@ class MySQL extends EventEmitter {
                 rolesCumulative: true,
                 roles: JSON.stringify({})
             });
-            return (await this.get("guildlevelsystem", `id = ${guild.id}`))[0];
+            return (await this.get("guildlevelsystem", `id = ${guild.id}`))[0] as dbGuildLevelsystem;
         }
-        return DBGuildLevelsystemArr[0];
+        return DBGuildLevelsystemArr[0] as dbGuildLevelsystem;
     }
     /**
      * Adds guild user to database if they don't exist and returns the database entry
      * @param {GuildMember}   member  - DiscordJS member
      * @returns {DBGuildMember} DBGuildMember object
      */
-    async getDBGuildMember(member) {
+    async getDBGuildMember(member: GuildMember): Promise<dbGuildMember> {
         const DBGuildMemberArr = await this.get("guildusers", `\`guildid\` = ${member.guild.id} AND \`userid\` = ${member.id}`);
         if (!DBGuildMemberArr.length) {
             await this.insert("guildusers", {
@@ -275,16 +211,16 @@ class MySQL extends EventEmitter {
                 inGuild: true,
                 roles: JSON.stringify(member.roles.cache.map(role => role.id))
             });
-            return (await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`))[0];
+            return (await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`))[0] as dbGuildMember;
         }
-        return DBGuildMemberArr[0];
+        return DBGuildMemberArr[0] as dbGuildMember;
     }
     /**
      * Adds a channel to the database if it doesn't exist and returns the database entry
      * @param {TextChannel} channel DiscordJS channel
      * @returns {DBChannel}
      */
-    async getDBChannel(channel) {
+    async getDBChannel(channel: TextChannel): Promise<dbChannel> {
         const DBChannelArr = await this.get("channels", `id = ${channel.id}`);
         if (!DBChannelArr.length) {
             await this.insert("channels", {
@@ -293,26 +229,26 @@ class MySQL extends EventEmitter {
                 streakTimestamp: Date.now(),
                 lastMessageMember: "0"
             });
-            return (await this.get("channels", `id = ${channel.id}`))[0];
+            return (await this.get("channels", `id = ${channel.id}`))[0] as dbChannel;
         }   
-        return DBChannelArr[0];
+        return DBChannelArr[0] as dbChannel;
     }
     /**
      * Returns list of all badges in database
      * @returns {DBBadge[]}
      */
-    async getDBBadges() {
+    async getDBBadges(): Promise<dbBadge[]> {
         const DBBadgeArr = await this.get("badges");
-        return DBBadgeArr;
+        return DBBadgeArr as dbBadge[];
     }
     /**
      * Returns list of GuildMembers with user ID
      * @param {User} user 
      * @returns {DBGuildMember[]}
      */
-    async getDBUserGuilds(user) {
+    async getDBUserGuilds(user: User): Promise<dbGuildMember[]> {
         const DBUserGuildsArr = await this.get("guildusers", `userid = ${user.id}`);
-        return DBUserGuildsArr;
+        return DBUserGuildsArr as dbGuildMember[];
     }
     /**
      * Get rank of speicific user on global leaderboard
@@ -320,7 +256,7 @@ class MySQL extends EventEmitter {
      * @param {String} [guild_id] Guild id
      * @returns {Number}
      */
-    async getGlobalRank(id, guild_id) {
+    async getGlobalRank(id: string, guild_id: string): Promise<number> {
         await this.query(`SET @row_number := 0;`);
         const DBMemberRank = await this.query(`
             SELECT w.\`row_number\`
@@ -340,7 +276,7 @@ class MySQL extends EventEmitter {
      * @param {User} user - DiscordJS user
      * @returns {DBUser} DBUser object
      */
-    async updateDBUser(user) {
+    async updateDBUser(user: User): Promise<dbUser> {
         const DBUserArr = await this.get("users", `id = ${user.id}`);
         if (!DBUserArr.length) return;
         await this.update("users", {
@@ -354,7 +290,7 @@ class MySQL extends EventEmitter {
      * @param {Guild} guild - DiscordJS guild
      * @returns {DBGuild} DBGuild object
      */
-    async updateDBGuild(guild) {
+    async updateDBGuild(guild: Guild): Promise<dbGuild> {
         const DBGuildArr = await this.get("guilds", `id = ${guild.id}`);
         if (!DBGuildArr.length) return;
         await this.update("guilds", {
@@ -367,7 +303,7 @@ class MySQL extends EventEmitter {
      * @param {GuildMember} member DiscordJS GuildMember
      * @returns {DBGuildMember|undefined} DBGuildMember object if Discord member is found in database
      */
-    async updateDBGuildMember(member) {
+    async updateDBGuildMember(member: GuildMember): Promise<dbGuildMember> | undefined {
         const DBGuildMemberArr = await this.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
         if (!DBGuildMemberArr.length) return;
         await this.update("guildusers", {
@@ -378,5 +314,3 @@ class MySQL extends EventEmitter {
         return await this.getDBGuildMember(member);
     }
 }
-
-module.exports = MySQL;

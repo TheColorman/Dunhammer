@@ -1,10 +1,11 @@
-const EventEmitter = require("events");
+import EventEmitter from "events";
 const DunhammerEvents = new EventEmitter();
 // JSDoc definitions
     // eslint-disable-next-line no-unused-vars
-const MySQL = require("./sql/sql");
+import MySQL from "./sql/sql";
     // eslint-disable-next-line no-unused-vars
-const { GuildMember, User, Channel, TextChannel } = require("discord.js");
+import { GuildMember, User, Channel, TextChannel } from "discord.js";
+import { dbBadge } from "./sql/sqlTypes";
 
 //#region Helpers
 const getRank = async (sql, userId) => await sql.get(`users`, null, `xp DESC`).then(users => users.indexOf(users.find(user => user.id === userId)) + 1);
@@ -102,7 +103,7 @@ const unlocked = {
  * @param {Object} properties 
  * @returns {Promise<DBBadge[]>}
  */
-const processBadges = async (sql, relevantIds, properties) => {
+const processBadges = async (sql: MySQL, relevantIds: number[], properties: object): Promise<dbBadge[]> => {
     const { DBUser } = properties;
     // Filter badges by related
     const badges = await sql.getDBBadges();
@@ -161,7 +162,7 @@ DunhammerEvents.on(
      * @param {GuildMember} member Discord member
      * @param {TextChannel} levelupChannel Discord channel
      */
-    async (sql, member, levelupChannel) => {
+    async (sql: MySQL, member: GuildMember, levelupChannel: TextChannel) => {
             // Badges
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
@@ -180,7 +181,7 @@ DunhammerEvents.on(
      * @param {MySQL} sql MySQL instance
      * @param {User} user Discord user
      */
-    async (sql, user, levelupChannel) => {
+    async (sql: MySQL, user: User, levelupChannel) => {
             // Badges
         // Get relevant database entries
         const DBUser = await sql.getDBUser(user);
@@ -199,7 +200,7 @@ DunhammerEvents.on(
      * @param {String} id Discord ID
      * @param {Number} amount Amount spent
      */
-    async (sql, id, amount) => {
+    async (sql: MySQL, id: string, amount: number) => {
         // Get relevant database entries
         const DBUser = await sql.get(`users`, `id = ${id}`)[0];
         if (!DBUser) return; // This shouldnt happen, since you cant really be logged in without being in the database
@@ -219,7 +220,7 @@ DunhammerEvents.on(
      * @param {String} commandName Command used
      * @param {TextChannel} channel Discord channel
      */
-    async (sql, member, commandName, channel) => {
+    async (sql: MySQL, member: GuildMember, commandName: string, channel: TextChannel) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
         // Update database entry
@@ -240,7 +241,7 @@ DunhammerEvents.on(
      * @param {Boolean} button Whether ping was measured from button press
      * @param {TextChannel} channel Discord channel
      */
-    async (sql, member, button, channel) => {
+    async (sql: MySQL, member: GuildMember, button: boolean, channel: TextChannel) => {
         // Get relevant database entries
         const DBUser = await sql.getDBUser(member.user);
         // Update database entry
@@ -260,7 +261,7 @@ DunhammerEvents.on( //! Requires audit log permissions to work (which are part o
      * @param {MySQL} sql MySQL instance
      * @param {User} [user] Discord GuildMember
      */
-    async (sql, user) => {
+    async (sql: MySQL, user: User) => {
         if (!user) return;
         // Get relevant database entries
         const DBUser = await sql.getDBUser(user);

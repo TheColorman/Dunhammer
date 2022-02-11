@@ -1,15 +1,16 @@
 // Setup
 // eslint-disable-next-line no-unused-vars
-const { Client, Intents, Collection, Message, MessageAttachment } = require('discord.js'),
-    { botToken, mysqlPassword } = require('./token.json'),
-    config = require('./config.json'),
-    { mysql_login: mysqlLogin, admins } = require('./config.json'),
-    fs = require('fs'),
-    MySQL = require('./sql/sql.js'),
-    DunhammerEvents = require('./dunhammerEvents'),
-    levelsystem = require('./levelsystem'),
+import { Client, Intents, Collection, Message, MessageAttachment, MessageComponentInteraction } from 'discord.js';
+import { botToken, mysqlPassword } from './token.json';
+import config from './config.json';
+import { mysql_login as mysqlLogin, admins } from './config.json';
+import fs from 'fs';
+import MySQL from './sql/sql.js';
+import DunhammerEvents from './dunhammerEvents';
+import levelsystem from './levelsystem';
+import { CommandRegisterTypes, ExtendedClient } from './botTypes';
 
-    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
+const client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] }) as ExtendedClient;
 
 // Event emitter
 const Events = DunhammerEvents;
@@ -72,7 +73,7 @@ const adminCommands = {
      * 
      * @param {Message} message 
      */
-    debug: async (message) => {
+    debug: async (message: Message) => {
         message.channel.send({ content: "welcome to the debug zone" });
         
         //// const guildPartials = await client.guilds.fetch();
@@ -89,7 +90,7 @@ const adminCommands = {
      * 
      * @param {Message} message 
      */
-    registercommands: async (message, type) => {
+    registercommands: async (message: Message | MessageComponentInteraction, type?: CommandRegisterTypes) => {
         if (!type) {
             return message.reply({
                 content: "What commands would you like to update?",
@@ -109,9 +110,10 @@ const adminCommands = {
                 }]
             });
         }
+        message = message as MessageComponentInteraction;
         switch(type) {
             case "guild": {
-                const guildID = message.guild ? message.guild.id : message.content.split(" ")[1];
+                const guildID = message.guild.id;
                 if (!guildID) return message.reply({ content: "No Guild ID!" });
                 message.update({
                     content: `Registering slash commands in guild with ID ${guildID}... `,
@@ -234,8 +236,8 @@ const adminCommands = {
                     }]
                 });
                 client.guilds.fetch().then(async collection => {
-                    collection.each(async guild => {
-                        sql.getDBGuild(guild);
+                    collection.each(async apiGuild => {
+                        sql.getDBGuild(apiGuild);
                     });
                     message.message.edit({
                         content: `:white_check_mark: Done, all ${collection.size} guilds now up to date in database.`,
@@ -613,7 +615,7 @@ const adminCommands = {
 
 
 
-client.on("messageCreate", async message => {
+client.on("messageCreate", async (message: Message): Promise<void> => {
     if (message.author.bot) return;
     levelsystem.xpGain(message, sql, Events, levelTimestamps, minuteTimestamps);
 
@@ -621,7 +623,10 @@ client.on("messageCreate", async message => {
     const command = message.content.split(" ")[0].substr(1);
     // Check if admin
     if (Object.keys(adminCommands).includes(command.toLowerCase())) {
-        if (!admins.includes(message.author.id)) return message.reply({ content: "Looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>" });
+        if (!admins.includes(message.author.id)) {
+            message.reply({ content: "Looks like you're not a Dunhammer admin bucko <:gunshootright734567:844129117002530847>" });
+            return;
+        }
         adminCommands[command.toLowerCase()](message);
     }
 });
@@ -635,8 +640,9 @@ client.on('interactionCreate', async interaction => {
     });
 
     // Check if interaction user is in the database
-    interaction.DBGuildMember = await sql.getDBGuildMember(interaction.member);
-    interaction.DBUser = await sql.getDBUser(interaction.user);
+    const member = await interaction.guild.members.fetch(interaction.user.id);
+    await sql.getDBGuildMember(member);
+    await sql.getDBUser(interaction.user);
 
     const command = client.commands.get(interaction.commandName);
 
@@ -652,7 +658,7 @@ client.on('interactionCreate', async interaction => {
         try {
             await interaction.reply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
         } catch(e) {    // You may call it "shit code", I call it "*functional code*""
-            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
+            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad." });
             else if (e.name == "Unknown interaction") console.log("Timed out");
             else {
                 console.log("Aight, wtf just happened");
@@ -688,7 +694,7 @@ client.on('interactionCreate', async interaction => {
         try {
             await interaction.reply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
         } catch(e) {
-            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that.", ephemeral: true });
+            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. it was probably your fault, because if it wasnt, it would be my fault and i dont want that." });
             else if (e.name == "Unknown interaction") console.log("Timed out");
             else {
                 console.log("Aight, wtf just happened");

@@ -9,7 +9,7 @@ const { Message, Collection, User, MessageAttachment } = require('discord.js'),
 module.exports = {
     /**
      * @param {Message} message 
-     * @param {MySQL} sql 
+     * @param {any} sql 
      * @param {DunhammerEvents} events
      * @param {Collection} levelTimestamps 
      * @param {Collection} minuteTimestamps 

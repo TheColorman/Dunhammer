@@ -23,6 +23,7 @@
     "stripe": "^8.184.0"
   },
   "devDependencies": {
+    "@types/mysql": "^2.15.20",
     "eslint": "^7.32.0"
   }
 }
