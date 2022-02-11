@@ -284,6 +284,27 @@ DunhammerEvents.on(
         if (addedBadges.length > 0) { await notifyForBadge(channel, addedBadges); }
     }
 );
+DunhammerEvents.on(
+    "xpGainGlobal",
+    /**
+     * @param {MySQL} sql 
+     * @param {Message} message 
+     * @param {Number} xpGained 
+     * @param {Number} xpTotal 
+     */
+    async (sql, message, xpGained, xpTotal) => {
+        // Add entry to database.
+        await sql.insert(`xptracking`, {
+            userid: message.author.id,
+            guildid: message.guild.id,
+            username: message.author.username,
+            timestamp: message.createdTimestamp,
+            gained: xpGained,
+            total: xpTotal
+        });
+    }
+);
+
 // * Temporary event handlers
 // DunhammerEvents.on(
 //     "command",
