@@ -9,6 +9,7 @@
   "license": "ISC",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
+    "@discordjs/voice": "^0.7.5",
     "@mapbox/node-pre-gyp": "^1.0.5",
     "@nicklasbns/imagedecoder": "^0.1.1",
     "canvas": "^2.8.0",
