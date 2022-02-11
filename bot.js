@@ -1,6 +1,8 @@
 // Setup
 // eslint-disable-next-line no-unused-vars
 const { Client, Intents, Collection, Message, MessageAttachment } = require('discord.js'),
+    { REST } = require('@discordjs/rest'),
+    { Routes } = require('discord-api-types/v9'),
     { botToken, mysqlPassword } = require('./token.json'),
     config = require('./config.json'),
     { mysql_login: mysqlLogin, admins } = require('./config.json'),
@@ -9,7 +11,7 @@ const { Client, Intents, Collection, Message, MessageAttachment } = require('dis
     DunhammerEvents = require('./dunhammerEvents'),
     levelsystem = require('./levelsystem'),
 
-    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
+    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_VOICE_STATES ] });
 
 // Event emitter
 const Events = DunhammerEvents;
@@ -133,10 +135,30 @@ const adminCommands = {
                     }]    
                 });
         
-                client.commands.each(command => {
-                    message.channel.send({ content: `Registering ${command.name}`});
-                    client.application.commands.create(command.ApplicationCommandData, guildID);
-                });        
+                const rest = new REST({ version: '9' }).setToken(botToken);
+
+                const commands = [];
+                
+                for (const command of client.commands.values()) {
+                    commands.push(command.ApplicationCommandData);
+                }
+
+                (async () => {
+                    try {
+                        console.log('Started refreshing application (/) commands.');
+                
+                        await rest.put(
+                            Routes.applicationGuildCommands(client.user.id, guildID),
+                            { body: commands },
+                        );
+                
+                        console.log('Successfully reloaded application (/) commands.');
+                        message.channel.send("Successfully reloaded application (/) commands.");
+                    } catch (error) {
+                        console.error(error);
+                        message.channel.send("Failed to reload application (/) commands.");
+                    }
+                })();
                 break;
             }
             case "global": {
@@ -160,10 +182,30 @@ const adminCommands = {
                     }]    
                 });
         
-                client.commands.each(command => {
-                    message.channel.send({ content: `Registering ${command.name}`});
-                    client.application.commands.create(command.ApplicationCommandData);
-                });        
+                const rest = new REST({ version: '9' }).setToken(botToken);
+
+                const commands = [];
+                
+                for (const command of client.commands.values()) {
+                    commands.push(command.ApplicationCommandData);
+                }
+
+                (async () => {
+                    try {
+                        console.log('Started refreshing application (/) commands.');
+                
+                        await rest.put(
+                            Routes.applicationCommands(client.user.id),
+                            { body: commands },
+                        );
+                
+                        console.log('Successfully reloaded application (/) commands.');
+                        message.channel.send("Successfully reloaded application (/) commands.");
+                    } catch (error) {
+                        console.error(error);
+                        message.channel.send("Failed to reload application (/) commands.");
+                    }
+                })();
                 break;
             }
         }
@@ -203,7 +245,7 @@ const adminCommands = {
         switch (type) {
             case "guilds": {
                 message.update({
-                    content: "<a:discord_loading:821347252085063680> Reloading Guild database",
+                    content: "<a:discord_loading:821347252085063680> Reloading `guilds` database",
                     components: [{
                         type: "ACTION_ROW",
                         components: [{
@@ -273,7 +315,7 @@ const adminCommands = {
             }
             case "guildlevelsystem": {
                 message.update({
-                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                    content: "<a:discord_loading:821347252085063680> Reloading `guildlevelsystem` database...",
                     components: [{
                         type: "ACTION_ROW",
                         components: [{
@@ -342,47 +384,80 @@ const adminCommands = {
                 break;
             }
             case "guildmembers": {
-                message.update({
-                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                const messageComponents = [{
+                    type: "ACTION_ROW",
                     components: [{
-                        type: "ACTION_ROW",
-                        components: [{
-                            type: "BUTTON",
-                            label: "Guilds",
-                            customId: "admincommands.reloaddatabase.guilds",
-                            style: "SECONDARY",
-                            disabled: true
-                        }, {
-                            type: "BUTTON",
-                            label: "Guild levelsystems",
-                            customId: "admincommands.reloaddatabase.guildlevelsystem",
-                            style: "SECONDARY",
-                            disabled: true
-                        }, {
-                            type: "BUTTON",
-                            label: "Guild members",
-                            customId: "admincommands.reloaddatabase.guildmembers",
-                            style: "SECONDARY",
-                            disabled: true
-                        }, {
-                            type: "BUTTON",
-                            label: "User badges",
-                            customId: "admincommands.reloaddatabase.userbadges",
-                            style: "SECONDARY",
-                            disabled: true
-                        }]
+                        type: "BUTTON",
+                        label: "Guilds",
+                        customId: "admincommands.reloaddatabase.guilds",
+                        style: "SECONDARY",
+                        disabled: true
+                    }, {
+                        type: "BUTTON",
+                        label: "Guild levelsystems",
+                        customId: "admincommands.reloaddatabase.guildlevelsystem",
+                        style: "SECONDARY",
+                        disabled: true
+                    }, {
+                        type: "BUTTON",
+                        label: "Guild members",
+                        customId: "admincommands.reloaddatabase.guildmembers",
+                        style: "SECONDARY",
+                        disabled: true
+                    }, {
+                        type: "BUTTON",
+                        label: "User badges",
+                        customId: "admincommands.reloaddatabase.userbadges",
+                        style: "SECONDARY",
+                        disabled: true
                     }]
-                });
+                }];
+
+                await message.update({ content: "<a:discord_loading:821347252085063680> Reloading `guildusers` database...", components: messageComponents });
+
+                const msg = await message.channel.send(`<a:discord_loading:821347252085063680> Reloading ` + `${client.guilds.cache.size} guilds...`);
+
+                const updateMessage = async (description) => msg.edit({ content: description ? "\n\n" + description : "" });
                 const guilds = await client.guilds.fetch();
-                guilds.forEach(async guildPartial => {
-                    const
-                        guild = await guildPartial.fetch(),
-                        members = await guild.members.fetch();
+
+                updateMessage("Fetching guilds and members from Discord...");
+                let i = 0;
+                for (const guildPartial of guilds.values()) {
+                    i++;
+                    const guild = await guildPartial.fetch();
+                    const members = await guild.members.fetch();
                     
+                    if (i % 5 === 0) { updateMessage(`Fetching guilds and members from Discord...\n\nFetching guild ${i}/${guilds.size} with ${members.size} members...`); }
+
                     members.forEach(member => {
                         sql.updateDBGuildMember(member);
                     });
-                });
+                }
+                
+                const DBGuildMembers = await sql.get("guildusers");
+
+                updateMessage("Fetching guilds and members from database and comparing with Discord...");
+                let iterations = 0;
+                for (const DBGuildMember of DBGuildMembers) {
+                    iterations++;
+                    try {
+                        const guild = await client.guilds.fetch(DBGuildMember.guildid);
+                        if (iterations % 50 === 0) { updateMessage(`Fetching guilds and members from database and comparing with Discord...\n\nComparing member ${iterations}/${DBGuildMembers.length}...`); }
+                        try {
+                            const member = await guild.members.fetch(DBGuildMember.userid);
+                            sql.updateDBGuildMember(member);
+                        } catch (error) {
+                            sql.update("guildusers", {
+                                inGuild: false,
+                            }, `\`guildid\` = "${DBGuildMember.guildid}" AND \`userid\` = "${DBGuildMember.userid}"`);
+                        }
+                    } catch (error) {
+                        message.channel.send(`🚫 Error while fetching guild ${DBGuildMember.guildid} from Discord.\n\n\`\`\`${error.message}\`\`\``);
+                    }
+                }
+
+                updateMessage("Fetching guilds and members from database and comparing with Discord...\n\nDone!");
+
                 message.message.edit({
                     content: `:white_check_mark: Done, updated members in all ${guilds.size} guilds.`,
                     components: [{
@@ -418,7 +493,7 @@ const adminCommands = {
             }
             case "userbadges": {
                 message.update({
-                    content: "<a:discord_loading:821347252085063680> Reloading Guild Levelsystem database...",
+                    content: "<a:discord_loading:821347252085063680> Reloading badges `badges` portion of `users` database...",
                     components: [{
                         type: "ACTION_ROW",
                         components: [{
@@ -650,9 +725,9 @@ client.on('interactionCreate', async interaction => {
     } catch (err) {
         console.error(err);
         try {
-            await interaction.reply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
+            await interaction.reply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", embeds: [] , ephemeral: true });
         } catch(e) {    // You may call it "shit code", I call it "*functional code*""
-            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", ephemeral: true });
+            if (e.name == "Error [INTERACTION_ALREADY_REPLIED]") await interaction.editReply({ "content": "something went wrong. either my code is bad or you fucked something up, and my code is never bad.", embeds: [], ephemeral: true });
             else if (e.name == "Unknown interaction") console.log("Timed out");
             else {
                 console.log("Aight, wtf just happened");
@@ -732,11 +807,11 @@ client.on("guildMemberUpdate", async (_oldMember, newMember) => {
 });
 
 client.on("guildMemberRemove", async (member) => {
-    const DBGuildMembers = await sql.get("guildusers", `guildid = ${member.guild.id} AND userid = ${member.id}`);
+    const DBGuildMembers = await sql.get("guildusers", `\`guildid\` = "${member.guild.id}" AND \`userid\` = "${member.id}"`);
     if (DBGuildMembers.length) {
         await sql.update("guildusers", {
             inGuild: false
-        }, `guildid = ${member.guild.id} AND userid = ${member.id}`);
+        }, `\`guildid\` = "${member.guild.id}" AND \`userid\` = "${member.id}"`);
     }
 });
 

@@ -9,10 +9,10 @@ module.exports = {
     ApplicationCommandData: {
         name: "neko",
         description: "Sends a catgirl.",
-        type: "CHAT_INPUT",
+        type: 1,
         options: [
             {
-                type: "STRING",
+                type: 3,
                 name: "sfw",
                 description: "Safe For Work types",
                 choices: [
@@ -95,7 +95,7 @@ module.exports = {
                 ],
             },
             {
-                type: "STRING",
+                type: 3,
                 name: "nsfw",
                 description: "Not Safe For Work types",
                 choices: [
@@ -174,7 +174,7 @@ module.exports = {
                     }
                 ],
             }, {
-                type: "STRING",
+                type: 3,
                 name: "nsfw-gif",
                 description: "Not Safe For Work gif types",
                 choices: [
