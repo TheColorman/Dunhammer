@@ -18,6 +18,7 @@
     "discord.js": "^13.1.0",
     "express": "^4.17.1",
     "express-rate-limit": "^5.5.1",
+    "ffmpeg-static": "^4.4.0",
     "github-api": "^3.4.0",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.1",
