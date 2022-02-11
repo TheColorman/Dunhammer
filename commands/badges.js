@@ -9,9 +9,9 @@ module.exports = {
     ApplicationCommandData: {
         name: "badges",
         description: "Displays information about badges",
-        type: "CHAT_INPUT",
+        type: 1,
         options: [{
-            type: "STRING",
+            type: 3,
             name: "options",
             description: "Badge command options",
             required: false,
@@ -26,7 +26,7 @@ module.exports = {
                 value: "progress"
             }]
         }, {
-            type: "USER",
+            type: 6,
             name: "user",
             description: "User to check badges for.",
             required: false

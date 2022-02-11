@@ -10,31 +10,31 @@ module.exports = {
         description: "Change any bot settings.",
         options: [
             {
-                type: "CHANNEL",
+                type: 7,
                 name: "levelup_channel",
                 description: "The channel levelups are shown in"
             }, {
-                type: "CHANNEL",
+                type: 7,
                 name: "ignore_channel",
                 description: "Prevents xp gain in the specified channel"
             }, {
-                type: "BOOLEAN",
+                type: 5,
                 name: "levelsystem_disabled",
                 description: "Disables the levelling system"
             }, {
-                type: "BOOLEAN",
+                type: 5,
                 name: "public_leaderboard",
                 description: "Makes the leaderboard public the Dunhammer website"
             }, {
-                type: "STRING",
+                type: 3,
                 name: "levelup_message",
                 description: "Changes message displayed when leveling up. Can use {username}, {nickname}, {level} and {total_xp}"
             }, {
-                type: "STRING",
+                type: 3,
                 name: "newrole_message",
                 description: "Changes message displayed when getting new role. Can use {username}, {nickname}, {role} and {level}",
             }, {
-                type: "BOOLEAN",
+                type: 5,
                 name: "levelup_mention",
                 description: "Changes whether a user is mentioned when they level up"
             }

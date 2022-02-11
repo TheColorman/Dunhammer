@@ -10,7 +10,7 @@ module.exports = {
         description: "Update level roles.",
         options: [
             {
-                type: "STRING",
+                type: 3,
                 name: "method",
                 description: "Choose to add, remove, view or reload current level roles.",
                 required: true,
@@ -33,11 +33,11 @@ module.exports = {
                     }
                 ]
             }, {
-                type: "ROLE",
+                type: 8,
                 name: "role",
                 description: "Choose a role to perform the method on."
             }, {
-                type: "INTEGER",
+                type: 4,
                 name: "level",
                 description: "Choose the level to perform the method on."
             }
@@ -168,7 +168,8 @@ module.exports = {
                     guildRoles = Object.values(guildLevelRoles),
                     members = await interaction.guild.members.fetch();
                 // Loops through each guild member and...
-                members.each(async member => {
+                for (let i = 0; i < members.size; i++) {
+                    const member = members.at(i);
                     const DBGuildMember = await sql.getDBGuildMember(member);
                     await member.roles.remove(guildRoles, "Refreshing level roles..."); // Removes all their level roles
                     const maxRoleLevel = Math.max.apply(Math, guildLevels.filter(level => level <= DBGuildMember.level));
@@ -177,9 +178,10 @@ module.exports = {
                         const allRoles = guildLevels.filter(roleLevel => roleLevel < maxRoleLevel).map(level => guildLevelRoles[level]);
                         if (allRoles.length) await member.roles.add(allRoles, "Refreshing level roles...");
                     }
-                });
-                // ok yeah, this runs before all the promises in the loop are done but you know what?
-                // fuck promises i dont care anymore its only fake news if you know the truth.
+                }
+                //// ok yeah, this runs before all the promises in the loop are done but you know what?
+                //// fuck promises i dont care anymore its only fake news if you know the truth.
+                // Disregard above comments, I fixed it by using a for loop instead of a forEach.
                 reply.edit({
                     embeds: [{
                         color: 0x7BA043,

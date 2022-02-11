@@ -37,17 +37,24 @@
         "Powering self-driving in all Teslas!",
         "🤖",
         "Deleting Dunhammer from the SCP Foundation database...",
-        "I won't steal you personal data, I'm open source!"
+        "I won't steal you personal data, I'm open source!",
+        "Dunhammer NFTs now available!"
     ],
     "mysql_login": {
         "host": "localhost",
-        "user": "Colorman",
+        "user": "colorman",
         "database": "colorman"
     },
     "admins": [
+            "Colorman",
         "298842558610800650",
+            "Nicklasbns",
         "276675912693710849",
+            "head9x",
         "411240035841474590",
-        "200309790562451467"
+            "Vivian",
+        "200309790562451467",
+            "Aneek",
+        "309739455143608320"
     ]
 }
