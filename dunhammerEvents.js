@@ -4,7 +4,7 @@ const DunhammerEvents = new EventEmitter();
     // eslint-disable-next-line no-unused-vars
 const MySQL = require("./sql/sql");
     // eslint-disable-next-line no-unused-vars
-const { GuildMember, User, Channel, TextChannel } = require("discord.js");
+const { GuildMember, User, Channel, TextChannel, Message } = require("discord.js");
 
 //#region Helpers
 const getRank = async (sql, userId) => await sql.get(`users`, null, `xp DESC`).then(users => users.indexOf(users.find(user => user.id === userId)) + 1);
@@ -284,5 +284,33 @@ DunhammerEvents.on(
         if (addedBadges.length > 0) { await notifyForBadge(channel, addedBadges); }
     }
 );
+// * Temporary event handlers
+// DunhammerEvents.on(
+//     "command",
+//     /**
+//      * @param {MySQL} sql MySQL instance
+//      * @param {GuildMember} member Discord GuildMember
+//      * @param {String} commandName Command used
+//      * @param {TextChannel} channel Discord channel
+//      */
+//     async (sql, member, commandName, channel) => {
+//         const dbMemberList = await sql.get('newyears', `\`id\` = "${member.id}"`);
+//         if (dbMemberList.length === 0) {
+//             channel.send({
+//                 content: `Happy new years ${member}! Here's 500 Dunhammer Coins free of charge! :tada:`,
+//             });
+//             sql.insert('newyears', {
+//                 id: member.id,
+//             });
+//             const dbUser = await sql.getDBUser(member.user);
+//             dbUser.coins += 500;
+//             sql.update('users', {
+//                 coins: dbUser.coins,
+//             }, `\`id\` = "${member.id}"`);
+//         }    
+//     }
+// );
+        
+
 
 module.exports = DunhammerEvents;
