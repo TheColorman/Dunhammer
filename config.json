@@ -42,7 +42,7 @@
     ],
     "mysql_login": {
         "host": "localhost",
-        "user": "Colorman",
+        "user": "colorman",
         "database": "colorman"
     },
     "admins": [
