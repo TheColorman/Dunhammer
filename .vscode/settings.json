@@ -5,12 +5,12 @@
                 "authProtocol": "default"
             },
             "previewLimit": 50,
-            "server": "phpmyadmin.head9x.dk",
+            "server": "localhost",
             "port": 3306,
             "driver": "MySQL",
             "name": "Head9x Dunhammer Database",
             "database": "colorman",
-            "username": "Colorman",
+            "username": "colorman",
             "password": "dmptgsfoyb1ihjzncxwe"
         }
     ],
