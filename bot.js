@@ -9,7 +9,7 @@ const { Client, Intents, Collection, Message } = require('discord.js'),
     DunhammerEvents = require('./dunhammerEvents'),
     levelsystem = require('./levelsystem'),
 
-    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS] });
+    client = new Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MEMBERS, Intents.FLAGS.GUILD_VOICE_STATES ] });
 
 // Event emitter
 const Events = DunhammerEvents;
