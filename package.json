@@ -23,7 +23,8 @@
     "libsodium-wrappers": "^0.7.9",
     "mysql": "^2.18.1",
     "node-fetch": "^2.6.1",
-    "stripe": "^8.184.0"
+    "stripe": "^8.184.0",
+    "ytdl-core": "^4.10.1"
   },
   "devDependencies": {
     "eslint": "^7.32.0"
