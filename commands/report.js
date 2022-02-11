@@ -10,9 +10,9 @@ module.exports = {
     ApplicationCommandData: {
         name: "report",
         description: "Submit a bug report",
-        type: "CHAT_INPUT",
+        type: 1,
         options: [{
-            type: "STRING",
+            type: 3,
             name: "message",
             description: "The message to report",
             required: true,

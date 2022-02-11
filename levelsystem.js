@@ -77,11 +77,15 @@ module.exports = {
             lastMessageMember: message.member.id
         }, `id = ${message.channel.id}`);
     
-        const newMemberxp = DBGuildMember.xp + gainedxp,
-            newUserxp = DBUser.xp + gainedxp,
-        
+        const newMemberxp = DBGuildMember.xp + gainedxp;
+        const newUserxp = DBUser.xp + gainedxp;
+        // XP gain event
+        // I dont think this works
+        // events.emit("xpGainGlobal", sql, message, gainedxp, newUserxp);
+
+
             // Calculate new level for xp
-            calculateLevel = (xp) => {
+        const calculateLevel = (xp) => {
                 let lower = 0,
                     upper = 10000000000;    // max xp. equivalent to sending 500 million messages, which would take 951 years at 1 message/minute.
                 while (lower + 1 < upper) {

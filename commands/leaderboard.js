@@ -10,15 +10,15 @@ module.exports = {
         description: "View xp leaderboard.",
         options: [
             {
-                type: "USER",
+                type: 6,
                 name: "user",
                 description: "User to search for"
             }, {
-                type: "ROLE",
+                type: 8,
                 name: "role",
                 description: "Role to filter by"
             }, {
-                type: "STRING",
+                type: 3,
                 name: "filter",
                 description: "Filter type",
                 choices: [
@@ -31,7 +31,7 @@ module.exports = {
                     }
                 ]
             }, {
-                type: "STRING",
+                type: 3,
                 name: "type",
                 description: "Type of leaderboard to show",
                 choices: [
@@ -212,7 +212,7 @@ async function replyServer(interaction, sql, reply, page) {
         role = interaction.options ? await interaction.options.getRole('role') : undefined,
         filter = interaction.options ? interaction.options.getString('filter') : undefined,
 
-        GuildMemberDB = await sql.get("guildusers", `guildid = ${interaction.guild.id}`, `xp DESC`),
+        GuildMemberDB = await sql.get("guildusers", `guildid = ${interaction.guild.id} AND inGuild = ${true}`, `xp DESC`),
         // Filter by role, check if filter is blacklist and continue accordingly
         GuildMemberDBFiltered = role ?
             GuildMemberDB.filter(DBGuildMember => filter && filter == "blacklist" ?

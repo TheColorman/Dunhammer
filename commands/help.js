@@ -9,7 +9,7 @@ module.exports = {
         name: "help",
         description: "Displays help message.",
         options: [{
-            type: "STRING",
+            type: 3,
             name: "command",
             description: "Command to get help for",
             choices: [{

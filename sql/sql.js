@@ -44,6 +44,8 @@ class MySQL extends EventEmitter {
                 this.connect(config);
             } else {
                 this.emit("connectionError", err);
+                console.warn(`Error occured in MySQL, attempting reconnect: ${err}`);
+                this.connect(config);
                 throw err;
             }
         });
