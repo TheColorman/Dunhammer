@@ -43,7 +43,7 @@
     "mysql_login": {
         "host": "localhost",
         "user": "colorman",
-        "database": "colorman"
+        "database": "dunhammer-old"
     },
     "admins": [
             "Colorman",
