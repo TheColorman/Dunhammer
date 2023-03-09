@@ -24,7 +24,9 @@ for (const file of commandFiles) {
     client.commands.set(command.name, command);
 }
 
-// this is stupid. im adding a property so i can keep track of all running collectors, because 2 collectors in the same channel is a bad idea
+// List of collectors. Can contain both User IDs and Channel IDs, based on what is required.
+// For example: A user can only create 1 badge collector at a time, and only that one user can use it.
+// However, anyone can use a leaderboard collector. Hence why the first one is a user ID, and the second is a channel ID.
 client.collectors = [];
 
 // Songqueue
